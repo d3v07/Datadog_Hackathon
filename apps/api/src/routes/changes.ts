@@ -13,7 +13,7 @@ import {
 import type { ZodType } from "zod";
 import type { ChangeReportRepository } from "../db/changeReports.js";
 import { errorResponse } from "../errors.js";
-import type { EventBroker } from "../stream/events.js";
+import type { EventBroker } from "../stream/broker.js";
 
 export interface ChangesRouteDeps {
   reports: ChangeReportRepository;
@@ -121,7 +121,7 @@ async function runMutation<TPayload>(c: Context, deps: ChangesRouteDeps, options
 
   const updated = options.apply(current, parsed.data, at, auth.userId);
   await deps.reports.insertVersion(updated);
-  deps.events.publishChangeStateChanged(auth.orgId, {
+  deps.events.publish(auth.orgId, "change.stateChanged", {
     changeReportId: updated.id,
     state: updated.state,
     by: auth.userId,

@@ -19,8 +19,7 @@ export interface ErrorEnvelope {
 }
 
 export function getRequestId(c: Context): string {
-  const existing = c.req.header("x-request-id");
-  return existing?.trim() || `req_${randomUUID()}`;
+  return c.req.header("x-request-id")?.trim() || `req_${randomUUID()}`;
 }
 
 export function errorResponse(
@@ -41,4 +40,3 @@ export function errorResponse(
 
   return c.json(body, status);
 }
-

@@ -4,7 +4,7 @@ import type { ChangeReport } from "@redline/shared";
 import { InMemoryChangeReportRepository } from "../../apps/api/src/db/changeReports";
 import { createApp } from "../../apps/api/src/app";
 import { createSeedChangeReport, createSeedToken } from "../../apps/api/src/seed/factories";
-import { createEventBroker } from "../../apps/api/src/stream/events";
+import { createEventBroker } from "../../apps/api/src/stream/broker";
 
 const ORG_ID = "org_acme";
 const USER_ID = "usr_priya";
