@@ -21,12 +21,14 @@ pnpm typecheck
 pnpm dev:api
 ```
 
-The integrated API slice implements the Redline change lifecycle routes:
+The integrated API slice implements:
 
 - `POST /v1/changes/:id/acknowledge`
 - `POST /v1/changes/:id/snooze`
 - `POST /v1/changes/:id/resolve`
+- `GET /v1/stream?token=demo_token_acme_corp_2026`
+- Slack routing plus typed Action persistence for Slack, Jira, Email, and Calendar routes
 
-Use `Authorization: Bearer demo_token_acme_corp_2026` for local hackathon requests.
+Use `Authorization: Bearer demo_token_acme_corp_2026` for local hackathon requests. EventSource clients can use the query token because they cannot send custom headers.
 
-The SSE slice implements `GET /v1/stream?token=demo_token_acme_corp_2026` with org-scoped delivery, 15-second `:heartbeat` keepalives, stable event ids, and `Last-Event-ID` replay for retained in-memory events. Malformed replay cursors are treated as missing and do not replay history.
+The SSE stream is org-scoped, emits 15-second `:heartbeat` keepalives, uses stable event ids, and supports `Last-Event-ID` replay for retained in-memory events. Malformed replay cursors are treated as missing and do not replay history.

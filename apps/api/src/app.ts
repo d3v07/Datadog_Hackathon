@@ -24,8 +24,11 @@ export function createApp(deps: AppDeps = {}): Hono {
 
   app.get("/health", (c) => c.json({ ok: true }));
   app.use("/v1/*", createAuthMiddleware(deps.seedData?.tokens));
-  app.route("/v1/changes", createChangesRouter({ reports, events, now: deps.now }));
-  app.route("/v1/stream", createStreamRouter({ events, heartbeatIntervalMs: deps.heartbeatIntervalMs }));
+  app.route("/v1/changes", createChangesRouter({ reports, events, ...(deps.now ? { now: deps.now } : {}) }));
+  app.route(
+    "/v1/stream",
+    createStreamRouter({ events, ...(deps.heartbeatIntervalMs === undefined ? {} : { heartbeatIntervalMs: deps.heartbeatIntervalMs }) }),
+  );
   app.notFound((c) => errorResponse(c, 404, "not-found", "Route not found"));
   app.onError((err, c) => {
     logger.error(

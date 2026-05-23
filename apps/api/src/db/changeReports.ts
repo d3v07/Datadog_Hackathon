@@ -40,6 +40,10 @@ export class InMemoryChangeReportRepository implements ChangeReportRepository {
       return updatedDiff || b.version - a.version;
     })[0];
 
+    if (!latest) {
+      return null;
+    }
+
     return copyReport(latest);
   }
 

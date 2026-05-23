@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -8,7 +9,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@redline/shared": new URL("./packages/shared/src/index.ts", import.meta.url).pathname,
+      "@redline/shared": fileURLToPath(new URL("./packages/shared/src/index.ts", import.meta.url)),
     },
   },
 });

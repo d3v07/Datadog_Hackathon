@@ -301,7 +301,11 @@ describe("/v1/stream", () => {
     ]);
     const ids = published.map((event) => event.id);
     expect(ids.every((id) => /^evt_\d{6}$/.test(id))).toBe(true);
-    const firstSequence = Number(ids[0].slice("evt_".length));
+    const firstId = ids[0];
+    if (!firstId) {
+      throw new Error("Expected at least one published event");
+    }
+    const firstSequence = Number(firstId.slice("evt_".length));
     expect(ids).toEqual(published.map((_, index) => `evt_${String(firstSequence + index).padStart(6, "0")}`));
   });
 });
@@ -332,7 +336,7 @@ function createHarness(options: { heartbeatIntervalMs?: number } = {}) {
   });
   const app = createApp({
     events,
-    heartbeatIntervalMs: options.heartbeatIntervalMs,
+    ...(options.heartbeatIntervalMs === undefined ? {} : { heartbeatIntervalMs: options.heartbeatIntervalMs }),
     seedData: {
       tokens: [
         { token: TOKEN, orgId: ORG_ID, userId: "usr_priya" as UserId },

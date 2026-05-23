@@ -14,34 +14,62 @@ export type ChangeCategory = "data" | "pricing" | "subprocessor" | "terms" | "sl
 export type Materiality = "material" | "minor" | "cosmetic";
 export type RunStage = "fetch" | "diff" | "reason" | "classify" | "route" | "publish";
 export type RunStageStatus = "started" | "completed" | "failed" | "skipped";
-export type ActionKind = "slack" | "jira" | "email" | "calendar" | "payment";
-export type ActionStatus = "queued" | "delivered" | "failed";
+export type ActionKind = "slack" | "jira" | "email" | "calendar" | "draft" | "payment";
+export type RoutedActionKind = "slack" | "jira" | "email" | "calendar";
+export type ActionStatus = "queued" | "delivered" | "failed" | "acknowledged";
+export type ActionDeliveryStatus = "queued" | "delivered" | "failed";
+
+export interface User {
+  id: UserId;
+  orgId: OrgId;
+  name: string;
+  email: string;
+  role: string;
+  slackUserId?: string;
+}
+
+export interface Vendor {
+  id: VendorId;
+  orgId: OrgId;
+  name: string;
+  ownerId: UserId;
+  renewalDate?: Iso8601;
+}
 
 export interface Citation {
-  url: string;
-  quote: string;
+  url?: string;
+  quote?: string;
   section?: string;
-  fetchedAt: Iso8601;
+  fetchedAt?: Iso8601;
   country?: string;
+  label?: string;
+  sourceUrl?: string;
+  snippet?: string;
 }
 
 export interface Change {
-  id: string;
-  category: ChangeCategory;
+  id?: string;
+  category?: ChangeCategory;
   summary: string;
-  before: string;
-  after: string;
-  materiality: Materiality;
+  before?: string;
+  after?: string;
+  materiality?: Materiality;
   dollarImpact?: {
     annualUsd: number;
-    pctChange: number;
+    pctChange?: number;
   };
-  citations: Citation[];
+  citations?: Citation[];
+  action?: "renegotiate" | "escalate" | "accept" | "reject";
 }
 
 export interface Recommendation {
   action: "renegotiate" | "escalate" | "accept" | "reject";
   copy: string;
+}
+
+export interface PolicyFired {
+  id: string;
+  name: string;
 }
 
 export interface ChangeReport {
@@ -66,6 +94,10 @@ export interface ChangeReport {
   stateChangedBy?: UserId;
   updatedAt: Iso8601;
   version: number;
+  headline?: string;
+  policyFired?: PolicyFired;
+  evidenceUrl?: string;
+  citations?: Citation[];
 }
 
 export interface ChangeStateChangedEvent {
@@ -92,6 +124,78 @@ export interface ResolveChangeResponse {
   resolution: Resolution;
   resolvedAt: Iso8601;
 }
+
+export interface SlackTextObject {
+  type: "plain_text" | "mrkdwn";
+  text: string;
+  emoji?: boolean;
+}
+
+export interface SlackBlock {
+  type: string;
+  text?: SlackTextObject;
+  fields?: SlackTextObject[];
+  elements?: unknown[];
+  [key: string]: unknown;
+}
+
+export interface SlackPayload {
+  text: string;
+  blocks: SlackBlock[];
+  recipient?: string;
+  changeReportUrl: string;
+  evidenceUrl?: string;
+}
+
+export interface JiraPayload {
+  projectKey: string;
+  issueType: string;
+  summary: string;
+  description: string;
+  priority: string;
+  labels: string[];
+  assigneeUserId?: string;
+}
+
+export interface EmailPayload {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}
+
+export interface CalendarPayload {
+  title: string;
+  startsAt: Iso8601;
+  endsAt: Iso8601;
+  attendees: string[];
+  description: string;
+  location?: string;
+}
+
+export interface BaseAction<TKind extends ActionKind, TPayload> {
+  id: ActionId;
+  orgId: OrgId;
+  changeReportId?: ChangeReportId;
+  kind: TKind;
+  target: string;
+  payload: TPayload;
+  firedAt: Iso8601;
+  status: ActionStatus;
+  externalId?: string;
+  error?: string;
+}
+
+export type SlackAction = BaseAction<"slack", SlackPayload>;
+export type JiraAction = BaseAction<"jira", JiraPayload>;
+export type EmailAction = BaseAction<"email", EmailPayload>;
+export type CalendarAction = BaseAction<"calendar", CalendarPayload>;
+export type Action = SlackAction | JiraAction | EmailAction | CalendarAction;
+export type ActionDraft = Action extends infer T
+  ? T extends Action
+    ? Omit<T, "id" | "firedAt"> & Partial<Pick<T, "id" | "firedAt">>
+    : never
+  : never;
 
 export type StreamEventName =
   | "scheduler.tick"
@@ -125,7 +229,7 @@ export interface ActionDeliveredEvent {
   actionId: string;
   changeReportId: string;
   kind: ActionKind;
-  status: ActionStatus;
+  status: ActionDeliveryStatus;
   externalId?: string;
 }
 

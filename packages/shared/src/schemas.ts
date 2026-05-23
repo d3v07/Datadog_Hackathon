@@ -1,12 +1,30 @@
 import { z } from "zod";
-import type { StreamEventDataMap, StreamEventName } from "./types.js";
+import type {
+  Action,
+  ActionDeliveryStatus,
+  ActionId,
+  CalendarPayload,
+  ChangeReportId,
+  EmailPayload,
+  JiraPayload,
+  OrgId,
+  SlackPayload,
+  StreamEventDataMap,
+  StreamEventName,
+} from "./types.js";
 
 export const iso8601Schema = z.iso.datetime({ offset: true });
 
+export const orgIdSchema = z.string().min(1) as unknown as z.ZodType<OrgId>;
+export const actionIdSchema = z.string().min(1) as unknown as z.ZodType<ActionId>;
+export const changeReportIdSchema = z.string().min(1) as unknown as z.ZodType<ChangeReportId>;
 export const severitySchema = z.enum(["P1", "P2", "P3"]);
 export const changeStateSchema = z.enum(["new", "acknowledged", "in-progress", "resolved", "snoozed"]);
 export const resolutionSchema = z.enum(["accepted", "renegotiated", "rejected", "no-action"]);
 export const noteSchema = z.string().trim().min(1).max(500);
+export const actionDeliveryStatusSchema = z.enum(["queued", "delivered", "failed"]) as z.ZodType<ActionDeliveryStatus>;
+export const actionStatusSchema = z.enum(["queued", "delivered", "failed", "acknowledged"]);
+export const actionKindSchema = z.enum(["slack", "jira", "email", "calendar", "draft", "payment"]);
 
 export const acknowledgeChangeRequestSchema = z
   .object({
@@ -88,6 +106,115 @@ export const changeReportSchema = z
   })
   .strict();
 
+const slackTextObjectSchema = z
+  .object({
+    type: z.enum(["plain_text", "mrkdwn"]),
+    text: z.string().min(1),
+    emoji: z.boolean().optional(),
+  })
+  .strict();
+
+const slackBlockSchema = z
+  .object({
+    type: z.string().min(1),
+    text: slackTextObjectSchema.optional(),
+    fields: z.array(slackTextObjectSchema).optional(),
+    elements: z.array(z.unknown()).optional(),
+  })
+  .catchall(z.unknown());
+
+export const slackPayloadSchema = z
+  .object({
+    text: z.string().min(1),
+    blocks: z.array(slackBlockSchema).min(1),
+    recipient: z.string().min(1).optional(),
+    changeReportUrl: z.url(),
+    evidenceUrl: z.url().optional(),
+  })
+  .strict() as z.ZodType<SlackPayload>;
+
+export const jiraPayloadSchema = z
+  .object({
+    projectKey: z.string().min(1),
+    issueType: z.string().min(1),
+    summary: z.string().min(1),
+    description: z.string().min(1),
+    priority: z.string().min(1),
+    labels: z.array(z.string().min(1)),
+    assigneeUserId: z.string().min(1).optional(),
+  })
+  .strict() as z.ZodType<JiraPayload>;
+
+export const emailPayloadSchema = z
+  .object({
+    to: z.email(),
+    subject: z.string().min(1),
+    html: z.string().min(1),
+    text: z.string().min(1),
+  })
+  .strict() as z.ZodType<EmailPayload>;
+
+export const calendarPayloadSchema = z
+  .object({
+    title: z.string().min(1),
+    startsAt: iso8601Schema,
+    endsAt: iso8601Schema,
+    attendees: z.array(z.email()).min(1),
+    description: z.string().min(1),
+    location: z.string().min(1).optional(),
+  })
+  .strict() as z.ZodType<CalendarPayload>;
+
+const baseActionSchema = {
+  id: actionIdSchema,
+  orgId: orgIdSchema,
+  changeReportId: changeReportIdSchema.optional(),
+  target: z.string().min(1),
+  firedAt: iso8601Schema,
+  status: actionStatusSchema,
+  externalId: z.string().min(1).optional(),
+  error: z.string().min(1).optional(),
+};
+
+export const slackActionSchema = z
+  .object({
+    ...baseActionSchema,
+    kind: z.literal("slack"),
+    payload: slackPayloadSchema,
+  })
+  .strict();
+
+export const jiraActionSchema = z
+  .object({
+    ...baseActionSchema,
+    kind: z.literal("jira"),
+    payload: jiraPayloadSchema,
+  })
+  .strict();
+
+export const emailActionSchema = z
+  .object({
+    ...baseActionSchema,
+    kind: z.literal("email"),
+    payload: emailPayloadSchema,
+  })
+  .strict();
+
+export const calendarActionSchema = z
+  .object({
+    ...baseActionSchema,
+    kind: z.literal("calendar"),
+    payload: calendarPayloadSchema,
+  })
+  .strict();
+
+export const actionSchema = z.discriminatedUnion("kind", [
+  slackActionSchema,
+  jiraActionSchema,
+  emailActionSchema,
+  calendarActionSchema,
+]) as z.ZodType<Action>;
+
 export const streamEventSchemas = {
   "scheduler.tick": z
     .object({
@@ -116,8 +243,8 @@ export const streamEventSchemas = {
     .object({
       actionId: z.string().min(1),
       changeReportId: z.string().min(1),
-      kind: z.enum(["slack", "jira", "email", "calendar", "payment"]),
-      status: z.enum(["queued", "delivered", "failed"]),
+      kind: actionKindSchema,
+      status: actionDeliveryStatusSchema,
       externalId: z.string().min(1).optional(),
     })
     .strict(),
@@ -139,6 +266,10 @@ export const streamEventSchemas = {
 export type AcknowledgeChangeRequest = z.infer<typeof acknowledgeChangeRequestSchema>;
 export type SnoozeChangeRequest = z.infer<typeof snoozeChangeRequestSchema>;
 export type ResolveChangeRequest = z.infer<typeof resolveChangeRequestSchema>;
+
+export function parseAction(action: unknown): Action {
+  return actionSchema.parse(action);
+}
 
 export function parseStreamEventData<TName extends StreamEventName>(
   eventName: TName,

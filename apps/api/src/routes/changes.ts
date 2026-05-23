@@ -48,6 +48,13 @@ function nextVersion(report: ChangeReport, now: Date): ChangeReport {
   };
 }
 
+function stateMetadata(payload: { note?: string | undefined }, userId: UserId): Pick<ChangeReport, "stateChangedBy" | "stateNote"> {
+  return {
+    stateChangedBy: userId,
+    ...(payload.note === undefined ? {} : { stateNote: payload.note }),
+  };
+}
+
 function assertTransitionAllowed(report: ChangeReport, mutation: MutationKind): string | null {
   if (mutation === "acknowledge") {
     return report.state === "new" ? null : "Change is already acknowledged or in a later state";
@@ -152,8 +159,7 @@ export function createChangesRouter(deps: ChangesRouteDeps): Hono {
         ...nextVersion(report, at),
         state: "acknowledged",
         acknowledgedAt: at.toISOString(),
-        stateNote: payload.note,
-        stateChangedBy: userId,
+        ...stateMetadata(payload, userId),
       }),
     });
   });
@@ -167,8 +173,7 @@ export function createChangesRouter(deps: ChangesRouteDeps): Hono {
         ...nextVersion(report, at),
         state: "snoozed",
         snoozedUntil: payload.untilAt,
-        stateNote: payload.note,
-        stateChangedBy: userId,
+        ...stateMetadata(payload, userId),
       }),
     });
   });
@@ -182,8 +187,7 @@ export function createChangesRouter(deps: ChangesRouteDeps): Hono {
         state: "resolved",
         resolvedAt: at.toISOString(),
         resolution: payload.resolution,
-        stateNote: payload.note,
-        stateChangedBy: userId,
+        ...stateMetadata(payload, userId),
       }),
     });
   });
