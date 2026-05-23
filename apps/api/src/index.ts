@@ -9,7 +9,11 @@ import { logger } from "./logger.js";
 async function main(): Promise<void> {
   const e = env();
   loadSeeds();
-  await migrate();
+  try {
+    await migrate();
+  } catch (err) {
+    logger.warn({ err }, "ClickHouse migration skipped; DB-backed routes may return errors");
+  }
   if (e.STRIPE_SECRET_KEY) {
     try {
       const state = await ensureStripeProducts();
