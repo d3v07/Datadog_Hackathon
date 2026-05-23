@@ -3,6 +3,7 @@ import type {
   RunStageEvent,
   RunCompletedEvent,
   SchedulerTickEvent,
+  EntitlementsChangedEvent,
 } from "@redline/shared";
 import { DEMO_BEARER_TOKEN } from "./api.js";
 
@@ -112,4 +113,43 @@ export function useFirstScan(
   }, [runId]);
 
   return state;
+}
+
+// Issue #3 — subscribe to entitlement changes. The Stripe modal flips to its
+// success state when this fires with compliancePack:true.
+
+export interface UseEntitlementsOptions {
+  active: boolean;
+  eventSourceFactory?: (url: string) => EventSource;
+}
+
+export function useEntitlements(
+  options: UseEntitlementsOptions,
+): EntitlementsChangedEvent | undefined {
+  const [latest, setLatest] = useState<EntitlementsChangedEvent | undefined>();
+  const factoryRef = useRef(options.eventSourceFactory);
+  factoryRef.current = options.eventSourceFactory;
+
+  useEffect(() => {
+    if (!options.active) return;
+    const url = `/v1/stream?token=${encodeURIComponent(DEMO_BEARER_TOKEN)}`;
+    const factory =
+      factoryRef.current ?? ((u: string) => new EventSource(u));
+    const es = factory(url);
+    const handle = (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data) as EntitlementsChangedEvent;
+        setLatest(data);
+      } catch {
+        // ignore malformed
+      }
+    };
+    es.addEventListener("org.entitlements.changed", handle as EventListener);
+    return () => {
+      es.removeEventListener("org.entitlements.changed", handle as EventListener);
+      es.close();
+    };
+  }, [options.active]);
+
+  return latest;
 }

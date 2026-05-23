@@ -45,6 +45,9 @@ const EnvSchema = z.object({
   CLICKHOUSE_DATABASE: z.string().min(1).default("default"),
   ADMIN_TOKEN: z.string().min(1).default("demo_admin_2026"),
   SCAN_INTERVAL_SEC: z.coerce.number().int().positive().default(60),
+  STRIPE_SECRET_KEY: z.string().startsWith("sk_").optional(),
+  STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_").optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
