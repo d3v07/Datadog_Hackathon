@@ -2,6 +2,18 @@
 // All consume `state` (read-only) and `dispatch` (navigation/mutations) from app.jsx.
 
 function Sidebar({ active, dispatch, state }) {
+  const screenMap = { portfolio: "portfolio", changes: "change", evidence: "evidence" };
+  const [flashKey, setFlashKey] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!document.getElementById("unsyphn-nav-flash-style")) {
+      const s = document.createElement("style");
+      s.id = "unsyphn-nav-flash-style";
+      s.textContent = ".nav-item-flash { background: var(--surface-2, rgba(255,255,255,0.08)) !important; opacity: 0.6; transition: opacity 0.15s; }";
+      document.head.appendChild(s);
+    }
+  }, []);
+
   const items = [
     { key: "portfolio",   label: "Portfolio",   count: "27",     section: "Workspace" },
     { key: "changes",     label: "Changes",     count: state.notion === "P1" ? "3 P1" : "2 P1", alert: state.notion === "P1", section: "Workspace" },
@@ -21,6 +33,7 @@ function Sidebar({ active, dispatch, state }) {
       </div>
       {items.map((it) => {
         const sec = it.section !== lastSection ? (lastSection = it.section, it.section) : null;
+        const hasScreen = screenMap[it.key] !== undefined;
         return (
           <React.Fragment key={it.key}>
             {sec && <div className="nav-section-label">{sec}</div>}
@@ -28,9 +41,18 @@ function Sidebar({ active, dispatch, state }) {
               className={
                 "nav-item" +
                 (it.key === active ? " is-active" : "") +
-                (it.alert ? " alert" : "")
+                (it.alert ? " alert" : "") +
+                (flashKey === it.key ? " nav-item-flash" : "")
               }
-              onClick={() => it.key === "portfolio" && dispatch({ type: "goto", screen: "portfolio" })}
+              style={hasScreen ? undefined : { cursor: "not-allowed" }}
+              onClick={() => {
+                if (hasScreen) {
+                  dispatch({ type: "goto", screen: screenMap[it.key] });
+                } else {
+                  setFlashKey(it.key);
+                  setTimeout(() => setFlashKey(null), 600);
+                }
+              }}
             >
               <span>{it.label}</span>
               {it.count && <span className="count">{it.count}</span>}
