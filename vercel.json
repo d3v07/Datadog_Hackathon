@@ -1,7 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": null,
-  "outputDirectory": "public",
+  "buildCommand": "pnpm --filter @redline/shared build && pnpm --filter @redline/web build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "pnpm install --frozen-lockfile=false",
   "cleanUrls": true,
   "redirects": [
     { "source": "/app", "destination": "/app/", "permanent": false }
