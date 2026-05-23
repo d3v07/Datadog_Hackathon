@@ -50,7 +50,7 @@ The market is real and underserved. Every mid-market and enterprise org has betw
 
 ## 2. The solution
 
-Stop relying on humans to notice. Run an always-on agent against the public surfaces of every vendor, diff every version against the last snapshot, classify the change with an LLM, fire policies, and route the result into the channels people actually read. By the time renewal comes around, the legal team already has a redline, the security team already has an evidence brief, and procurement already has a renegotiation talking point.
+Stop relying on humans to notice. Run an always-on agent against the public surfaces of every vendor, diff every version against the last snapshot, classify the change with an LLM, fire policies, and route the result into the channels people actually read. By the time renewal comes around, the legal team already has a unsyphn, the security team already has an evidence brief, and procurement already has a renegotiation talking point.
 
 In one screenshot, here's the loop end-to-end:
 
@@ -112,7 +112,7 @@ Unsyphn targets a real, underserved problem with a real buyer: procurement, lega
 | Signal | Evidence |
 |---|---|
 | Test coverage | **84 tests across 16 files, all passing** (`pnpm test`) |
-| Type safety | Zod schemas shared between API and web through `@redline/shared`; **branded TS IDs** so cross-org leaks fail at compile time |
+| Type safety | Zod schemas shared between API and web through `@unsyphn/shared`; **branded TS IDs** so cross-org leaks fail at compile time |
 | Logging | Structured pino with request-scoped `{requestId, orgId, operation}`; **zero `console.*` in production paths** |
 | Storage | Append-only with version history (`ReplacingMergeTree` semantics) — same interface in ClickHouse and in-memory dev store |
 | Event bus | In-memory broker with `Last-Event-ID` replay, 500-event retention, per-event Zod validation at the boundary |
@@ -193,7 +193,7 @@ flowchart TB
     Mem --> Pipe
 ```
 
-One scheduler, one event bus, one typed contract package (`@redline/shared`) shared between API and web. The SSE stream is the spinal cord — every component that needs to know about state change subscribes to it instead of polling.
+One scheduler, one event bus, one typed contract package (`@unsyphn/shared`) shared between API and web. The SSE stream is the spinal cord — every component that needs to know about state change subscribes to it instead of polling.
 
 ---
 
@@ -341,13 +341,13 @@ The script is timed second-by-second to fit the 3-minute slot and prove the loop
 
 ### Landing → Sign in → Dashboard
 
-Three routes coexist in a tiny pathname router in [`apps/web/src/App.tsx`](apps/web/src/App.tsx). The session lives in `localStorage` under `redline:bearer`, and `hasSession()` from [`apps/web/src/lib/session.ts`](apps/web/src/lib/session.ts) is the gate. A custom `redline:session` window event fires on sign-in so the App re-renders without a reload.
+Three routes coexist in a tiny pathname router in [`apps/web/src/App.tsx`](apps/web/src/App.tsx). The session lives in `localStorage` under `unsyphn:bearer`, and `hasSession()` from [`apps/web/src/lib/session.ts`](apps/web/src/lib/session.ts) is the gate. A custom `unsyphn:session` window event fires on sign-in so the App re-renders without a reload.
 
 ```mermaid
 flowchart LR
     Anon[Anonymous visitor] --> Landing[/HaloLanding · /]
     Landing -->|Get access| SignIn[/SignIn · /sign-in/]
-    SignIn -->|Continue with demo| Session[localStorage<br/>redline:bearer]
+    SignIn -->|Continue with demo| Session[localStorage<br/>unsyphn:bearer]
     Session --> App[/UnsyphnApp · /app<br/>Dashboard + Onboard/]
     Anon -->|/evidence/:id| Brief[/SensoBrief — public/]
     App -.click brief.-> Brief
@@ -533,7 +533,7 @@ graph LR
     Tests --> Shared
 ```
 
-A contract change in `@redline/shared` rebuilds the universe with one `pnpm typecheck`.
+A contract change in `@unsyphn/shared` rebuilds the universe with one `pnpm typecheck`.
 
 ---
 
@@ -616,7 +616,7 @@ curl -N "http://localhost:8787/v1/stream?token=$TOKEN"
 ```sh
 pnpm test                              # vitest run — 84/84 across 16 files
 pnpm test:watch                        # watch mode
-pnpm --filter @redline/api typecheck   # one workspace
+pnpm --filter @unsyphn/api typecheck   # one workspace
 ```
 
 The test layout splits cleanly. `tests/api/` covers request and response shape, store invariants, broker behavior, lifecycle transitions, SSE ordering and replay, Slack rendering, Stripe webhook signature verification, vendor discovery, agent routing, billing flows, and the integration test that proves lifecycle events and action events share one SSE history. `tests/web/` covers HaloLanding, SignIn, Onboard, StripeModal, and SensoBrief — scoped to jsdom via `environmentMatchGlobs` in [`vitest.config.ts`](vitest.config.ts). `tests/setup.ts` seeds env vars so `env()` passes in test, registers `@testing-library/jest-dom`, and runs `cleanup()` after each test. `tests/helpers/` holds in-memory stores so route tests never need to touch ClickHouse.
