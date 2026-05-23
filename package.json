@@ -10,6 +10,7 @@
   "scripts": {
     "dev:api": "pnpm --filter @redline/api dev",
     "dev:web": "pnpm --filter @redline/web dev",
+    "dev:static": "npx --yes serve public -l 3000 --no-clipboard",
     "dev": "pnpm -r --parallel --stream dev",
     "build": "pnpm --filter @redline/shared build && pnpm --filter @redline/api build && pnpm --filter @redline/web build",
     "typecheck": "pnpm --filter @redline/shared typecheck && pnpm --filter @redline/api typecheck && pnpm --filter @redline/web typecheck",
