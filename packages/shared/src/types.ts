@@ -1,31 +1,69 @@
 export type Iso8601 = string;
-export type OrgId = string & { readonly __brand: "OrgId" };
-export type UserId = string & { readonly __brand: "UserId" };
-export type VendorId = string & { readonly __brand: "VendorId" };
-export type PolicyId = string & { readonly __brand: "PolicyId" };
-export type ChangeReportId = string & { readonly __brand: "ChangeReportId" };
-export type RunId = string & { readonly __brand: "RunId" };
-export type ActionId = string & { readonly __brand: "ActionId" };
+export type IsoDate = string;
+export type Sha256 = string;
+
+export type OrgId = string;
+export type UserId = string;
+export type VendorId = string;
+export type PolicyId = string;
+export type ChangeReportId = string;
+export type RunId = string;
+export type ActionId = string;
 
 export type Severity = "P1" | "P2" | "P3";
+export type VendorTier = 1 | 2 | 3;
+export type Posture = "ok" | "watch" | "risk";
+export type DataClass = "pii" | "phi" | "financial" | "content";
+export type UserRole = "procurement" | "legal" | "security" | "owner";
 export type ChangeState = "new" | "acknowledged" | "in-progress" | "resolved" | "snoozed";
 export type Resolution = "accepted" | "renegotiated" | "rejected" | "no-action";
 export type ChangeCategory = "data" | "pricing" | "subprocessor" | "terms" | "sla" | "security";
 export type Materiality = "material" | "minor" | "cosmetic";
+export type RecommendationAction = "renegotiate" | "escalate" | "accept" | "reject";
 export type RunStage = "fetch" | "diff" | "reason" | "classify" | "route" | "publish";
 export type RunStageStatus = "started" | "completed" | "failed" | "skipped";
+export type RunStatus = "running" | "unchanged" | "changed" | "failed";
+export type RunTrigger = "scheduled" | "admin" | "first-scan";
 export type ActionKind = "slack" | "jira" | "email" | "calendar" | "draft" | "payment";
 export type RoutedActionKind = "slack" | "jira" | "email" | "calendar";
 export type ActionStatus = "queued" | "delivered" | "failed" | "acknowledged";
 export type ActionDeliveryStatus = "queued" | "delivered" | "failed";
+
+export interface Org {
+  id: OrgId;
+  name: string;
+  seatCount?: number;
+  createdAt?: Iso8601;
+  entitlements: {
+    compliancePack: boolean;
+    auditorPortal?: boolean;
+  };
+}
 
 export interface User {
   id: UserId;
   orgId: OrgId;
   name: string;
   email: string;
-  role: string;
+  role: UserRole | string;
+  avatarLetter?: string;
   slackUserId?: string;
+}
+
+export interface VendorUrls {
+  homepage: string;
+  terms: string;
+  pricing: string;
+  dpa: string;
+  subProcessors: string;
+  security: string;
+  sla: string;
+}
+
+export interface VendorContract {
+  renewsAt: IsoDate;
+  annualSpendUsd: number;
+  seatCount: number;
 }
 
 export interface Vendor {
@@ -33,7 +71,15 @@ export interface Vendor {
   orgId: OrgId;
   name: string;
   ownerId: UserId;
+  category?: string;
+  tier?: VendorTier;
+  posture?: Posture;
+  dataClasses?: DataClass[];
+  urls?: VendorUrls;
+  contract?: VendorContract;
   renewalDate?: Iso8601;
+  lastScanAt?: Iso8601;
+  latestChangeId?: ChangeReportId;
 }
 
 export interface Citation {
@@ -59,16 +105,16 @@ export interface Change {
     pctChange?: number;
   };
   citations?: Citation[];
-  action?: "renegotiate" | "escalate" | "accept" | "reject";
+  action?: RecommendationAction;
 }
 
 export interface Recommendation {
-  action: "renegotiate" | "escalate" | "accept" | "reject";
+  action: RecommendationAction;
   copy: string;
 }
 
 export interface PolicyFired {
-  id: string;
+  id: PolicyId | string;
   name: string;
 }
 
@@ -84,8 +130,8 @@ export interface ChangeReport {
   snoozedUntil?: Iso8601;
   resolvedAt?: Iso8601;
   resolution?: Resolution;
-  policyFiredId: PolicyId;
-  policyAlsoMatched: PolicyId[];
+  policyFiredId: PolicyId | string;
+  policyAlsoMatched: Array<PolicyId | string>;
   changes: Change[];
   recommendation: Recommendation;
   sensoUrl?: string;
@@ -100,10 +146,45 @@ export interface ChangeReport {
   citations?: Citation[];
 }
 
+export interface EvidenceBriefResponse {
+  changeReport: ChangeReport;
+  vendor: {
+    id: VendorId | string;
+    name: string;
+    category: string;
+  };
+  policyFired: {
+    id: PolicyId | string;
+    name: string;
+  };
+  policyAlsoMatched: Array<{ id: PolicyId | string; name: string }>;
+  actionSummary: Array<{
+    kind: ActionKind;
+    target: string;
+    status: ActionStatus;
+    firedAt: Iso8601;
+  }>;
+}
+
+export interface AgentRun {
+  id: RunId;
+  orgId: OrgId;
+  vendorId: VendorId;
+  startedAt: Iso8601;
+  endedAt?: Iso8601;
+  durationMs?: number;
+  status: RunStatus;
+  changeReportId?: ChangeReportId;
+  trigger: RunTrigger;
+  errorStage?: RunStage;
+  errorCode?: string;
+  errorMessage?: string;
+}
+
 export interface ChangeStateChangedEvent {
-  changeReportId: string;
+  changeReportId: ChangeReportId | string;
   state: ChangeState;
-  by: string;
+  by: UserId | string;
 }
 
 export interface AcknowledgeChangeResponse {
@@ -154,7 +235,7 @@ export interface JiraPayload {
   description: string;
   priority: string;
   labels: string[];
-  assigneeUserId?: string;
+  assigneeUserId?: UserId | string;
 }
 
 export interface EmailPayload {
@@ -171,6 +252,20 @@ export interface CalendarPayload {
   attendees: string[];
   description: string;
   location?: string;
+}
+
+export interface DraftPayload {
+  title: string;
+  body: string;
+}
+
+export interface PaymentPayload {
+  paymentIntentId: string;
+  amount: number;
+  currency: string;
+  sku?: string | null;
+  simulated?: boolean;
+  lastPaymentError?: string | null;
 }
 
 export interface BaseAction<TKind extends ActionKind, TPayload> {
@@ -190,7 +285,11 @@ export type SlackAction = BaseAction<"slack", SlackPayload>;
 export type JiraAction = BaseAction<"jira", JiraPayload>;
 export type EmailAction = BaseAction<"email", EmailPayload>;
 export type CalendarAction = BaseAction<"calendar", CalendarPayload>;
-export type Action = SlackAction | JiraAction | EmailAction | CalendarAction;
+export type DraftAction = BaseAction<"draft", DraftPayload>;
+export type PaymentAction = Omit<BaseAction<"payment", PaymentPayload>, "changeReportId"> & {
+  changeReportId?: ChangeReportId;
+};
+export type Action = SlackAction | JiraAction | EmailAction | CalendarAction | DraftAction | PaymentAction;
 export type ActionDraft = Action extends infer T
   ? T extends Action
     ? Omit<T, "id" | "firedAt"> & Partial<Pick<T, "id" | "firedAt">>
@@ -200,34 +299,45 @@ export type ActionDraft = Action extends infer T
 export type StreamEventName =
   | "scheduler.tick"
   | "run.stage"
+  | "run.completed"
   | "change.detected"
   | "action.delivered"
   | "change.stateChanged"
   | "org.entitlements.changed";
 
 export interface SchedulerTickEvent {
-  vendorId: string;
-  runId: string;
+  vendorId: VendorId | string;
+  runId: RunId | string;
   startedAt: Iso8601;
 }
 
 export interface RunStageEvent {
-  runId: string;
+  runId: RunId | string;
+  vendorId?: VendorId | string;
   stage: RunStage;
   status: RunStageStatus;
   durationMs?: number;
 }
 
+export interface RunCompletedEvent {
+  runId: RunId | string;
+  vendorId: VendorId | string;
+  status: Exclude<RunStatus, "running">;
+  endedAt: Iso8601;
+  durationMs: number;
+  changeReportId?: ChangeReportId | string;
+}
+
 export interface ChangeDetectedEvent {
-  changeReportId: string;
-  vendorId: string;
+  changeReportId: ChangeReportId | string;
+  vendorId: VendorId | string;
   severity: Severity;
   headline: string;
 }
 
 export interface ActionDeliveredEvent {
-  actionId: string;
-  changeReportId: string;
+  actionId: ActionId | string;
+  changeReportId?: ChangeReportId | string;
   kind: ActionKind;
   status: ActionDeliveryStatus;
   externalId?: string;
@@ -235,12 +345,16 @@ export interface ActionDeliveredEvent {
 
 export interface OrgEntitlementsChangedEvent {
   compliancePack: boolean;
+  auditorPortal?: boolean;
   changedAt: Iso8601;
 }
+
+export type EntitlementsChangedEvent = OrgEntitlementsChangedEvent;
 
 export interface StreamEventDataMap {
   "scheduler.tick": SchedulerTickEvent;
   "run.stage": RunStageEvent;
+  "run.completed": RunCompletedEvent;
   "change.detected": ChangeDetectedEvent;
   "action.delivered": ActionDeliveredEvent;
   "change.stateChanged": ChangeStateChangedEvent;
@@ -253,4 +367,33 @@ export interface StoredStreamEvent<TName extends StreamEventName = StreamEventNa
   event: TName;
   data: StreamEventDataMap[TName];
   createdAt: Iso8601;
+}
+
+export type SseEvent = {
+  [K in StreamEventName]: { event: K; data: StreamEventDataMap[K] };
+}[StreamEventName];
+
+export interface VendorCreateBody {
+  name: string;
+  homepageUrl: string;
+  ownerId: UserId | string;
+  tier: VendorTier;
+  dataClasses?: DataClass[];
+  contract?: VendorContract;
+}
+
+export interface VendorCreateResponse {
+  id: VendorId | string;
+  name: string;
+  firstScanRunId: RunId | string;
+  discoveredUrls: VendorUrls;
+}
+
+export interface ApiErrorEnvelope {
+  error: {
+    code: string;
+    message: string;
+    details?: Record<string, unknown>;
+    requestId?: string;
+  };
 }

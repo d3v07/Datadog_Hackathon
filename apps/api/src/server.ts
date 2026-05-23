@@ -13,15 +13,15 @@ export { createApp } from "./app.js";
 
 export function createDevSeed() {
   const vendor: Vendor = {
-    id: "vnd_notion" as Vendor["id"],
-    orgId: "org_acme" as Vendor["orgId"],
+    id: "vnd_notion",
+    orgId: "org_acme",
     name: "Notion",
-    ownerId: "usr_priya" as Vendor["ownerId"],
+    ownerId: "usr_priya",
     renewalDate: "2026-08-21T00:00:00.000Z",
   };
   const user: User = {
-    id: "usr_priya" as User["id"],
-    orgId: "org_acme" as User["orgId"],
+    id: "usr_priya",
+    orgId: "org_acme",
     name: "Priya Shah",
     email: "priya@example.com",
     role: "procurement",
@@ -29,10 +29,10 @@ export function createDevSeed() {
   };
   const users = [user];
   const change = createSeedChangeReport({
-    id: DEV_SEED_CHANGE_ID as ChangeReport["id"],
+    id: DEV_SEED_CHANGE_ID,
     orgId: vendor.orgId,
     vendorId: vendor.id,
-    runId: "run_seed_notion_yesterday" as ChangeReport["runId"],
+    runId: "run_seed_notion_yesterday",
     ownerId: user.id,
     detectedAt: "2026-05-22T14:42:18.000Z",
     severity: "P1",
@@ -54,6 +54,10 @@ export function createServerApp(argv = process.argv) {
 
   const seed = createDevSeed();
   return createApp({ reports: seed.reports });
+}
+
+export function buildApp() {
+  return createApp();
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

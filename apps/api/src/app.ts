@@ -1,10 +1,17 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { createAuthMiddleware, type SeedToken } from "./auth.js";
 import { InMemoryChangeReportRepository, type ChangeReportRepository } from "./db/changeReports.js";
 import { errorResponse } from "./errors.js";
+import { ApiError } from "./lib/errors.js";
+import { newRequestId } from "./lib/ids.js";
 import { logger } from "./logger.js";
+import { billingRoute } from "./routes/billing.js";
 import { createChangesRouter } from "./routes/changes.js";
+import { evidenceRoute } from "./routes/evidence.js";
 import { createStreamRouter } from "./routes/stream.js";
+import { vendorsRoute } from "./routes/vendors.js";
+import { stripeWebhookRoute } from "./routes/webhooks-stripe.js";
 import { createEventBroker, type EventBroker } from "./stream/broker.js";
 
 export interface AppDeps {
@@ -22,8 +29,20 @@ export function createApp(deps: AppDeps = {}): Hono {
   const events = deps.events ?? createEventBroker();
   const app = new Hono();
 
+  app.use("*", cors({ origin: (origin) => origin ?? "*", credentials: true }));
+  app.use("*", async (c, next) => {
+    const requestId = c.req.header("x-request-id") ?? newRequestId();
+    c.set("requestId", requestId);
+    c.header("x-request-id", requestId);
+    await next();
+  });
+
   app.get("/health", (c) => c.json({ ok: true }));
+  app.route("/webhooks/stripe", stripeWebhookRoute);
+  app.route("/v1/evidence", evidenceRoute);
   app.use("/v1/*", createAuthMiddleware(deps.seedData?.tokens));
+  app.route("/v1/vendors", vendorsRoute);
+  app.route("/v1/billing", billingRoute);
   app.route("/v1/changes", createChangesRouter({ reports, events, ...(deps.now ? { now: deps.now } : {}) }));
   app.route(
     "/v1/stream",
@@ -31,12 +50,17 @@ export function createApp(deps: AppDeps = {}): Hono {
   );
   app.notFound((c) => errorResponse(c, 404, "not-found", "Route not found"));
   app.onError((err, c) => {
+    const requestId = c.get("requestId");
+    if (err instanceof ApiError) {
+      return c.json(err.toEnvelope(requestId), err.status as never);
+    }
+
     logger.error(
       {
         err,
         method: c.req.raw.method,
         path: new URL(c.req.url).pathname,
-        requestId: c.req.header("x-request-id"),
+        requestId,
       },
       "Unhandled API error",
     );
