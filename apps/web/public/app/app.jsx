@@ -66,7 +66,12 @@ function App() {
           ...s,
           screen: "portfolio",
           onboardingTier: action.tier,
-          onboardedToast: { name: action.name, tierLabel: action.tierLabel },
+          onboardedToast: {
+            name: action.name,
+            tierLabel: action.tierLabel,
+            vendorId: action.vendorId,
+            firstScanRunId: action.firstScanRunId,
+          },
         }));
         setTimeout(() => {
           setState((s) => ({ ...s, onboardedToast: null }));
@@ -127,7 +132,11 @@ function App() {
             <div className="onb-toast-title">
               <strong>{state.onboardedToast.name}</strong> onboarded at <span className="onb-toast-sla">{state.onboardedToast.tierLabel}</span> SLA
             </div>
-            <div className="onb-toast-sub">First scan queued · routing to owner</div>
+            <div className="onb-toast-sub">
+              {state.onboardedToast.firstScanRunId
+                ? <>First scan queued · run <code>{state.onboardedToast.firstScanRunId}</code></>
+                : <>First scan queued · routing to owner</>}
+            </div>
           </div>
         </div>
       )}
