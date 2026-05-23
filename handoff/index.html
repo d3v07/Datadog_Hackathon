@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redline · Handoff · End-to-end backend spec</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="handoff.css">
+<style>
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 56px;
+  }
+  @media (max-width: 800px) { .doc-grid { grid-template-columns: 1fr; } }
+  .doc-card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 26px 28px 24px;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+  .doc-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+  .doc-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(50% 80% at 100% 0%, var(--g, transparent) 0%, transparent 60%);
+    opacity: 0.4; pointer-events: none;
+  }
+  .doc-card > * { position: relative; }
+  .doc-card.a { --g: rgba(244,102,136,0.30); }
+  .doc-card.b { --g: rgba(43,202,232,0.30); }
+  .doc-card.c { --g: rgba(160,151,216,0.30); }
+  .doc-card.d { --g: rgba(181,220,85,0.30); }
+  .doc-card .doc-num { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .doc-card .doc-num b { color: var(--text); }
+  .doc-card h3 { font-family: var(--font-display); font-weight: 500; font-size: 28px; letter-spacing: -0.025em; margin: 0 0 8px; color: var(--text-strong); line-height: 1.1; font-variation-settings: "opsz" 36; }
+  .doc-card h3 em { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+  .doc-card p { font-size: 14px; line-height: 1.55; color: var(--text-2); margin: 0 0 16px; max-width: 44ch; }
+  .doc-card .doc-stats { display: flex; gap: 18px; padding-top: 14px; border-top: 1px solid var(--hairline); margin-top: 14px; }
+  .doc-card .doc-stats .st .lbl { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .doc-card .doc-stats .st .val { font-family: var(--font-mono); font-size: 13px; color: var(--text); font-feature-settings: "tnum" 1; }
+  .doc-card .doc-cta { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bondi); margin-top: 14px; }
+  .doc-card .doc-cta::after { content: '→'; }
+
+  .pipe-strip { display: flex; gap: 6px; align-items: center; margin: 28px 0 8px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); flex-wrap: wrap; }
+  .pipe-strip .step { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; padding: 5px 9px; border-radius: 6px; }
+  .pipe-strip .step.a { color: var(--bondi); background: var(--bondi-soft); }
+  .pipe-strip .step.b { color: var(--grape); background: var(--grape-soft); }
+  .pipe-strip .step.c { color: var(--tangerine); background: var(--tangerine-soft); }
+  .pipe-strip .step.d { color: var(--lime); background: var(--lime-soft); }
+  .pipe-strip .step.e { color: var(--strawberry); background: var(--strawberry-soft); }
+  .pipe-strip .arr { color: var(--muted); font-family: var(--font-mono); }
+
+  .reading-order {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px 26px;
+    margin-bottom: 32px;
+  }
+  .reading-order h4 { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; font-weight: 500; }
+  .reading-order ol { margin: 0; padding-left: 26px; counter-reset: step; }
+  .reading-order ol li { margin: 8px 0; font-size: 13.5px; line-height: 1.55; color: var(--text-2); }
+  .reading-order ol li b { color: var(--text); font-weight: 500; }
+  .reading-order ol li code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 6px; border-radius: 5px; color: var(--bondi); }
+
+  .ds-stripe { position: fixed; left: 0; right: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--aqua) 0%, var(--bondi) 17%, var(--tangerine) 34%, var(--grape) 51%, var(--strawberry) 68%, var(--lime) 85%, var(--aqua) 100%); opacity: 0.55; z-index: 100; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/logo-mark.svg" alt="">
+    <span class="word">Redline</span>
+  </div>
+  <span class="crumb">Hackathon · <b>Backend handoff</b> · v1.0</span>
+  <span class="spacer"></span>
+  <nav class="tabs">
+    <a href="index.html" class="current">Index</a>
+    <a href="Product Decisions.html">Decisions</a>
+    <a href="API.html">API</a>
+    <a href="Data Model.html">Data</a>
+    <a href="Runbook.html">Runbook</a>
+  </nav>
+</header>
+
+<div class="layout" style="grid-template-columns: 1fr;">
+  <main>
+    <div class="hero">
+      <div class="eyebrow">5.5h hackathon · point 12 · backend handoff</div>
+      <h1>Everything backend needs <em>to build</em>, in one folder.</h1>
+      <p>Five documents. Read them in order. By the time you've finished the runbook you can open a terminal, paste env vars, and start typing &mdash; no Slack pings required. Every product call is locked. Every endpoint has a shape. Every payload has a sample. The demo path is scripted to the second.</p>
+      <div class="quickstats">
+        <div class="qs">
+          <div class="lbl">Live providers</div>
+          <div class="val bondi">4</div>
+          <div class="sub">Nimble · Gemini · ClickHouse · Senso</div>
+        </div>
+        <div class="qs">
+          <div class="lbl">REST endpoints</div>
+          <div class="val">14</div>
+          <div class="sub">+ 1 SSE channel · 1 webhook</div>
+        </div>
+        <div class="qs">
+          <div class="lbl">Entities</div>
+          <div class="val lime">11</div>
+          <div class="sub">5 ClickHouse tables · 6 in-memory</div>
+        </div>
+        <div class="qs">
+          <div class="lbl">Open questions</div>
+          <div class="val straw">5</div>
+          <div class="sub">in <a href="Product Decisions.html#open" style="color:var(--strawberry)">Decisions §11</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reading-order">
+      <h4>Reading order · 30 min total</h4>
+      <ol>
+        <li><b>Product Decisions</b> &mdash; <code>5 min skim</code> &mdash; what's in, what's out, what's live vs. mocked. The rationale layer; everything else assumes you've read this.</li>
+        <li><b>API contract</b> &mdash; <code>10 min</code> &mdash; the 14 REST endpoints, the SSE channel, the Stripe webhook. Every request/response is fully typed.</li>
+        <li><b>Data Model</b> &mdash; <code>10 min</code> &mdash; TypeScript interfaces, ClickHouse DDL, seed file shapes. Paste straight into your repo.</li>
+        <li><b>Runbook</b> &mdash; <code>5 min</code> &mdash; env vars, demo cadence, on-stage script, fallback paths if something fails.</li>
+      </ol>
+    </div>
+
+    <div class="pipe-strip">
+      <span class="step a">Nimble</span>
+      <span class="arr">→</span>
+      <span class="step b">Gemini</span>
+      <span class="arr">→</span>
+      <span class="step a">ClickHouse</span>
+      <span class="arr">→</span>
+      <span class="step c">Policy</span>
+      <span class="arr">→</span>
+      <span class="step e">Slack</span>
+      <span class="arr">→</span>
+      <span class="step d">Senso</span>
+    </div>
+
+    <p style="font-size: 13px; color: var(--muted); margin: 0 0 56px; font-family: var(--font-mono); letter-spacing: 0.04em;">
+      &nbsp;&nbsp;The always-on agent loop. One scheduled tick per vendor → fetch, diff, classify, route, publish.
+    </p>
+
+    <h2 style="font-family: var(--font-display); font-weight: 500; font-size: 28px; letter-spacing: -0.025em; color: var(--text-strong); margin: 0 0 20px; font-variation-settings: 'opsz' 36;">The five documents</h2>
+
+    <div class="doc-grid">
+
+      <a href="Product Decisions.html" class="doc-card a">
+        <div class="doc-num">01 · <b>Rationale</b></div>
+        <h3>Product <em>Decisions</em>.</h3>
+        <p>Every product call, locked or flagged. Scope, provider integrations, agent pipeline shape, severity matrix, demo seed, team split &amp; timebox.</p>
+        <div class="doc-stats">
+          <div class="st"><div class="lbl">Sections</div><div class="val">12</div></div>
+          <div class="st"><div class="lbl">Decisions</div><div class="val">14 + 5 open</div></div>
+          <div class="st"><div class="lbl">Read</div><div class="val">~5 min</div></div>
+        </div>
+        <div class="doc-cta">Open decisions</div>
+      </a>
+
+      <a href="API.html" class="doc-card b">
+        <div class="doc-num">02 · <b>Contract</b></div>
+        <h3>The <em>API</em>.</h3>
+        <p>REST endpoints with full request/response shapes. SSE channel for live run progress. Stripe webhook signature handling. Auth, errors, idempotency.</p>
+        <div class="doc-stats">
+          <div class="st"><div class="lbl">REST</div><div class="val">14 routes</div></div>
+          <div class="st"><div class="lbl">SSE</div><div class="val">1 channel · 6 events</div></div>
+          <div class="st"><div class="lbl">Webhooks</div><div class="val">1 (Stripe)</div></div>
+        </div>
+        <div class="doc-cta">Open API spec</div>
+      </a>
+
+      <a href="Data Model.html" class="doc-card c">
+        <div class="doc-num">03 · <b>Schema</b></div>
+        <h3>Data <em>model</em>.</h3>
+        <p>TypeScript interfaces (the source of truth). ClickHouse DDL for the 5 append-only tables. Seed file shapes &mdash; vendors, users, policies, snapshots, change reports.</p>
+        <div class="doc-stats">
+          <div class="st"><div class="lbl">Interfaces</div><div class="val">11</div></div>
+          <div class="st"><div class="lbl">CH tables</div><div class="val">5</div></div>
+          <div class="st"><div class="lbl">Seed files</div><div class="val">5</div></div>
+        </div>
+        <div class="doc-cta">Open data model</div>
+      </a>
+
+      <a href="Runbook.html" class="doc-card d">
+        <div class="doc-num">04 · <b>Operate</b></div>
+        <h3>The <em>runbook</em>.</h3>
+        <p>Env vars, repo layout, dev commands, demo cadence, the 90-second on-stage script, fallback paths if Nimble/Gemini/Stripe fails. Track-by-track checklist for the 5.5 hours.</p>
+        <div class="doc-stats">
+          <div class="st"><div class="lbl">Env vars</div><div class="val">14</div></div>
+          <div class="st"><div class="lbl">Fallbacks</div><div class="val">6 documented</div></div>
+          <div class="st"><div class="lbl">Read</div><div class="val">~5 min</div></div>
+        </div>
+        <div class="doc-cta">Open runbook</div>
+      </a>
+
+    </div>
+
+    <h2 style="font-family: var(--font-display); font-weight: 500; font-size: 24px; letter-spacing: -0.02em; color: var(--text-strong); margin: 0 0 14px; font-variation-settings: 'opsz' 32;">What to build first</h2>
+    <p style="font-size: 14.5px; line-height: 1.6; color: var(--text-2); max-width: 64ch; margin: 0 0 18px;">
+      Three parallel tracks at <code style="font-family:var(--font-mono);font-size:12px;background:var(--surface-2);padding:1px 6px;border-radius:5px;color:var(--text)">T+0</code>. Track A is the critical path &mdash; without it there's no live demo moment. Tracks B and C run independently and meet Track A at the <code style="font-family:var(--font-mono);font-size:12px;background:var(--surface-2);padding:1px 6px;border-radius:5px;color:var(--text)">T+2:30</code> integration sync.
+    </p>
+    <div class="three-col" style="margin-bottom: 0;">
+      <div class="callout">
+        <span class="ico" style="color: var(--bondi)">A</span>
+        <div>
+          <h4>Agents &amp; pipeline</h4>
+          <p>Nimble client · Gemini structured-output · ClickHouse writer · Policy engine · always-on scheduler · Senso publish. <strong>The critical path.</strong></p>
+        </div>
+      </div>
+      <div class="callout">
+        <span class="ico" style="color: var(--grape)">B</span>
+        <div>
+          <h4>API &amp; routing</h4>
+          <p>Hono/Express skeleton · zod-validated endpoints · SSE channel · Slack Block Kit fire · typed mocks for Jira/Email/Calendar.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <span class="ico" style="color: var(--lime)">C</span>
+        <div>
+          <h4>Billing &amp; UI wiring</h4>
+          <p>Stripe Elements modal · payment-intent flow · webhook listener · wire the 6 screens to live endpoints.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn" style="margin-top: 28px;">
+      <span class="ico">⚠</span>
+      <div>
+        <h4>If you read nothing else, read this</h4>
+        <p>The agent <strong>never has a "run" button</strong>. It's always on. The portfolio shows a live indicator (<code>● LIVE · last scan 11s ago</code>) and changes appear via SSE push. The trigger endpoint exists (<code>POST /v1/admin/vendors/:id/scan</code>) but it's admin-only and not surfaced in the product. Production cadence: 6h per vendor. Demo cadence: 60s via <code>SCAN_INTERVAL_SEC</code> env var.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="six"><span class="a"></span><span class="b"></span><span class="t"></span><span class="g"></span><span class="s"></span><span class="l"></span></div>
+  <div class="meta">REDLINE · BACKEND HANDOFF · <b>v1.0</b> · 2026-05-23 · <a href="Product Decisions.html">Decisions</a> · <a href="API.html">API</a> · <a href="Data Model.html">Data</a> · <a href="Runbook.html">Runbook</a></div>
+</footer>
+
+<div class="ds-stripe"></div>
+
+</body>
+</html>

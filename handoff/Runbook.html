@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redline · Runbook · ship + demo</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="handoff.css">
+<style>
+  /* env vars table */
+  .env-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 18px; }
+  .env-table th, .env-table td { padding: 12px 16px; text-align: left; font-size: 13px; vertical-align: top; border-top: 1px solid var(--hairline); }
+  .env-table thead th { background: var(--surface-2); border-top: 0; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .env-table tbody tr:first-child td { border-top: 0; }
+  .env-table td.name { font-family: var(--font-mono); font-size: 12.5px; color: var(--text); white-space: nowrap; font-weight: 500; }
+  .env-table td.example { font-family: var(--font-mono); font-size: 11.5px; color: var(--bondi); word-break: break-all; }
+  .env-table td .req { display: inline-block; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+  .env-table td .req.must { background: var(--strawberry-soft); color: var(--strawberry); }
+  .env-table td .req.opt { background: var(--surface-2); color: var(--muted); }
+
+  /* timeline / runbook step */
+  .step-list { display: grid; gap: 12px; }
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 18px;
+    position: relative;
+  }
+  .step .timepoint {
+    font-family: var(--font-mono); font-size: 13px; color: var(--text); font-weight: 500;
+    font-feature-settings: "tnum" 1; padding-top: 2px;
+  }
+  .step .timepoint .lbl { font-size: 10px; color: var(--muted); letter-spacing: 0.10em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+  .step h4 { font-family: var(--font-display); font-weight: 500; font-size: 17px; letter-spacing: -0.012em; margin: 0 0 6px; color: var(--text-strong); font-variation-settings: "opsz" 24; }
+  .step h4 em { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+  .step p { font-size: 13.5px; line-height: 1.55; color: var(--text-2); margin: 0 0 8px; }
+  .step p:last-child { margin-bottom: 0; }
+  .step code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 6px; border-radius: 5px; color: var(--text); }
+  .step .actor {
+    display: inline-block;
+    font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500;
+    padding: 2px 7px; border-radius: 4px; margin-right: 8px; line-height: 1.4;
+  }
+  .step .actor.you { background: var(--lime-soft); color: var(--lime); }
+  .step .actor.audience { background: var(--bondi-soft); color: var(--bondi); }
+  .step .actor.system { background: var(--grape-soft); color: var(--grape); }
+
+  /* checklists */
+  .checklist {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    margin-bottom: 14px;
+  }
+  .checklist h4 { font-family: var(--font-display); font-weight: 500; font-size: 17px; letter-spacing: -0.012em; margin: 0 0 12px; color: var(--text-strong); font-variation-settings: "opsz" 24; }
+  .checklist ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+  .checklist ul li { padding: 6px 0 6px 28px; position: relative; font-size: 13.5px; line-height: 1.55; color: var(--text-2); }
+  .checklist ul li::before {
+    content: ''; position: absolute; left: 0; top: 9px;
+    width: 14px; height: 14px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 3px;
+    background: var(--surface-2);
+  }
+  .checklist ul li.done { color: var(--muted); text-decoration: line-through; }
+  .checklist ul li.done::before { background: var(--lime); border-color: var(--lime); content: '✓'; color: var(--bg); font-size: 10px; font-weight: 700; text-align: center; line-height: 11px; }
+  .checklist ul li code { font-family: var(--font-mono); font-size: 11.5px; background: var(--surface-2); padding: 0 5px; border-radius: 4px; color: var(--text); }
+  .checklist ul li b { color: var(--text); font-weight: 500; }
+
+  /* track table */
+  table.tracks { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  table.tracks th, table.tracks td { padding: 12px 16px; font-size: 13px; vertical-align: top; border-top: 1px solid var(--hairline); }
+  table.tracks th { background: var(--surface-2); border-top: 0; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 500; text-align: left; }
+  table.tracks tbody tr:first-child td { border-top: 0; }
+  table.tracks td.time { font-family: var(--font-mono); font-size: 11.5px; color: var(--bondi); font-feature-settings: "tnum" 1; white-space: nowrap; }
+  table.tracks td.task { color: var(--text); }
+  table.tracks td.task code { font-family: var(--font-mono); font-size: 11.5px; background: var(--surface-2); padding: 0 5px; border-radius: 4px; color: var(--bondi); }
+  table.tracks td.dep { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-align: right; }
+
+  /* TOC */
+  .toc-wrap { position: sticky; top: 84px; height: max-content; }
+  h3.sub {
+    font-family: var(--font-display); font-weight: 500; font-size: 22px;
+    letter-spacing: -0.022em; color: var(--text-strong); margin: 32px 0 14px;
+    font-variation-settings: "opsz" 32;
+  }
+  h3.sub:first-child { margin-top: 0; }
+  h3.sub em { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+
+  /* repo tree */
+  .tree {
+    background: #0F0F18;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--text-2);
+    overflow-x: auto;
+  }
+  .tree .dir { color: var(--bondi); }
+  .tree .file { color: var(--text); }
+  .tree .comment { color: var(--muted); font-style: italic; }
+  .tree .new { color: var(--lime); }
+
+  .small-note { font-size: 12px; color: var(--muted); margin-top: 8px; font-family: var(--font-mono); letter-spacing: 0.02em; }
+  .small-note b { color: var(--text-2); font-weight: 500; }
+
+  kbd { font-family: var(--font-mono); font-size: 11px; padding: 2px 6px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); border-bottom-width: 2px; color: var(--text); }
+
+  .fallback {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 18px 22px; margin-bottom: 12px;
+    display: grid; grid-template-columns: 28px 1fr; gap: 14px;
+  }
+  .fallback .ico { font-family: var(--font-mono); font-size: 16px; line-height: 1; margin-top: 1px; color: var(--tangerine); }
+  .fallback h4 { font-family: var(--font-display); font-weight: 500; font-size: 17px; margin: 0 0 6px; color: var(--text-strong); letter-spacing: -0.01em; font-variation-settings: "opsz" 24; }
+  .fallback h4 .when { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.10em; text-transform: uppercase; margin-left: 8px; }
+  .fallback p { font-size: 13.5px; line-height: 1.55; color: var(--text-2); margin: 0 0 6px; }
+  .fallback p:last-child { margin-bottom: 0; }
+  .fallback code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 6px; border-radius: 5px; color: var(--text); }
+  .fallback strong { color: var(--text); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/logo-mark.svg" alt="">
+    <span class="word">Redline</span>
+  </div>
+  <span class="crumb">Hackathon · <b>Runbook</b> · v1.0</span>
+  <span class="spacer"></span>
+  <nav class="tabs">
+    <a href="index.html">Index</a>
+    <a href="Product Decisions.html">Decisions</a>
+    <a href="API.html">API</a>
+    <a href="Data Model.html">Data</a>
+    <a href="Runbook.html" class="current">Runbook</a>
+  </nav>
+</header>
+
+<div class="layout">
+  <aside class="toc-wrap">
+    <div class="toc-label">Operate</div>
+    <nav class="toc" id="toc">
+      <a href="#prereq"><span class="n">01</span> Pre-reqs</a>
+      <a href="#env"><span class="n">02</span> Env vars</a>
+      <a href="#repo"><span class="n">03</span> Repo layout</a>
+      <a href="#commands"><span class="n">04</span> Dev commands</a>
+      <a href="#cadence"><span class="n">05</span> Scheduler cadence</a>
+      <a href="#demo"><span class="n">06</span> Demo script</a>
+      <a href="#fallbacks"><span class="n">07</span> Fallbacks</a>
+      <a href="#tracks"><span class="n">08</span> 5.5h timeline</a>
+      <a href="#tco"><span class="n">09</span> T-zero checklist</a>
+    </nav>
+  </aside>
+
+  <main>
+
+    <div class="hero">
+      <div class="eyebrow">04 · operate</div>
+      <h1>Ship in 5.5 hours, demo in <em>90 seconds</em>.</h1>
+      <p>Env vars, repo layout, dev commands, the always-on scheduler cadence, the on-stage script second-by-second, and six pre-approved fallback paths. Read this last, run it linearly, ship.</p>
+      <div class="quickstats">
+        <div class="qs"><div class="lbl">Env vars</div><div class="val">14</div><div class="sub">9 must · 5 optional</div></div>
+        <div class="qs"><div class="lbl">Fallbacks</div><div class="val tang">6</div><div class="sub">pre-approved</div></div>
+        <div class="qs"><div class="lbl">Demo length</div><div class="val bondi">90s</div><div class="sub">on stage</div></div>
+        <div class="qs"><div class="lbl">Hard stop</div><div class="val lime">T+4:30</div><div class="sub">dry-run window opens</div></div>
+      </div>
+    </div>
+
+    <!-- ── PRE-REQS ─── -->
+    <section class="s" id="prereq">
+      <div class="s-head">
+        <div>
+          <div class="num">01</div>
+          <h2>Pre-requisites.</h2>
+        </div>
+        <div class="status">
+          <span class="chip open"><span class="d"></span>Lock before T+0</span>
+        </div>
+      </div>
+
+      <p class="lede">Before any code is written, confirm these are accessible. Anything still red at T+0 means the day starts behind &mdash; tell product immediately so we fall back to the relevant scripted path.</p>
+
+      <div class="checklist">
+        <h4>Accounts &amp; keys</h4>
+        <ul>
+          <li><b>Nimble</b> account with sandbox API key &middot; verified by curl <code>/v1/fetch?url=https://example.com</code></li>
+          <li><b>Gemini</b> API key with <code>gemini-2.5-pro</code> access</li>
+          <li><b>ClickHouse Cloud</b> instance provisioned &middot; URL, user, password</li>
+          <li><b>Senso</b> account with publish API access (Decisions §11-B). If not available, host the brief at <code>/evidence/:id</code> on our own deploy.</li>
+          <li><b>Stripe</b> test-mode account &middot; <code>sk_test_...</code> + <code>pk_test_...</code>, <code>stripe</code> CLI installed and authed</li>
+          <li><b>Slack</b> workspace with incoming webhook configured for <code>#redline-demo</code></li>
+        </ul>
+      </div>
+
+      <div class="checklist">
+        <h4>Local environment</h4>
+        <ul>
+          <li>Node 20.x or later (we use <code>fetch</code>, <code>AbortSignal.timeout</code>, top-level await)</li>
+          <li><code>pnpm</code> for the workspace</li>
+          <li><code>stripe</code> CLI authed via <code>stripe login</code></li>
+          <li>One <code>.env.local</code> at repo root, gitignored, owned by Track A lead</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ── ENV ─── -->
+    <section class="s" id="env">
+      <div class="s-head">
+        <div>
+          <div class="num">02</div>
+          <h2>Environment <em>variables</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>14 total</span>
+        </div>
+      </div>
+
+      <p class="lede">Fourteen env vars total. Nine are mandatory for the demo path to work end-to-end. The other five tune behaviour or are optional for the hackathon. Drop them in a single <code>.env.local</code> at repo root.</p>
+
+      <p class="code-cap"><span>.env.local</span><span class="file">14 keys · 9 required</span></p>
+      <table class="env-table">
+        <thead>
+          <tr><th>Variable</th><th>Example / default</th><th>Used by</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="name">NODE_ENV<span class="req opt">opt</span></td>
+            <td class="example">development</td>
+            <td>Standard. <code>production</code> turns on stricter zod, lengthens cadence.</td>
+          </tr>
+          <tr>
+            <td class="name">PORT<span class="req opt">opt</span></td>
+            <td class="example">8787</td>
+            <td>API server port. Default 8787.</td>
+          </tr>
+          <tr>
+            <td class="name">BASE_URL<span class="req must">must</span></td>
+            <td class="example">http://localhost:8787</td>
+            <td>Public-facing URL. Embedded in Slack messages so judges can click through.</td>
+          </tr>
+          <tr>
+            <td class="name">CLICKHOUSE_URL<span class="req must">must</span></td>
+            <td class="example">https://abc.clickhouse.cloud:8443</td>
+            <td>ClickHouse Cloud endpoint. Used by all reads/writes.</td>
+          </tr>
+          <tr>
+            <td class="name">CLICKHOUSE_USER<span class="req must">must</span></td>
+            <td class="example">default</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="name">CLICKHOUSE_PASSWORD<span class="req must">must</span></td>
+            <td class="example">****</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="name">NIMBLE_API_KEY<span class="req must">must</span></td>
+            <td class="example">nim_live_****</td>
+            <td>Live Nimble fetch on the Notion path. <strong>If absent, scheduler falls back to seeded snapshots only.</strong></td>
+          </tr>
+          <tr>
+            <td class="name">GEMINI_API_KEY<span class="req must">must</span></td>
+            <td class="example">AIza****</td>
+            <td>Structured-diff calls.</td>
+          </tr>
+          <tr>
+            <td class="name">SENSO_API_KEY<span class="req opt">opt</span></td>
+            <td class="example">snso_****</td>
+            <td>If unset, ChangeReports publish to <code>/evidence/:id</code> on the same server (locally-hosted fallback).</td>
+          </tr>
+          <tr>
+            <td class="name">SLACK_WEBHOOK_URL<span class="req must">must</span></td>
+            <td class="example">https://hooks.slack.com/services/T…/B…</td>
+            <td>Incoming webhook for <code>#redline-demo</code>. Posting any other channel = update this var only.</td>
+          </tr>
+          <tr>
+            <td class="name">STRIPE_SECRET_KEY<span class="req must">must</span></td>
+            <td class="example">sk_test_****</td>
+            <td>Server-side PaymentIntent creation.</td>
+          </tr>
+          <tr>
+            <td class="name">STRIPE_PUBLISHABLE_KEY<span class="req must">must</span></td>
+            <td class="example">pk_test_****</td>
+            <td>Echoed back to client for Stripe Elements init.</td>
+          </tr>
+          <tr>
+            <td class="name">STRIPE_WEBHOOK_SECRET<span class="req must">must</span></td>
+            <td class="example">whsec_****</td>
+            <td>Produced by <code>stripe listen --forward-to localhost:8787/webhooks/stripe</code>. Copy on startup; refresh if you restart the CLI.</td>
+          </tr>
+          <tr>
+            <td class="name">SCAN_INTERVAL_SEC<span class="req opt">opt</span></td>
+            <td class="example">60</td>
+            <td>Always-on scheduler cadence. <strong>60 in demo, 21600 (6h) in prod.</strong></td>
+          </tr>
+          <tr>
+            <td class="name">ADMIN_TOKEN<span class="req opt">opt</span></td>
+            <td class="example">demo_admin_2026</td>
+            <td>Guards <code>POST /v1/admin/vendors/:id/scan</code>. Required only if running rehearsals.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── REPO ─── -->
+    <section class="s" id="repo">
+      <div class="s-head">
+        <div>
+          <div class="num">03</div>
+          <h2>Repo layout.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>Single repo</span>
+        </div>
+      </div>
+
+      <p class="lede">One monorepo, one deploy target. <code>apps/web</code> is the existing React UI; <code>apps/api</code> is what backend builds today; <code>packages/shared</code> holds the TS interfaces from <a href="Data Model.html">Data Model</a> so both sides import the same types.</p>
+
+      <div class="tree">
+redline/
+├── <span class="dir">apps/</span>
+│   ├── <span class="dir">api/</span>                        <span class="comment"># &lt;— Tracks A &amp; B build here</span>
+│   │   ├── src/
+│   │   │   ├── <span class="file">server.ts</span>            <span class="comment"># Hono entry; mounts routes + SSE + webhook</span>
+│   │   │   ├── <span class="file">scheduler.ts</span>         <span class="comment"># the always-on tick loop</span>
+│   │   │   ├── <span class="dir">routes/</span>               <span class="comment"># one file per resource</span>
+│   │   │   │   ├── <span class="file new">portfolio.ts</span>
+│   │   │   │   ├── <span class="file new">vendors.ts</span>
+│   │   │   │   ├── <span class="file new">changes.ts</span>
+│   │   │   │   ├── <span class="file new">policies.ts</span>
+│   │   │   │   ├── <span class="file new">bundles.ts</span>
+│   │   │   │   ├── <span class="file new">billing.ts</span>
+│   │   │   │   ├── <span class="file new">admin.ts</span>
+│   │   │   │   ├── <span class="file new">stream.ts</span>             <span class="comment"># SSE channel</span>
+│   │   │   │   └── <span class="file new">webhooks-stripe.ts</span>
+│   │   │   ├── <span class="dir">agent/</span>                 <span class="comment"># &lt;— Track A core</span>
+│   │   │   │   ├── <span class="file new">runner.ts</span>             <span class="comment"># 7-stage pipeline orchestrator</span>
+│   │   │   │   ├── <span class="file new">policy.ts</span>             <span class="comment"># DSL evaluator (6 predicate forms)</span>
+│   │   │   │   └── <span class="file new">router.ts</span>             <span class="comment"># route string → Action</span>
+│   │   │   ├── <span class="dir">providers/</span>
+│   │   │   │   ├── <span class="file new">nimble.ts</span>
+│   │   │   │   ├── <span class="file new">gemini.ts</span>
+│   │   │   │   ├── <span class="file new">senso.ts</span>
+│   │   │   │   ├── <span class="file new">slack.ts</span>
+│   │   │   │   └── <span class="file new">stripe.ts</span>
+│   │   │   ├── <span class="dir">db/</span>
+│   │   │   │   ├── <span class="file new">client.ts</span>             <span class="comment"># ClickHouse client</span>
+│   │   │   │   ├── <span class="file new">migrate.ts</span>            <span class="comment"># runs ddl.sql at boot</span>
+│   │   │   │   └── <span class="file new">ddl.sql</span>               <span class="comment"># from Data Model §04</span>
+│   │   │   └── <span class="dir">seed/</span>
+│   │   │       └── <span class="file new">loader.ts</span>
+│   │   └── <span class="file">tsconfig.json</span>
+│   └── <span class="dir">web/</span>                        <span class="comment"># &lt;— Track C wires this to the API</span>
+│       ├── src/
+│       │   ├── <span class="file">App.tsx</span>
+│       │   ├── <span class="dir">screens/</span>
+│       │   │   ├── <span class="file">Portfolio.tsx</span>      <span class="comment"># exists; wire to /v1/portfolio</span>
+│       │   │   ├── <span class="file">ChangeReport.tsx</span>   <span class="comment"># exists; wire to /v1/changes/:id</span>
+│       │   │   ├── <span class="file new">Onboard.tsx</span>           <span class="comment"># new today</span>
+│       │   │   ├── <span class="file new">EvidenceBundle.tsx</span>    <span class="comment"># new today</span>
+│       │   │   ├── <span class="file new">StripeModal.tsx</span>       <span class="comment"># new today</span>
+│       │   │   └── <span class="file new">SensoBrief.tsx</span>        <span class="comment"># new today; rendered at /evidence/:id</span>
+│       │   └── <span class="file">lib/</span>
+│       │       ├── <span class="file new">api.ts</span>                <span class="comment"># typed fetch client</span>
+│       │       └── <span class="file new">stream.ts</span>             <span class="comment"># EventSource hook</span>
+│       └── <span class="file">vite.config.ts</span>
+├── <span class="dir">packages/</span>
+│   └── <span class="dir">shared/</span>
+│       └── src/
+│           ├── <span class="file new">types.ts</span>                  <span class="comment"># from Data Model §03 — paste verbatim</span>
+│           ├── <span class="file new">schemas.ts</span>                <span class="comment"># zod parsers + Gemini responseSchema</span>
+│           └── <span class="file">index.ts</span>
+├── <span class="dir">seed/</span>                              <span class="comment"># 5 files, see Data Model §05</span>
+│   ├── <span class="file new">orgs.json</span>
+│   ├── <span class="file new">users.json</span>
+│   ├── <span class="file new">vendors.json</span>
+│   ├── <span class="file new">policies.yaml</span>
+│   ├── <span class="file new">snapshots.json</span>
+│   └── <span class="file new">change-reports.json</span>
+├── <span class="file">.env.local</span>                       <span class="comment"># gitignored · 14 keys</span>
+├── <span class="file">package.json</span>
+└── <span class="file">README.md</span>
+      </div>
+    </section>
+
+    <!-- ── DEV CMDS ─── -->
+    <section class="s" id="commands">
+      <div class="s-head">
+        <div>
+          <div class="num">04</div>
+          <h2>Dev commands.</h2>
+        </div>
+      </div>
+
+      <p class="lede">Four terminals. One for the API, one for the web, one for the Stripe CLI listener, one for ad-hoc curls / DB pokes.</p>
+
+      <p class="code-cap"><span>Terminal 1 — API</span><span class="file">apps/api</span></p>
+      <pre class="code"><span class="com"># once</span>
+pnpm install
+pnpm db:migrate          <span class="com"># runs apps/api/src/db/ddl.sql against CLICKHOUSE_URL</span>
+pnpm seed                <span class="com"># loads the 5 seed files</span>
+
+<span class="com"># every dev session</span>
+pnpm dev                 <span class="com"># tsx watch · 8787</span></pre>
+
+      <p class="code-cap"><span>Terminal 2 — Web</span><span class="file">apps/web</span></p>
+      <pre class="code">pnpm dev                 <span class="com"># vite · 5173 · proxies /v1 → :8787</span></pre>
+
+      <p class="code-cap"><span>Terminal 3 — Stripe webhook tunnel</span><span class="file">root</span></p>
+      <pre class="code">stripe listen \
+  --forward-to localhost:<span class="num">8787</span>/webhooks/stripe \
+  --events payment_intent.succeeded,payment_intent.payment_failed
+<span class="com"># prints "whsec_..." — copy into STRIPE_WEBHOOK_SECRET, then restart the API</span></pre>
+
+      <p class="code-cap"><span>Terminal 4 — ad-hoc</span><span class="file">root</span></p>
+      <pre class="code"><span class="com"># trigger a scan manually (admin endpoint)</span>
+curl -X POST http://localhost:<span class="num">8787</span>/v1/admin/vendors/vnd_notion/scan \
+  -H <span class="str">"X-Admin-Token: $ADMIN_TOKEN"</span>
+
+<span class="com"># subscribe to SSE</span>
+curl -N http://localhost:<span class="num">8787</span>/v1/stream?token=<span class="num">demo</span>_token_acme_corp_<span class="num">2026</span>
+
+<span class="com"># inspect last 10 runs</span>
+clickhouse-client --query <span class="str">"SELECT vendor_id, status, started_at FROM agent_runs FINAL ORDER BY started_at DESC LIMIT 10"</span></pre>
+    </section>
+
+    <!-- ── CADENCE ─── -->
+    <section class="s" id="cadence">
+      <div class="s-head">
+        <div>
+          <div class="num">05</div>
+          <h2>Scheduler <em>cadence</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip live"><span class="d"></span>Always-on</span>
+        </div>
+      </div>
+
+      <p class="lede">The agent is always on (Decisions §01-B). There is no "run" button anywhere in the product. The scheduler is a simple <code>setInterval</code> that walks the vendor list, scans the oldest first, and emits an SSE <code>scheduler.tick</code> per kickoff.</p>
+
+      <p class="code-cap"><span>The scheduler</span><span class="file">apps/api/src/scheduler.ts</span></p>
+      <pre class="code"><span class="kw">import</span> <span class="punct">{</span> <span class="fn">runAgent</span> <span class="punct">}</span> <span class="kw">from</span> <span class="str">"./agent/runner"</span><span class="punct">;</span>
+
+<span class="kw">const</span> intervalSec <span class="punct">=</span> <span class="fn">Number</span><span class="punct">(</span>process.env.SCAN_INTERVAL_SEC <span class="punct">??</span> <span class="num">21600</span><span class="punct">);</span>
+
+<span class="kw">export function</span> <span class="fn">startScheduler</span><span class="punct">()</span> <span class="punct">{</span>
+  setInterval<span class="punct">(</span><span class="kw">async</span> <span class="punct">() =&gt; {</span>
+    <span class="kw">const</span> vendors <span class="punct">=</span> <span class="kw">await</span> <span class="fn">listVendorsForScan</span><span class="punct">()</span><span class="punct">;</span>
+    <span class="kw">for</span> <span class="punct">(</span><span class="kw">const</span> v <span class="kw">of</span> vendors<span class="punct">)</span> <span class="punct">{</span>
+      <span class="fn">runAgent</span><span class="punct">(</span>v.id<span class="punct">,</span> <span class="punct">{</span> trigger<span class="punct">:</span> <span class="str">"scheduled"</span> <span class="punct">})</span>
+        .catch<span class="punct">(</span>err <span class="punct">=&gt;</span> <span class="fn">logError</span><span class="punct">(</span>v.id<span class="punct">,</span> err<span class="punct">))</span><span class="punct">;</span>
+    <span class="punct">}</span>
+  <span class="punct">},</span> intervalSec <span class="punct">*</span> <span class="num">1000</span><span class="punct">)</span><span class="punct">;</span>
+<span class="punct">}</span>
+
+<span class="com">// listVendorsForScan returns vendors whose lastScanAt is older than intervalSec.</span>
+<span class="com">// In demo (60s) with 8 vendors this means one vendor scanned per ~8s on average.</span>
+<span class="com">// Stagger them by initial offset so all 8 don't fire at the same second.</span></pre>
+
+      <table class="spec">
+        <thead><tr><th>Environment</th><th>SCAN_INTERVAL_SEC</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td><b>Hackathon demo</b></td><td><code>60</code></td><td>Each vendor scanned every minute. With 8 seeded vendors, judges see a scheduler tick every ~8s in the activity feed.</td></tr>
+          <tr><td><b>Production (spec only)</b></td><td><code>21600</code></td><td>Every 6 hours per vendor. Daily ChangeReports show up overnight, not in real time.</td></tr>
+          <tr><td><b>Local dev</b></td><td><code>30</code></td><td>Fast loop for testing; produces noise — leave off if not actively iterating.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn" style="margin-top: 16px;">
+        <span class="ico">⚠</span>
+        <div>
+          <h4>The seeded "before" snapshot is what makes the live moment work</h4>
+          <p>Notion's <code>terms</code> URL has a <strong>seeded baseline snapshot</strong> (loaded from <code>seed/snapshots.json</code> with <code>source: "seed"</code>). The live Nimble fetch produces a <em>new</em> snapshot from the real page. Hash mismatch → Gemini runs → ChangeReport produced.</p>
+          <p>The hand-written "before" diverges from current notion.so/terms in exactly the two clauses the demo story needs: retention 90→30 days, pricing $16→$19/seat. If the live page genuinely matches our seeded before (hash match), the demo doesn't fire &mdash; this is the single most likely silent-fail path. Test the live fetch &gt;1× during dry-run.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── DEMO ─── -->
+    <section class="s" id="demo">
+      <div class="s-head">
+        <div>
+          <div class="num">06</div>
+          <h2>The demo &middot; <em>90 seconds</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip live"><span class="d"></span>Scripted to the second</span>
+        </div>
+      </div>
+
+      <p class="lede">Single take. No mouse twitching, no "let me find this tab." Two browser windows open: <strong>(1)</strong> Redline portfolio at full screen, <strong>(2)</strong> Slack <code>#redline-demo</code> in a small window pinned to the right third. Cmd-Tab between them on cue. The presenter never explains the agent; they let it run while narrating outcomes.</p>
+
+      <div class="step-list">
+
+        <div class="step">
+          <div class="timepoint"><span class="lbl">T-30s</span>0:30 BEFORE</div>
+          <div>
+            <h4>Pre-stage <em>setup</em>.</h4>
+            <p><span class="actor you">You</span> Open <a href="#">Portfolio</a> in browser 1. Pin Slack <code>#redline-demo</code> in browser 2. Verify scheduler tick (the live pip in the portfolio header should blink every ~8s).</p>
+            <p><span class="actor you">You</span> Last thing before walking on: hit <kbd>Cmd</kbd>+<kbd>R</kbd> on the portfolio. The next scheduled Notion tick lands within 60s.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="timepoint"><span class="lbl">T+0</span>0:00</div>
+          <div>
+            <h4>Open on the <em>fleet</em>.</h4>
+            <p><span class="actor audience">Audience sees</span> The portfolio. 8 vendor cards. <code>● LIVE · last scan 6s ago</code>. The stats strip: 8 vendors, 12 changes this week, 3 open P1, $84k at risk.</p>
+            <p><span class="actor you">You say</span> <em>"This is Redline. We're watching 8 vendor relationships continuously. Right now, somewhere between these cards, an agent is reading their terms-of-service, their pricing page, their DPA, their sub-processors list — every six hours, every vendor, never asks for permission."</em></p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="timepoint"><span class="lbl">T+15s</span>0:15</div>
+          <div>
+            <h4>The activity feed <em>updates</em>.</h4>
+            <p><span class="actor system">System</span> Scheduler ticks Notion. New row prepends to the activity feed: "Notion · scanning". Three seconds later: "Notion · diff detected · P1". The card briefly glows strawberry; toast slides in top-right.</p>
+            <p><span class="actor you">You say</span> <em>"Something just happened to Notion. The agent picked it up while we were talking."</em></p>
+            <p><span class="actor you">You</span> Click the toast.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="timepoint"><span class="lbl">T+22s</span>0:22</div>
+          <div>
+            <h4>The <em>ChangeReport</em>.</h4>
+            <p><span class="actor audience">Audience sees</span> The hero diff: "Retention 90 → 30 days · per-seat $16 → $19 (+18.75%)". Policy fired: <em>Data retention shrinks for PII vendors</em>. Severity P1. Impact $28.4k/yr. Routed actions: Slack ✓, Jira ticket created (SEC-1247), Calendar invite for 90-day renewal prep.</p>
+            <p><span class="actor you">You say</span> <em>"Notion shortened their data retention from 90 to 30 days. They quietly raised the price 18%. The agent caught both, our policy said 'this is critical because we run PII through this vendor,' and it routed the alert to the people who own it. None of that was me clicking — that just happened."</em></p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="timepoint"><span class="lbl">T+35s</span>0:35</div>
+          <div>
+            <h4>The <em>Slack moment</em>.</h4>
+            <p><span class="actor you">You</span> Cmd-Tab to Slack window.</p>
+            <p><span class="actor audience">Audience sees</span> The DM that just landed in <code>#redline-demo</code> at the same timestamp as the report. Block Kit message with severity badge, vendor name, hero diff, dollar impact, two buttons: "Open in Redline" + "View evidence".</p>
+            <p><span class="actor you">You say</span> <em>"This is what Priya — Notion's owner — sees in her Slack, ten seconds ago. Same data, same urgency, no email tax."</em></p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="timepoint"><span class="lbl">T+50s</span>0:50</div>
+          <div>
+            <h4>The <em>evidence</em>.</h4>
+            <p><span class="actor you">You</span> Click "View evidence" in Slack. New tab opens to a Senso URL.</p>
+            <p><span class="actor audience">Audience sees</span> The public, immutable brief. Verbatim quote of the changed clause. URL. Fetch timestamp. Senso badge. URL bar shows <code>senso.com/r/notion-2026-05-23-retention</code> &mdash; not localhost.</p>
+            <p><span class="actor you">You say</span> <em>"Every claim we make is grounded. The quote is real, the URL is real, the timestamp is real, and this page is immutable. You can forward it to your auditor right now."</em></p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="timepoint"><span class="lbl">T+65s</span>1:05</div>
+          <div>
+            <h4>The <em>upgrade</em>.</h4>
+            <p><span class="actor you">You</span> Back to Redline. Scroll to right rail of the ChangeReport. Click "Upgrade to Compliance Pack" CTA.</p>
+            <p><span class="actor audience">Audience sees</span> The Stripe modal &mdash; Elements card form, $999 one-time, three features listed.</p>
+            <p><span class="actor you">You</span> Type <code>4242 4242 4242 4242</code> &middot; <code>12/30</code> &middot; <code>123</code>. Click pay.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="timepoint"><span class="lbl">T+78s</span>1:18</div>
+          <div>
+            <h4>The <em>close</em>.</h4>
+            <p><span class="actor system">System</span> Stripe → webhook → SSE → UI. Modal flips to success state. Behind it, the "Generate Evidence Bundle" button on the page is now unlocked.</p>
+            <p><span class="actor you">You</span> Click "Generate Bundle". Print-view appears, 4 pages, letter paper, full citation chronology. Cmd-P to show the PDF preview &mdash; close it without saving.</p>
+            <p><span class="actor you">You say</span> <em>"That's it. One vendor, one rule, one alert, one auditor-ready PDF. Multiply by 143 vendors and a six-hour cadence and you have the always-on layer above your entire stack."</em></p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── FALLBACKS ─── -->
+    <section class="s" id="fallbacks">
+      <div class="s-head">
+        <div>
+          <div class="num">07</div>
+          <h2>Fallback paths.</h2>
+        </div>
+        <div class="status">
+          <span class="chip mock"><span class="d"></span>6 pre-approved</span>
+        </div>
+      </div>
+
+      <p class="lede">Six things that could break on stage. For each: what triggers it, what the audience sees, what you do. Anything not on this list = no fallback. Don't improvise &mdash; just call it.</p>
+
+      <div class="fallback">
+        <span class="ico">⓵</span>
+        <div>
+          <h4>Nimble fetch fails or times out <span class="when">F1</span></h4>
+          <p><strong>Trigger:</strong> Nimble returns &gt;500, times out (12s), or rate-limits us.</p>
+          <p><strong>Detection:</strong> AgentRun row goes to <code>status:"failed"</code> with <code>errorStage:"fetch"</code>. SSE <code>run.stage</code> with <code>status:"failed"</code> fires.</p>
+          <p><strong>What audience sees:</strong> No new ChangeReport. Activity feed stays on previous changes. Live pip continues.</p>
+          <p><strong>You do:</strong> Treat as if the demo moment just happened earlier. Click on the seeded <em>"chg_seed_notion_yesterday"</em> change in the activity feed instead &mdash; same diff, same Slack message, same Senso URL (which was pre-published yesterday). The narration doesn't change.</p>
+        </div>
+      </div>
+
+      <div class="fallback">
+        <span class="ico">⓶</span>
+        <div>
+          <h4>Gemini returns invalid JSON / fails schema <span class="when">F2</span></h4>
+          <p><strong>Trigger:</strong> Gemini's response doesn't parse against <code>ChangeReportSchema</code>.</p>
+          <p><strong>Detection:</strong> AgentRun fails with <code>errorStage:"reason"</code>. zod error in logs.</p>
+          <p><strong>You do:</strong> Same as F1 — switch to the seeded ChangeReport. Don't retry Gemini live (risk eating more time). If it's a recurring schema issue during dry-run, raise temperature toward 0 and inspect the prompt; do not change the schema.</p>
+        </div>
+      </div>
+
+      <div class="fallback">
+        <span class="ico">⓷</span>
+        <div>
+          <h4>Slack webhook 4xx/5xx <span class="when">F3</span></h4>
+          <p><strong>Trigger:</strong> Webhook URL expired, channel deleted, rate-limited.</p>
+          <p><strong>Detection:</strong> Action row status <code>failed</code>. Slack window shows no new message.</p>
+          <p><strong>You do:</strong> <em>"And we just routed this to Slack..."</em> &mdash; do not Cmd-Tab. Keep the audience on the ChangeReport screen, point at the "Slack · delivered" badge in the Routed Actions panel (which is a typed Action row, not a live confirmation). Make the Senso evidence moment the credibility beat instead.</p>
+        </div>
+      </div>
+
+      <div class="fallback">
+        <span class="ico">⓸</span>
+        <div>
+          <h4>Senso publish fails <span class="when">F4</span></h4>
+          <p><strong>Trigger:</strong> Senso API errors or auth fails.</p>
+          <p><strong>Detection:</strong> <code>changeReport.sensoUrl</code> is null. SSE <code>change.detected</code> fires with empty sensoUrl.</p>
+          <p><strong>You do:</strong> Clicking "View evidence" routes to our <code>/evidence/:id</code> fallback (the same Senso-shaped template hosted locally). URL bar shows <code>localhost</code> instead of <code>senso.com</code> &mdash; absorb this with one line: <em>"Today this is hosted on our infra; in prod it lives at a permalink on senso.com."</em></p>
+        </div>
+      </div>
+
+      <div class="fallback">
+        <span class="ico">⓹</span>
+        <div>
+          <h4>Stripe rejects or Elements fails to load <span class="when">F5</span></h4>
+          <p><strong>Trigger:</strong> Stripe API timeout, test card declined, blocked third-party JS, etc.</p>
+          <p><strong>Detection:</strong> Visible &mdash; the modal hangs on "Processing..." for &gt;3s.</p>
+          <p><strong>You do:</strong> Press <kbd>Shift</kbd>+<kbd>Enter</kbd> inside the modal. This fires a hidden <code>payment_intent.succeeded</code> directly to the webhook. UI behaves identically to the real success path. (This is the only "demo hack" we allow; runbook authorises it.)</p>
+        </div>
+      </div>
+
+      <div class="fallback">
+        <span class="ico">⓺</span>
+        <div>
+          <h4>ClickHouse query slow / connection drop <span class="when">F6</span></h4>
+          <p><strong>Trigger:</strong> Cold cloud instance, network blip.</p>
+          <p><strong>Detection:</strong> Portfolio loads with skeletons that hang &gt;3s.</p>
+          <p><strong>You do:</strong> The first action of the demo is to land on Portfolio &mdash; <em>before</em> you start narrating, refresh once. If it's still slow when you actually demo, walk on with the page already loaded. Do not show a loading skeleton on stage.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TRACKS ─── -->
+    <section class="s" id="tracks">
+      <div class="s-head">
+        <div>
+          <div class="num">08</div>
+          <h2>5.5h timeline &middot; <em>track by track</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>3 devs</span>
+        </div>
+      </div>
+
+      <p class="lede">Three tracks running in parallel from T+0. The mid-day sync at T+2:30 is the only mandatory checkpoint. Hard stop at T+4:30 &mdash; no new features after that; the last hour is exclusively dry-runs and fixing what dry-runs reveal.</p>
+
+      <h3 class="sub">Track A &middot; <em>agents &amp; pipeline</em></h3>
+      <table class="tracks">
+        <thead><tr><th>Window</th><th>Task</th><th>Done when</th></tr></thead>
+        <tbody>
+          <tr><td class="time">T+0 → T+0:45</td><td class="task">Hono server skeleton · ClickHouse client + DDL migration · seed loader for vendors/users/policies</td><td class="dep"><b>API responds</b></td></tr>
+          <tr><td class="time">T+0:45 → T+1:30</td><td class="task">Nimble client · hash-cache · Snapshot persistence</td><td class="dep"><b>1 URL fetched live</b></td></tr>
+          <tr><td class="time">T+1:30 → T+2:30</td><td class="task">Gemini client · <code>responseSchema</code> · ChangeReport persistence · policy engine (6 predicates, 3 rules)</td><td class="dep"><b>1 ChangeReport in DB</b></td></tr>
+          <tr><td class="time">T+2:30 → T+3:30</td><td class="task">Senso publish · always-on scheduler · <code>POST /v1/admin/vendors/:id/scan</code> · agent_traces persistence</td><td class="dep"><b>Demo path E2E</b></td></tr>
+          <tr><td class="time">T+3:30 → T+4:30</td><td class="task">Slack Block Kit + webhook fire wiring · typed Jira/Email/Calendar Actions · SSE event emission for run.stage, change.detected, action.delivered</td><td class="dep"><b>Routed actions visible</b></td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub">Track B &middot; <em>API &amp; routing</em></h3>
+      <table class="tracks">
+        <thead><tr><th>Window</th><th>Task</th><th>Done when</th></tr></thead>
+        <tbody>
+          <tr><td class="time">T+0 → T+1:00</td><td class="task">Routes: <code>GET /portfolio/stats</code>, <code>GET /vendors</code>, <code>GET /vendors/:id</code>, <code>GET /changes</code>, <code>GET /changes/:id</code></td><td class="dep"><b>UI loads with real data</b></td></tr>
+          <tr><td class="time">T+1:00 → T+2:00</td><td class="task">State-change routes: <code>/acknowledge</code>, <code>/snooze</code>, <code>/resolve</code> · <code>POST /vendors</code> with URL discovery · scheduler.tick emission</td><td class="dep"><b>State machine works</b></td></tr>
+          <tr><td class="time">T+2:00 → T+3:00</td><td class="task">SSE channel · keepalive · reconnect handling · client-side EventSource hook in web</td><td class="dep"><b>Browser sees live ticks</b></td></tr>
+          <tr><td class="time">T+3:00 → T+4:00</td><td class="task">Slack Block Kit message renderer · webhook fire · Action persistence for Jira/Email/Calendar</td><td class="dep"><b>Slack message lands</b></td></tr>
+          <tr><td class="time">T+4:00 → T+4:30</td><td class="task">Policies route · bundles routes · error envelope polish</td><td class="dep"><b>API surface complete</b></td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub">Track C &middot; <em>billing &amp; UI wiring</em></h3>
+      <table class="tracks">
+        <thead><tr><th>Window</th><th>Task</th><th>Done when</th></tr></thead>
+        <tbody>
+          <tr><td class="time">T+0 → T+1:00</td><td class="task">Stripe Elements modal · <code>POST /billing/payment-intents</code> · client confirm flow · success state listening to SSE <code>org.entitlements.changed</code></td><td class="dep"><b>$999 test payment works</b></td></tr>
+          <tr><td class="time">T+1:00 → T+1:45</td><td class="task">Stripe webhook handler · signature verification · flip <code>org.compliancePack</code> · persist Action(payment)</td><td class="dep"><b>Webhook visible in CH</b></td></tr>
+          <tr><td class="time">T+1:45 → T+2:45</td><td class="task">Evidence Bundle screen · letter-paper print CSS · <code>GET /bundles/:id</code> · Senso brief template at <code>/evidence/:id</code></td><td class="dep"><b>Cmd-P produces PDF</b></td></tr>
+          <tr><td class="time">T+2:45 → T+3:45</td><td class="task">Add Vendor screen · 4-field form · <code>POST /vendors</code> · "first scan" SSE subscription</td><td class="dep"><b>Onboard flow works</b></td></tr>
+          <tr><td class="time">T+3:45 → T+4:30</td><td class="task">Wire Portfolio + ChangeReport screens to live API · live pip on Portfolio · toast on SSE <code>change.detected</code></td><td class="dep"><b>UI fully live</b></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn" style="margin-top: 18px;">
+        <span class="ico">●</span>
+        <div>
+          <h4>The two mandatory checkpoints</h4>
+          <p><strong>T+2:30 · Mid-day sync · 15 min.</strong> Track A has Gemini returning structured output, Track B has Slack firing, Track C has Stripe Elements opening. Connect end-to-end: a real Notion run produces a real ChangeReport that fires a real Slack message and unlocks the bundle button. Anything that doesn't connect by this checkpoint moves to its scripted fallback.</p>
+          <p><strong>T+4:30 · Hard stop · dry-run begins.</strong> One hour, three end-to-end takes. Anyone still adding features at T+4:31 is the reason we don't ship. Fix only what the dry-run reveals.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── T-ZERO ─── -->
+    <section class="s" id="tco">
+      <div class="s-head">
+        <div>
+          <div class="num">09</div>
+          <h2>T-zero <em>checklist</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip open"><span class="d"></span>Walk through before stage</span>
+        </div>
+      </div>
+
+      <p class="lede">Five minutes before you walk on. Walk through this list. If any item is red, take the corresponding fallback proactively &mdash; don't discover it on stage.</p>
+
+      <div class="checklist">
+        <h4>Five minutes before</h4>
+        <ul>
+          <li><b>Portfolio loads</b> in &lt;2s &middot; live pip blinking</li>
+          <li><b>SSE connected</b> · activity feed prepends new ticks every ~8s</li>
+          <li><b>Manual rehearsal:</b> hit <code>POST /v1/admin/vendors/vnd_notion/scan?forceGemini=true</code> &middot; new ChangeReport in &lt;6s</li>
+          <li><b>Slack window</b>: at least one prior demo-run message visible (proves the webhook is alive)</li>
+          <li><b>Stripe CLI tunnel</b> running &middot; <code>stripe listen</code> in front-most terminal</li>
+          <li><b>Senso URL</b> from the rehearsal opens in incognito (verifies it's actually public)</li>
+          <li><b>Browser zoom</b> at 100% &middot; portfolio not at 80% from coding</li>
+          <li><b>Toast notifications</b> permission granted in browser (for Mac OS chrome)</li>
+          <li><b>External display</b> mirror mode on &middot; cursor visible</li>
+          <li><b>Notifications silenced</b> on laptop (no incoming Slack DM popping up over the demo)</li>
+        </ul>
+      </div>
+
+      <div class="callout ok" style="margin-top: 14px;">
+        <span class="ico">✓</span>
+        <div>
+          <h4>If all green, you're ready</h4>
+          <p>The agent will keep running while you talk. The Notion change will appear on its own. You don't have to make anything happen &mdash; that's the whole point of always-on. Tell that story.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="six"><span class="a"></span><span class="b"></span><span class="t"></span><span class="g"></span><span class="s"></span><span class="l"></span></div>
+  <div class="meta">REDLINE · RUNBOOK · <b>v1.0</b> · 2026-05-23 · <a href="index.html">Index</a> · <a href="Product Decisions.html">Decisions</a> · <a href="API.html">API</a> · <a href="Data Model.html">Data</a></div>
+</footer>
+
+<script>
+  const navLinks = document.querySelectorAll('#toc a');
+  const targets = [...navLinks].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  targets.forEach(t => io.observe(t));
+</script>
+
+</body>
+</html>

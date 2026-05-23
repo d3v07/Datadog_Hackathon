@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redline · Data model · TS + ClickHouse</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="handoff.css">
+<style>
+  .entity {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 22px;
+    overflow: hidden;
+  }
+  .entity-head {
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .entity-name { font-family: var(--font-display); font-weight: 500; font-size: 18px; letter-spacing: -0.015em; color: var(--text-strong); font-variation-settings: "opsz" 24; }
+  .entity-name code { font-family: var(--font-mono); font-size: 14px; background: var(--bg); padding: 2px 8px; border-radius: 5px; color: var(--tangerine); margin-left: 8px; }
+  .entity-desc { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+  .entity-store {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--hairline); color: var(--muted);
+  }
+  .entity-store.ch { color: var(--aqua); border-color: rgba(91,160,240,0.30); background: rgba(91,160,240,0.06); }
+  .entity-store.mem { color: var(--lime); border-color: rgba(181,220,85,0.30); background: rgba(181,220,85,0.06); }
+  .entity-store.seed { color: var(--grape); border-color: rgba(160,151,216,0.30); background: rgba(160,151,216,0.06); }
+  .entity-body { padding: 16px 20px 18px; }
+  .entity-body pre.code { margin-bottom: 14px; }
+  .entity-body pre.code:last-child { margin-bottom: 0; }
+
+  /* ── side TOC ── */
+  .toc-wrap { position: sticky; top: 84px; height: max-content; max-height: calc(100vh - 100px); overflow-y: auto; }
+  .ent-nav { display: grid; gap: 2px; font-family: var(--font-mono); font-size: 11.5px; }
+  .ent-nav .grp { margin-top: 14px; }
+  .ent-nav .grp:first-child { margin-top: 0; }
+  .ent-nav .grp-lbl { font-size: 9.5px; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px; padding-left: 4px; }
+  .ent-nav a {
+    display: flex; gap: 8px; align-items: baseline;
+    text-decoration: none; padding: 6px 10px; border-radius: 6px;
+    color: var(--text-2); line-height: 1.3;
+    transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+  .ent-nav a:hover { background: var(--surface); color: var(--text); }
+  .ent-nav a.active { background: var(--surface); color: var(--text-strong); }
+  .ent-nav a code { font-family: var(--font-mono); font-size: 11px; color: var(--text-2); }
+  .ent-nav a.active code { color: var(--bondi); }
+
+  /* ── ER diagram (text) ── */
+  .er { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; margin-bottom: 24px; }
+  .er-row { display: grid; grid-template-columns: 200px 1fr; gap: 18px; padding: 8px 0; border-top: 1px solid var(--hairline); }
+  .er-row:first-child { border-top: none; padding-top: 0; }
+  .er-row .from { font-family: var(--font-mono); font-size: 12.5px; color: var(--text); }
+  .er-row .from b { color: var(--tangerine); font-weight: 500; }
+  .er-row .rel { font-size: 13px; color: var(--text-2); }
+  .er-row .rel code { font-family: var(--font-mono); font-size: 11.5px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; color: var(--bondi); }
+
+  /* ── table header / sub-section ── */
+  h3.sub {
+    font-family: var(--font-display); font-weight: 500; font-size: 22px;
+    letter-spacing: -0.022em; color: var(--text-strong); margin: 32px 0 14px;
+    font-variation-settings: "opsz" 32;
+  }
+  h3.sub:first-child { margin-top: 0; }
+  h3.sub em { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+  h3.sub .crumb { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-left: 12px; vertical-align: middle; }
+
+  .small-note { font-size: 12px; color: var(--muted); margin-top: 8px; font-family: var(--font-mono); letter-spacing: 0.02em; }
+  .small-note b { color: var(--text-2); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/logo-mark.svg" alt="">
+    <span class="word">Redline</span>
+  </div>
+  <span class="crumb">Hackathon · <b>Data model</b> · v1.0</span>
+  <span class="spacer"></span>
+  <nav class="tabs">
+    <a href="index.html">Index</a>
+    <a href="Product Decisions.html">Decisions</a>
+    <a href="API.html">API</a>
+    <a href="Data Model.html" class="current">Data</a>
+    <a href="Runbook.html">Runbook</a>
+  </nav>
+</header>
+
+<div class="layout">
+
+  <aside class="toc-wrap">
+    <div class="toc-label">Entities</div>
+    <nav class="ent-nav">
+      <div class="grp">
+        <div class="grp-lbl">Overview</div>
+        <a href="#er-map"><code>§</code> Relationship map</a>
+        <a href="#shared"><code>§</code> Shared types</a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Tenant</div>
+        <a href="#org"><code>Org</code></a>
+        <a href="#user"><code>User</code></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Catalog</div>
+        <a href="#vendor"><code>Vendor</code></a>
+        <a href="#policy"><code>Policy</code></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Append-only events</div>
+        <a href="#snapshot"><code>Snapshot</code></a>
+        <a href="#change-report"><code>ChangeReport</code></a>
+        <a href="#change"><code>Change</code></a>
+        <a href="#citation"><code>Citation</code></a>
+        <a href="#action"><code>Action</code></a>
+        <a href="#agent-run"><code>AgentRun</code></a>
+        <a href="#bundle"><code>EvidenceBundle</code></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">ClickHouse</div>
+        <a href="#ddl"><code>§</code> 5 tables &middot; DDL</a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Seed files</div>
+        <a href="#seed"><code>§</code> JSON / YAML on disk</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main>
+
+    <div class="hero">
+      <div class="eyebrow">03 · the schema</div>
+      <h1>Data model, <em>tight</em>.</h1>
+      <p>Eleven entities. Five live in ClickHouse (append-only, immutable rows). Six live in process memory (loaded from seed files at boot). Every interface below is the source of truth for both the API and the database &mdash; zod parsers derive from these shapes. Copy-paste straight into <code>src/types.ts</code>.</p>
+      <div class="quickstats">
+        <div class="qs"><div class="lbl">Interfaces</div><div class="val">11</div><div class="sub">5 ClickHouse · 6 in-memory</div></div>
+        <div class="qs"><div class="lbl">CH tables</div><div class="val bondi">5</div><div class="sub">all append-only</div></div>
+        <div class="qs"><div class="lbl">Seed files</div><div class="val lime">5</div><div class="sub">JSON / YAML on disk</div></div>
+        <div class="qs"><div class="lbl">Cut from vision</div><div class="val tang">4</div><div class="sub">directorySync · invoice · spendFinding · renewalEvent</div></div>
+      </div>
+    </div>
+
+    <!-- ── ER ─── -->
+    <section class="s" id="er-map">
+      <div class="s-head">
+        <div>
+          <div class="num">01</div>
+          <h2>Relationship <em>map</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>1 org · everything else scoped to it</span>
+        </div>
+      </div>
+
+      <p class="lede">Org is the root. Everything else carries <code>orgId</code> and queries scope to it. Vendors carry the catalog; Snapshots / ChangeReports / Actions / AgentRuns are the time-series spine.</p>
+
+      <div class="er">
+        <div class="er-row">
+          <div class="from"><b>Org</b> 1 — n <b>User</b></div>
+          <div class="rel">Users belong to one org. Roles: <code>procurement</code> · <code>legal</code> · <code>security</code> · <code>owner</code>.</div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>Org</b> 1 — n <b>Vendor</b></div>
+          <div class="rel">Vendors are catalog rows; <code>vendor.ownerId</code> → <code>User.id</code> sets the route target for <code>slack:@vendorOwner</code>.</div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>Org</b> 1 — n <b>Policy</b></div>
+          <div class="rel">Loaded from <code>seed/policies.yaml</code>; org-scoped at the file level (single org today).</div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>Vendor</b> 1 — n <b>Snapshot</b></div>
+          <div class="rel">One snapshot per URL per scan. Append-only; the latest two per <code>(vendorId, url)</code> drive the diff.</div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>Vendor</b> 1 — n <b>AgentRun</b></div>
+          <div class="rel">One row per scheduled tick (always-on cadence). Carries 7 stage events in the <code>agent_traces</code> table.</div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>AgentRun</b> 1 — 0..1 <b>ChangeReport</b></div>
+          <div class="rel">Runs that detect a diff produce a ChangeReport. Unchanged runs still record the run with <code>status:"unchanged"</code> so the "last scan" timestamp keeps advancing.</div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>ChangeReport</b> 1 — n <b>Change</b></div>
+          <div class="rel">Each Change is one categorised diff (data / pricing / sub-processor / terms / SLA / security). <em>Embedded</em> in the report JSON.</div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>Change</b> 1 — n <b>Citation</b></div>
+          <div class="rel">Mandatory: every Change has ≥1 Citation with verbatim quote + URL + timestamp. <em>No citation, no claim.</em></div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>Policy</b> 1 — n <b>ChangeReport</b></div>
+          <div class="rel">The "first-match-wins" rule that fired. Stored as <code>policyFiredId</code> on the report; other matches stored in <code>policyAlsoMatched[]</code>.</div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>ChangeReport</b> 1 — n <b>Action</b></div>
+          <div class="rel">Routed actions (Slack / Jira / email / calendar / payment). Slack &amp; payment make real external calls; others are typed records only.</div>
+        </div>
+        <div class="er-row">
+          <div class="from"><b>Org</b> 1 — n <b>EvidenceBundle</b></div>
+          <div class="rel">Generated on demand. Snapshots a date range × vendor set → Senso publish.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SHARED TYPES ─── -->
+    <section class="s" id="shared">
+      <div class="s-head">
+        <div>
+          <div class="num">02</div>
+          <h2>Shared types.</h2>
+        </div>
+      </div>
+
+      <p class="lede">Enums and primitives used across multiple interfaces. Keeping these centralised is what lets zod compose cleanly.</p>
+
+      <p class="code-cap"><span>Enums &amp; ID brands</span><span class="file">src/types/shared.ts</span></p>
+      <pre class="code"><span class="kw">export type</span> <span class="type">Iso8601</span> <span class="punct">=</span> <span class="type">string</span><span class="punct">;</span>     <span class="com">// "2026-05-23T13:14:42Z"</span>
+<span class="kw">export type</span> <span class="type">IsoDate</span> <span class="punct">=</span> <span class="type">string</span><span class="punct">;</span>     <span class="com">// "2026-05-23"</span>
+<span class="kw">export type</span> <span class="type">Sha256</span> <span class="punct">=</span> <span class="type">string</span><span class="punct">;</span>      <span class="com">// 64-char hex</span>
+
+<span class="com">// Branded ids — prevent accidental cross-entity passes</span>
+<span class="kw">export type</span> <span class="type">OrgId</span>         <span class="punct">=</span> <span class="type">string</span> <span class="punct">&amp;</span> <span class="punct">{</span> readonly __brand<span class="punct">:</span> <span class="str">"OrgId"</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">UserId</span>        <span class="punct">=</span> <span class="type">string</span> <span class="punct">&amp;</span> <span class="punct">{</span> readonly __brand<span class="punct">:</span> <span class="str">"UserId"</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">VendorId</span>      <span class="punct">=</span> <span class="type">string</span> <span class="punct">&amp;</span> <span class="punct">{</span> readonly __brand<span class="punct">:</span> <span class="str">"VendorId"</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">PolicyId</span>      <span class="punct">=</span> <span class="type">string</span> <span class="punct">&amp;</span> <span class="punct">{</span> readonly __brand<span class="punct">:</span> <span class="str">"PolicyId"</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">SnapshotId</span>    <span class="punct">=</span> <span class="type">string</span> <span class="punct">&amp;</span> <span class="punct">{</span> readonly __brand<span class="punct">:</span> <span class="str">"SnapshotId"</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">ChangeReportId</span><span class="punct">=</span> <span class="type">string</span> <span class="punct">&amp;</span> <span class="punct">{</span> readonly __brand<span class="punct">:</span> <span class="str">"ChangeReportId"</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">ActionId</span>      <span class="punct">=</span> <span class="type">string</span> <span class="punct">&amp;</span> <span class="punct">{</span> readonly __brand<span class="punct">:</span> <span class="str">"ActionId"</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">RunId</span>         <span class="punct">=</span> <span class="type">string</span> <span class="punct">&amp;</span> <span class="punct">{</span> readonly __brand<span class="punct">:</span> <span class="str">"RunId"</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">BundleId</span>      <span class="punct">=</span> <span class="type">string</span> <span class="punct">&amp;</span> <span class="punct">{</span> readonly __brand<span class="punct">:</span> <span class="str">"BundleId"</span> <span class="punct">};</span>
+
+<span class="com">// Id prefixes — generated server-side from `${prefix}_${ulid()}`</span>
+<span class="kw">export const</span> ID_PREFIX <span class="punct">=</span> <span class="punct">{</span>
+  org<span class="punct">:</span> <span class="str">"org"</span><span class="punct">,</span> user<span class="punct">:</span> <span class="str">"usr"</span><span class="punct">,</span> vendor<span class="punct">:</span> <span class="str">"vnd"</span><span class="punct">,</span> policy<span class="punct">:</span> <span class="str">"pol"</span><span class="punct">,</span>
+  snapshot<span class="punct">:</span> <span class="str">"snp"</span><span class="punct">,</span> changeReport<span class="punct">:</span> <span class="str">"chg"</span><span class="punct">,</span> action<span class="punct">:</span> <span class="str">"act"</span><span class="punct">,</span>
+  run<span class="punct">:</span> <span class="str">"run"</span><span class="punct">,</span> bundle<span class="punct">:</span> <span class="str">"bnd"</span><span class="punct">,</span>
+<span class="punct">}</span> <span class="kw">as const</span><span class="punct">;</span>
+
+<span class="kw">export type</span> <span class="type">Severity</span>     <span class="punct">=</span> <span class="str">"P1"</span> <span class="punct">|</span> <span class="str">"P2"</span> <span class="punct">|</span> <span class="str">"P3"</span><span class="punct">;</span>
+
+<span class="kw">export type</span> <span class="type">VendorTier</span>   <span class="punct">=</span> <span class="num">1</span> <span class="punct">|</span> <span class="num">2</span> <span class="punct">|</span> <span class="num">3</span><span class="punct">;</span>
+<span class="kw">export type</span> <span class="type">Posture</span>      <span class="punct">=</span> <span class="str">"ok"</span> <span class="punct">|</span> <span class="str">"watch"</span> <span class="punct">|</span> <span class="str">"risk"</span><span class="punct">;</span>
+<span class="kw">export type</span> <span class="type">DataClass</span>    <span class="punct">=</span> <span class="str">"pii"</span> <span class="punct">|</span> <span class="str">"phi"</span> <span class="punct">|</span> <span class="str">"financial"</span> <span class="punct">|</span> <span class="str">"content"</span><span class="punct">;</span>
+<span class="kw">export type</span> <span class="type">UserRole</span>     <span class="punct">=</span> <span class="str">"procurement"</span> <span class="punct">|</span> <span class="str">"legal"</span> <span class="punct">|</span> <span class="str">"security"</span> <span class="punct">|</span> <span class="str">"owner"</span><span class="punct">;</span>
+
+<span class="kw">export type</span> <span class="type">ChangeCategory</span> <span class="punct">=</span>
+  <span class="punct">|</span> <span class="str">"data"</span>          <span class="com">// retention, residency, sub-processors-of-data</span>
+  <span class="punct">|</span> <span class="str">"pricing"</span>       <span class="com">// price, minimums, overages</span>
+  <span class="punct">|</span> <span class="str">"subprocessor"</span>  <span class="com">// add/remove/change of sub-processor</span>
+  <span class="punct">|</span> <span class="str">"terms"</span>         <span class="com">// liability, indemnity, termination</span>
+  <span class="punct">|</span> <span class="str">"sla"</span>           <span class="com">// uptime, credits, response time</span>
+  <span class="punct">|</span> <span class="str">"security"</span><span class="punct">;</span>     <span class="com">// posture / certs / disclosures</span>
+
+<span class="kw">export type</span> <span class="type">Materiality</span>  <span class="punct">=</span> <span class="str">"material"</span> <span class="punct">|</span> <span class="str">"minor"</span> <span class="punct">|</span> <span class="str">"cosmetic"</span><span class="punct">;</span>
+
+<span class="kw">export type</span> <span class="type">ChangeState</span>  <span class="punct">=</span>
+  <span class="str">"new"</span> <span class="punct">|</span> <span class="str">"acknowledged"</span> <span class="punct">|</span> <span class="str">"in-progress"</span> <span class="punct">|</span> <span class="str">"resolved"</span> <span class="punct">|</span> <span class="str">"snoozed"</span><span class="punct">;</span>
+
+<span class="kw">export type</span> <span class="type">Resolution</span>   <span class="punct">=</span>
+  <span class="str">"accepted"</span> <span class="punct">|</span> <span class="str">"renegotiated"</span> <span class="punct">|</span> <span class="str">"rejected"</span> <span class="punct">|</span> <span class="str">"no-action"</span><span class="punct">;</span>
+
+<span class="kw">export type</span> <span class="type">ActionKind</span>   <span class="punct">=</span>
+  <span class="str">"slack"</span> <span class="punct">|</span> <span class="str">"jira"</span> <span class="punct">|</span> <span class="str">"email"</span> <span class="punct">|</span> <span class="str">"calendar"</span> <span class="punct">|</span> <span class="str">"draft"</span> <span class="punct">|</span> <span class="str">"payment"</span><span class="punct">;</span>
+
+<span class="kw">export type</span> <span class="type">ActionStatus</span> <span class="punct">=</span>
+  <span class="str">"queued"</span> <span class="punct">|</span> <span class="str">"delivered"</span> <span class="punct">|</span> <span class="str">"failed"</span> <span class="punct">|</span> <span class="str">"acknowledged"</span><span class="punct">;</span>
+
+<span class="kw">export type</span> <span class="type">RunStage</span>     <span class="punct">=</span>
+  <span class="str">"fetch"</span> <span class="punct">|</span> <span class="str">"diff"</span> <span class="punct">|</span> <span class="str">"reason"</span> <span class="punct">|</span> <span class="str">"classify"</span> <span class="punct">|</span> <span class="str">"route"</span> <span class="punct">|</span> <span class="str">"publish"</span><span class="punct">;</span>
+
+<span class="kw">export type</span> <span class="type">RunStatus</span>    <span class="punct">=</span>
+  <span class="str">"running"</span> <span class="punct">|</span> <span class="str">"unchanged"</span> <span class="punct">|</span> <span class="str">"changed"</span> <span class="punct">|</span> <span class="str">"failed"</span><span class="punct">;</span></pre>
+    </section>
+
+    <!-- ── ENTITIES ─── -->
+    <section class="s" id="entities-section">
+      <div class="s-head">
+        <div>
+          <div class="num">03</div>
+          <h2>The eleven <em>interfaces</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>Source of truth</span>
+        </div>
+      </div>
+
+      <p class="lede">Every entity below. Optional fields are flagged with <code>?</code>. Anything not in this set is out of scope today &mdash; if your code wants to read a field that isn't here, escalate to product, don't invent it.</p>
+
+      <article class="entity" id="org">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>Org</code></div>
+            <div class="entity-desc">The tenant. Single seeded org for the hackathon.</div>
+          </div>
+          <span class="entity-store mem">In-memory</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">Org</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">OrgId</span><span class="punct">;</span>
+  name<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  seatCount<span class="punct">:</span> <span class="type">number</span><span class="punct">;</span>
+  createdAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  entitlements<span class="punct">:</span> <span class="punct">{</span>
+    compliancePack<span class="punct">:</span> <span class="type">boolean</span><span class="punct">;</span>   <span class="com">// flipped by Stripe webhook</span>
+    auditorPortal<span class="punct">:</span> <span class="type">boolean</span><span class="punct">;</span>    <span class="com">// implied by compliancePack today</span>
+  <span class="punct">};</span>
+<span class="punct">}</span></pre>
+          <p class="small-note"><b>Note:</b> a single seeded org (<code>org_acme</code>). The bearer-token → orgId resolver is one hardcoded entry in <code>seed/tokens.json</code>.</p>
+        </div>
+      </article>
+
+      <article class="entity" id="user">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>User</code></div>
+            <div class="entity-desc">Identity for routing. Six seeded users.</div>
+          </div>
+          <span class="entity-store mem">In-memory</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">User</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">UserId</span><span class="punct">;</span>
+  orgId<span class="punct">:</span> <span class="type">OrgId</span><span class="punct">;</span>
+  name<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  email<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  role<span class="punct">:</span> <span class="type">UserRole</span><span class="punct">;</span>
+  avatarLetter<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>           <span class="com">// 1 char, derived from name</span>
+  slackUserId<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>           <span class="com">// resolves slack:@vendorOwner routes</span>
+<span class="punct">}</span></pre>
+        </div>
+      </article>
+
+      <article class="entity" id="vendor">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>Vendor</code></div>
+            <div class="entity-desc">The monitored entity. Catalog row.</div>
+          </div>
+          <span class="entity-store mem">In-memory · seeded · mutable at runtime</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">Vendor</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">VendorId</span><span class="punct">;</span>
+  orgId<span class="punct">:</span> <span class="type">OrgId</span><span class="punct">;</span>
+  name<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  category<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                <span class="com">// "productivity", "infra", "payments", ...</span>
+  tier<span class="punct">:</span> <span class="type">VendorTier</span><span class="punct">;</span>
+  posture<span class="punct">:</span> <span class="type">Posture</span><span class="punct">;</span>              <span class="com">// derived; refreshed after each run</span>
+  dataClasses<span class="punct">:</span> <span class="type">DataClass</span><span class="punct">[];</span>      <span class="com">// what data they process</span>
+  ownerId<span class="punct">:</span> <span class="type">UserId</span><span class="punct">;</span>
+
+  urls<span class="punct">:</span> <span class="punct">{</span>
+    homepage<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+    terms<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+    pricing<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+    dpa<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+    subProcessors<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+    security<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+    sla<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  <span class="punct">};</span>
+
+  contract<span class="punct">?</span><span class="punct">:</span> <span class="punct">{</span>
+    renewsAt<span class="punct">:</span> <span class="type">IsoDate</span><span class="punct">;</span>
+    annualSpendUsd<span class="punct">:</span> <span class="type">number</span><span class="punct">;</span>
+    seatCount<span class="punct">:</span> <span class="type">number</span><span class="punct">;</span>
+  <span class="punct">};</span>
+
+  lastScanAt<span class="punct">?</span><span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>            <span class="com">// derived; updated after each AgentRun</span>
+  latestChangeId<span class="punct">?</span><span class="punct">:</span> <span class="type">ChangeReportId</span><span class="punct">;</span>
+<span class="punct">}</span></pre>
+          <p class="small-note"><b>Cut from vision:</b> <code>statusPage</code>, <code>signedDpaUrl</code>, <code>directorySourceId</code>. Optional fields backend can include if zero-cost; UI ignores.</p>
+        </div>
+      </article>
+
+      <article class="entity" id="policy">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>Policy</code></div>
+            <div class="entity-desc">YAML rule. Loaded at boot, evaluated in process.</div>
+          </div>
+          <span class="entity-store seed">Seed YAML → memory</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">Policy</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">PolicyId</span><span class="punct">;</span>
+  orgId<span class="punct">:</span> <span class="type">OrgId</span><span class="punct">;</span>
+  name<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  description<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+
+  <span class="com">// the YAML predicate block, parsed</span>
+  when<span class="punct">:</span> <span class="type">Record&lt;string, string&gt;</span><span class="punct">;</span>
+
+  then<span class="punct">:</span> <span class="punct">{</span>
+    severity<span class="punct">:</span> <span class="type">Severity</span><span class="punct">;</span>
+    route<span class="punct">:</span> <span class="type">string</span><span class="punct">[];</span>                <span class="com">// e.g. ["slack:#sec-grc", "jira:SEC"]</span>
+  <span class="punct">};</span>
+
+  version<span class="punct">:</span> <span class="type">number</span><span class="punct">;</span>
+  isActive<span class="punct">:</span> <span class="type">boolean</span><span class="punct">;</span>
+  createdBy<span class="punct">:</span> <span class="type">UserId</span><span class="punct">;</span>
+  createdAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+
+  <span class="com">// raw YAML kept for the read-only UI panel</span>
+  dsl<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+<span class="punct">}</span>
+
+<span class="com">// Six predicate forms — runtime evaluator</span>
+<span class="kw">export type</span> <span class="type">PredicateOp</span> <span class="punct">=</span>
+  <span class="punct">|</span> <span class="punct">{</span> kind<span class="punct">:</span> <span class="str">"matches"</span><span class="punct">;</span>   value<span class="punct">:</span> <span class="type">string</span> <span class="punct">}</span>          <span class="com">// substring match</span>
+  <span class="punct">|</span> <span class="punct">{</span> kind<span class="punct">:</span> <span class="str">"contains"</span><span class="punct">;</span>  value<span class="punct">:</span> <span class="type">string</span> <span class="punct">}</span>          <span class="com">// array contains</span>
+  <span class="punct">|</span> <span class="punct">{</span> kind<span class="punct">:</span> <span class="str">"gt"</span><span class="punct">;</span>        value<span class="punct">:</span> <span class="type">number</span> <span class="punct">}</span>          <span class="com">// numeric &gt;</span>
+  <span class="punct">|</span> <span class="punct">{</span> kind<span class="punct">:</span> <span class="str">"lt"</span><span class="punct">;</span>        value<span class="punct">:</span> <span class="type">number</span> <span class="punct">}</span>          <span class="com">// numeric &lt;</span>
+  <span class="punct">|</span> <span class="punct">{</span> kind<span class="punct">:</span> <span class="str">"within"</span><span class="punct">;</span>    value<span class="punct">:</span> <span class="type">string</span> <span class="punct">}</span>          <span class="com">// duration "90d", "12h"</span>
+  <span class="punct">|</span> <span class="punct">{</span> kind<span class="punct">:</span> <span class="str">"notIn"</span><span class="punct">;</span>     values<span class="punct">:</span> <span class="type">string</span><span class="punct">[]</span> <span class="punct">}</span>        <span class="com">// "not_in:[a,b,c]"</span>
+  <span class="punct">|</span> <span class="punct">{</span> kind<span class="punct">:</span> <span class="str">"trend"</span><span class="punct">;</span>     dir<span class="punct">:</span> <span class="str">"up"</span> <span class="punct">|</span> <span class="str">"down"</span> <span class="punct">};</span> <span class="com">// computed before/after</span>
+
+<span class="com">// AND-only within a `when` block (no OR/NOT in MVP)</span></pre>
+        </div>
+      </article>
+
+      <article class="entity" id="snapshot">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>Snapshot</code></div>
+            <div class="entity-desc">A fetched page. Append-only. Two per <code>(vendor,url)</code> drive the diff.</div>
+          </div>
+          <span class="entity-store ch">ClickHouse · snapshots</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">Snapshot</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">SnapshotId</span><span class="punct">;</span>
+  orgId<span class="punct">:</span> <span class="type">OrgId</span><span class="punct">;</span>
+  vendorId<span class="punct">:</span> <span class="type">VendorId</span><span class="punct">;</span>
+  runId<span class="punct">:</span> <span class="type">RunId</span><span class="punct">;</span>
+  url<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  fetchedAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  source<span class="punct">:</span> <span class="str">"nimble"</span> <span class="punct">|</span> <span class="str">"seed"</span><span class="punct">;</span>   <span class="com">// only "nimble" in live runs</span>
+  text<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                        <span class="com">// cleaned, navigable</span>
+  hash<span class="punct">:</span> <span class="type">Sha256</span><span class="punct">;</span>                        <span class="com">// of `text`; cache key</span>
+  sourceUrl<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                   <span class="com">// final URL after redirects</span>
+<span class="punct">}</span></pre>
+          <p class="small-note"><b>Why store text in the row?</b> ClickHouse compresses string columns well; we need the text on hand to render the Senso brief and Evidence Bundle without re-fetching.</p>
+        </div>
+      </article>
+
+      <article class="entity" id="change-report">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>ChangeReport</code></div>
+            <div class="entity-desc">The deliverable. One row per detected diff. Embeds Change[] and Citation[].</div>
+          </div>
+          <span class="entity-store ch">ClickHouse · change_reports</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">ChangeReport</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">ChangeReportId</span><span class="punct">;</span>
+  orgId<span class="punct">:</span> <span class="type">OrgId</span><span class="punct">;</span>
+  vendorId<span class="punct">:</span> <span class="type">VendorId</span><span class="punct">;</span>
+  runId<span class="punct">:</span> <span class="type">RunId</span><span class="punct">;</span>
+  detectedAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+
+  severity<span class="punct">:</span> <span class="type">Severity</span><span class="punct">;</span>
+  state<span class="punct">:</span> <span class="type">ChangeState</span><span class="punct">;</span>
+  acknowledgedAt<span class="punct">?</span><span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  snoozedUntil<span class="punct">?</span><span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  resolvedAt<span class="punct">?</span><span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  resolution<span class="punct">?</span><span class="punct">:</span> <span class="type">Resolution</span><span class="punct">;</span>
+
+  policyFiredId<span class="punct">:</span> <span class="type">PolicyId</span><span class="punct">;</span>
+  policyAlsoMatched<span class="punct">:</span> <span class="type">PolicyId</span><span class="punct">[];</span>
+
+  changes<span class="punct">:</span> <span class="type">Change</span><span class="punct">[];</span>                     <span class="com">// embedded</span>
+
+  recommendation<span class="punct">:</span> <span class="punct">{</span>
+    action<span class="punct">:</span> <span class="str">"renegotiate"</span> <span class="punct">|</span> <span class="str">"escalate"</span> <span class="punct">|</span> <span class="str">"accept"</span> <span class="punct">|</span> <span class="str">"reject"</span><span class="punct">;</span>
+    copy<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                       <span class="com">// 1-line headline for the UI</span>
+  <span class="punct">};</span>
+
+  sensoUrl<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                     <span class="com">// public Senso brief; null if publish failed</span>
+  ownerId<span class="punct">:</span> <span class="type">UserId</span><span class="punct">;</span>
+<span class="punct">}</span></pre>
+          <p class="small-note"><b>State machine:</b> <code>new → acknowledged → in-progress → resolved</code>. <code>snoozed</code> branches off any pre-resolved state and auto-returns to its prior state at <code>snoozedUntil</code>.</p>
+        </div>
+      </article>
+
+      <article class="entity" id="change">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>Change</code></div>
+            <div class="entity-desc">One categorised diff. Embedded in ChangeReport.changes[].</div>
+          </div>
+          <span class="entity-store ch">Embedded (no own table)</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">Change</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                          <span class="com">// local to the report; "d1", "d2", ...</span>
+  category<span class="punct">:</span> <span class="type">ChangeCategory</span><span class="punct">;</span>
+  summary<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                     <span class="com">// ≤140 chars; the headline diff</span>
+  before<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  after<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  materiality<span class="punct">:</span> <span class="type">Materiality</span><span class="punct">;</span>
+
+  dollarImpact<span class="punct">?</span><span class="punct">:</span> <span class="punct">{</span>
+    annualUsd<span class="punct">:</span> <span class="type">number</span><span class="punct">;</span>                <span class="com">// + for cost increase, − for savings</span>
+    pctChange<span class="punct">:</span> <span class="type">number</span><span class="punct">;</span>
+  <span class="punct">};</span>
+
+  citations<span class="punct">:</span> <span class="type">Citation</span><span class="punct">[];</span>                <span class="com">// MIN length 1 — enforced by zod refine</span>
+<span class="punct">}</span></pre>
+        </div>
+      </article>
+
+      <article class="entity" id="citation">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>Citation</code></div>
+            <div class="entity-desc">The grounding primitive. Verbatim quote + URL + when it was true.</div>
+          </div>
+          <span class="entity-store ch">Embedded in Change.citations[]</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">Citation</span> <span class="punct">{</span>
+  url<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                         <span class="com">// the source page</span>
+  quote<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                       <span class="com">// verbatim text from the source</span>
+  section<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                    <span class="com">// e.g. "§7.2 — Data Retention"</span>
+  fetchedAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>                  <span class="com">// when the quote was true</span>
+  country<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                    <span class="com">// optional: for sub-processor citations</span>
+<span class="punct">}</span></pre>
+          <p class="small-note"><b>Trust primitive.</b> Gemini's responseSchema requires every Change to have ≥1 Citation; zod re-validates server-side. If the model fails to produce one, the run halts with <code>SchemaViolation</code>.</p>
+        </div>
+      </article>
+
+      <article class="entity" id="action">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>Action</code></div>
+            <div class="entity-desc">A routed side-effect. Slack &amp; payment are real calls; others are typed records.</div>
+          </div>
+          <span class="entity-store ch">ClickHouse · actions</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">Action</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">ActionId</span><span class="punct">;</span>
+  orgId<span class="punct">:</span> <span class="type">OrgId</span><span class="punct">;</span>
+  changeReportId<span class="punct">?</span><span class="punct">:</span> <span class="type">ChangeReportId</span><span class="punct">;</span>   <span class="com">// null for payment actions</span>
+  kind<span class="punct">:</span> <span class="type">ActionKind</span><span class="punct">;</span>
+  target<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                       <span class="com">// "#sec-grc" | "SEC" | "ciso@org" | ...</span>
+  payload<span class="punct">:</span> <span class="type">unknown</span><span class="punct">;</span>                      <span class="com">// shape varies by kind — see below</span>
+  firedAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  status<span class="punct">:</span> <span class="type">ActionStatus</span><span class="punct">;</span>
+  externalId<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                  <span class="com">// Slack msg ts, Jira issue key, Stripe pi id</span>
+  error<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                        <span class="com">// populated on status:"failed"</span>
+<span class="punct">}</span>
+
+<span class="com">// Discriminated payloads</span>
+<span class="kw">export type</span> <span class="type">SlackPayload</span>    <span class="punct">=</span> <span class="punct">{</span> blocks<span class="punct">:</span> <span class="type">unknown</span><span class="punct">[]</span> <span class="punct">}</span><span class="punct">;</span>
+<span class="kw">export type</span> <span class="type">JiraPayload</span>     <span class="punct">=</span> <span class="punct">{</span> projectKey<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span> issueType<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  summary<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span> description<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span> priority<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span> labels<span class="punct">:</span> <span class="type">string</span><span class="punct">[];</span>
+  assigneeUserId<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">EmailPayload</span>    <span class="punct">=</span> <span class="punct">{</span> to<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span> subject<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  html<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span> text<span class="punct">:</span> <span class="type">string</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">CalendarPayload</span> <span class="punct">=</span> <span class="punct">{</span> title<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span> startsAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  endsAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span> attendees<span class="punct">:</span> <span class="type">string</span><span class="punct">[];</span> description<span class="punct">:</span> <span class="type">string</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">DraftPayload</span>    <span class="punct">=</span> <span class="punct">{</span> template<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span> rendered<span class="punct">:</span> <span class="type">string</span> <span class="punct">};</span>
+<span class="kw">export type</span> <span class="type">PaymentPayload</span>  <span class="punct">=</span> <span class="punct">{</span> sku<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span> amountUsdCents<span class="punct">:</span> <span class="type">number</span><span class="punct">;</span>
+  paymentIntentId<span class="punct">:</span> <span class="type">string</span> <span class="punct">};</span></pre>
+        </div>
+      </article>
+
+      <article class="entity" id="agent-run">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>AgentRun</code></div>
+            <div class="entity-desc">One row per scheduled tick. Stage events live in agent_traces.</div>
+          </div>
+          <span class="entity-store ch">ClickHouse · agent_runs + agent_traces</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">AgentRun</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">RunId</span><span class="punct">;</span>
+  orgId<span class="punct">:</span> <span class="type">OrgId</span><span class="punct">;</span>
+  vendorId<span class="punct">:</span> <span class="type">VendorId</span><span class="punct">;</span>
+  startedAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  endedAt<span class="punct">?</span><span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  durationMs<span class="punct">?</span><span class="punct">:</span> <span class="type">number</span><span class="punct">;</span>
+  status<span class="punct">:</span> <span class="type">RunStatus</span><span class="punct">;</span>
+  changeReportId<span class="punct">?</span><span class="punct">:</span> <span class="type">ChangeReportId</span><span class="punct">;</span>
+  trigger<span class="punct">:</span> <span class="str">"scheduled"</span> <span class="punct">|</span> <span class="str">"admin"</span> <span class="punct">|</span> <span class="str">"first-scan"</span><span class="punct">;</span>
+  errorEvent<span class="punct">?</span><span class="punct">:</span> <span class="punct">{</span>
+    stage<span class="punct">:</span> <span class="type">RunStage</span><span class="punct">;</span>
+    code<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+    message<span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  <span class="punct">};</span>
+<span class="punct">}</span>
+
+<span class="kw">export interface</span> <span class="type">AgentTraceEvent</span> <span class="punct">{</span>
+  runId<span class="punct">:</span> <span class="type">RunId</span><span class="punct">;</span>
+  stage<span class="punct">:</span> <span class="type">RunStage</span><span class="punct">;</span>
+  status<span class="punct">:</span> <span class="str">"started"</span> <span class="punct">|</span> <span class="str">"completed"</span> <span class="punct">|</span> <span class="str">"failed"</span> <span class="punct">|</span> <span class="str">"skipped"</span><span class="punct">;</span>
+  at<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+  durationMs<span class="punct">?</span><span class="punct">:</span> <span class="type">number</span><span class="punct">;</span>
+  meta<span class="punct">?</span><span class="punct">:</span> <span class="type">Record&lt;string, unknown&gt;</span><span class="punct">;</span>   <span class="com">// e.g. {urlCount: 6} on fetch</span>
+<span class="punct">}</span></pre>
+          <p class="small-note"><b>Why two tables?</b> Runs are queried as a list ("recent runs for vendor X"); traces are queried per-run for the run-detail drawer. Splitting keeps both queries cheap on ClickHouse.</p>
+        </div>
+      </article>
+
+      <article class="entity" id="bundle">
+        <div class="entity-head">
+          <div>
+            <div class="entity-name"><code>EvidenceBundle</code></div>
+            <div class="entity-desc">Auditor deliverable. Snapshots a vendor × date range and publishes through Senso.</div>
+          </div>
+          <span class="entity-store ch">ClickHouse · evidence_bundles</span>
+        </div>
+        <div class="entity-body">
+          <pre class="code"><span class="kw">export interface</span> <span class="type">EvidenceBundle</span> <span class="punct">{</span>
+  id<span class="punct">:</span> <span class="type">BundleId</span><span class="punct">;</span>
+  orgId<span class="punct">:</span> <span class="type">OrgId</span><span class="punct">;</span>
+  vendorIds<span class="punct">:</span> <span class="type">VendorId</span><span class="punct">[];</span>
+  dateRange<span class="punct">:</span> <span class="punct">{</span> from<span class="punct">:</span> <span class="type">IsoDate</span><span class="punct">;</span> to<span class="punct">:</span> <span class="type">IsoDate</span> <span class="punct">};</span>
+  includeResolved<span class="punct">:</span> <span class="type">boolean</span><span class="punct">;</span>
+  note<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>
+  changeReportIds<span class="punct">:</span> <span class="type">ChangeReportId</span><span class="punct">[];</span>    <span class="com">// computed at create time</span>
+  sensoUrl<span class="punct">?</span><span class="punct">:</span> <span class="type">string</span><span class="punct">;</span>                       <span class="com">// null if Senso publish failed</span>
+  createdBy<span class="punct">:</span> <span class="type">UserId</span><span class="punct">;</span>
+  createdAt<span class="punct">:</span> <span class="type">Iso8601</span><span class="punct">;</span>
+<span class="punct">}</span></pre>
+        </div>
+      </article>
+    </section>
+
+    <!-- ── DDL ─── -->
+    <section class="s" id="ddl">
+      <div class="s-head">
+        <div>
+          <div class="num">04</div>
+          <h2>ClickHouse <em>DDL</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>5 tables</span>
+          <span class="chip live"><span class="d"></span>append-only</span>
+        </div>
+      </div>
+
+      <p class="lede">Run these once at boot if the table doesn't exist. Single ClickHouse Cloud instance, US-East. All tables use <code>MergeTree</code>; no replication, no replicas, no row-level mutation needed for the demo.</p>
+
+      <p class="code-cap"><span>Migration · 5 tables</span><span class="file">src/db/clickhouse.sql</span></p>
+      <pre class="code"><span class="com">-- ─── snapshots ───────────────────────────────────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> snapshots <span class="punct">(</span>
+  id              <span class="type">String</span><span class="punct">,</span>
+  org_id          <span class="type">String</span><span class="punct">,</span>
+  vendor_id       <span class="type">String</span><span class="punct">,</span>
+  run_id          <span class="type">String</span><span class="punct">,</span>
+  url             <span class="type">String</span><span class="punct">,</span>
+  fetched_at      <span class="type">DateTime64(3, 'UTC')</span><span class="punct">,</span>
+  source          <span class="type">LowCardinality(String)</span><span class="punct">,</span>      <span class="com">-- "nimble" | "seed"</span>
+  text            <span class="type">String</span> CODEC<span class="punct">(</span>ZSTD<span class="punct">(</span><span class="num">3</span><span class="punct">)),</span>
+  hash            <span class="type">FixedString(64)</span><span class="punct">,</span>             <span class="com">-- sha256 hex</span>
+  source_url      <span class="type">String</span>
+<span class="punct">)</span>
+<span class="kw">ENGINE</span> <span class="punct">=</span> MergeTree
+<span class="kw">ORDER BY</span> <span class="punct">(</span>org_id<span class="punct">,</span> vendor_id<span class="punct">,</span> url<span class="punct">,</span> fetched_at<span class="punct">)</span>
+<span class="kw">PARTITION BY</span> toYYYYMM<span class="punct">(</span>fetched_at<span class="punct">);</span>
+
+<span class="com">-- ─── change_reports ──────────────────────────────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> change_reports <span class="punct">(</span>
+  id                  <span class="type">String</span><span class="punct">,</span>
+  org_id              <span class="type">String</span><span class="punct">,</span>
+  vendor_id           <span class="type">String</span><span class="punct">,</span>
+  run_id              <span class="type">String</span><span class="punct">,</span>
+  detected_at         <span class="type">DateTime64(3, 'UTC')</span><span class="punct">,</span>
+  severity            <span class="type">Enum8('P1'=1,'P2'=2,'P3'=3)</span><span class="punct">,</span>
+  state               <span class="type">LowCardinality(String)</span><span class="punct">,</span>
+  acknowledged_at     <span class="type">Nullable(DateTime64(3, 'UTC'))</span><span class="punct">,</span>
+  snoozed_until       <span class="type">Nullable(DateTime64(3, 'UTC'))</span><span class="punct">,</span>
+  resolved_at         <span class="type">Nullable(DateTime64(3, 'UTC'))</span><span class="punct">,</span>
+  resolution          <span class="type">LowCardinality(Nullable(String))</span><span class="punct">,</span>
+  policy_fired_id     <span class="type">String</span><span class="punct">,</span>
+  policy_also_matched <span class="type">Array(String)</span><span class="punct">,</span>
+  changes             <span class="type">String</span><span class="punct">,</span>                       <span class="com">-- JSON of Change[]</span>
+  recommendation      <span class="type">String</span><span class="punct">,</span>                       <span class="com">-- JSON</span>
+  senso_url           <span class="type">Nullable(String)</span><span class="punct">,</span>
+  owner_id            <span class="type">String</span><span class="punct">,</span>
+  updated_at          <span class="type">DateTime64(3, 'UTC')</span> DEFAULT now64<span class="punct">()</span>
+<span class="punct">)</span>
+<span class="kw">ENGINE</span> <span class="punct">=</span> ReplacingMergeTree<span class="punct">(</span>updated_at<span class="punct">)</span>     <span class="com">-- last-write-wins for state changes</span>
+<span class="kw">ORDER BY</span> <span class="punct">(</span>org_id<span class="punct">,</span> vendor_id<span class="punct">,</span> detected_at<span class="punct">,</span> id<span class="punct">)</span>
+<span class="kw">PARTITION BY</span> toYYYYMM<span class="punct">(</span>detected_at<span class="punct">);</span>
+
+<span class="com">-- ─── actions ─────────────────────────────────────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> actions <span class="punct">(</span>
+  id                <span class="type">String</span><span class="punct">,</span>
+  org_id            <span class="type">String</span><span class="punct">,</span>
+  change_report_id  <span class="type">Nullable(String)</span><span class="punct">,</span>
+  kind              <span class="type">LowCardinality(String)</span><span class="punct">,</span>
+  target            <span class="type">String</span><span class="punct">,</span>
+  payload           <span class="type">String</span><span class="punct">,</span>                       <span class="com">-- JSON</span>
+  fired_at          <span class="type">DateTime64(3, 'UTC')</span><span class="punct">,</span>
+  status            <span class="type">LowCardinality(String)</span><span class="punct">,</span>
+  external_id       <span class="type">Nullable(String)</span><span class="punct">,</span>
+  error             <span class="type">Nullable(String)</span><span class="punct">,</span>
+  updated_at        <span class="type">DateTime64(3, 'UTC')</span> DEFAULT now64<span class="punct">()</span>
+<span class="punct">)</span>
+<span class="kw">ENGINE</span> <span class="punct">=</span> ReplacingMergeTree<span class="punct">(</span>updated_at<span class="punct">)</span>
+<span class="kw">ORDER BY</span> <span class="punct">(</span>org_id<span class="punct">,</span> change_report_id<span class="punct">,</span> fired_at<span class="punct">,</span> id<span class="punct">)</span>
+<span class="kw">PARTITION BY</span> toYYYYMM<span class="punct">(</span>fired_at<span class="punct">);</span>
+
+<span class="com">-- ─── agent_runs ──────────────────────────────────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> agent_runs <span class="punct">(</span>
+  id                <span class="type">String</span><span class="punct">,</span>
+  org_id            <span class="type">String</span><span class="punct">,</span>
+  vendor_id         <span class="type">String</span><span class="punct">,</span>
+  started_at        <span class="type">DateTime64(3, 'UTC')</span><span class="punct">,</span>
+  ended_at          <span class="type">Nullable(DateTime64(3, 'UTC'))</span><span class="punct">,</span>
+  duration_ms       <span class="type">Nullable(UInt32)</span><span class="punct">,</span>
+  status            <span class="type">LowCardinality(String)</span><span class="punct">,</span>      <span class="com">-- running | unchanged | changed | failed</span>
+  change_report_id  <span class="type">Nullable(String)</span><span class="punct">,</span>
+  trigger           <span class="type">LowCardinality(String)</span><span class="punct">,</span>      <span class="com">-- scheduled | admin | first-scan</span>
+  error_stage       <span class="type">LowCardinality(Nullable(String))</span><span class="punct">,</span>
+  error_code        <span class="type">Nullable(String)</span><span class="punct">,</span>
+  error_message     <span class="type">Nullable(String)</span>
+<span class="punct">)</span>
+<span class="kw">ENGINE</span> <span class="punct">=</span> ReplacingMergeTree<span class="punct">(</span>started_at<span class="punct">)</span>
+<span class="kw">ORDER BY</span> <span class="punct">(</span>org_id<span class="punct">,</span> vendor_id<span class="punct">,</span> started_at<span class="punct">,</span> id<span class="punct">)</span>
+<span class="kw">PARTITION BY</span> toYYYYMM<span class="punct">(</span>started_at<span class="punct">);</span>
+
+<span class="com">-- ─── agent_traces ────────────────────────────────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> agent_traces <span class="punct">(</span>
+  run_id        <span class="type">String</span><span class="punct">,</span>
+  stage         <span class="type">LowCardinality(String)</span><span class="punct">,</span>
+  status        <span class="type">LowCardinality(String)</span><span class="punct">,</span>
+  at            <span class="type">DateTime64(3, 'UTC')</span><span class="punct">,</span>
+  duration_ms   <span class="type">Nullable(UInt32)</span><span class="punct">,</span>
+  meta          <span class="type">String</span> DEFAULT <span class="str">'{}'</span>            <span class="com">-- JSON</span>
+<span class="punct">)</span>
+<span class="kw">ENGINE</span> <span class="punct">=</span> MergeTree
+<span class="kw">ORDER BY</span> <span class="punct">(</span>run_id<span class="punct">,</span> at<span class="punct">)</span>
+<span class="kw">PARTITION BY</span> toYYYYMM<span class="punct">(</span>at<span class="punct">);</span>
+
+<span class="com">-- ─── evidence_bundles ────────────────────────────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> evidence_bundles <span class="punct">(</span>
+  id                  <span class="type">String</span><span class="punct">,</span>
+  org_id              <span class="type">String</span><span class="punct">,</span>
+  vendor_ids          <span class="type">Array(String)</span><span class="punct">,</span>
+  date_from           <span class="type">Date</span><span class="punct">,</span>
+  date_to             <span class="type">Date</span><span class="punct">,</span>
+  include_resolved    <span class="type">UInt8</span><span class="punct">,</span>
+  note                <span class="type">Nullable(String)</span><span class="punct">,</span>
+  change_report_ids   <span class="type">Array(String)</span><span class="punct">,</span>
+  senso_url           <span class="type">Nullable(String)</span><span class="punct">,</span>
+  created_by          <span class="type">String</span><span class="punct">,</span>
+  created_at          <span class="type">DateTime64(3, 'UTC')</span>
+<span class="punct">)</span>
+<span class="kw">ENGINE</span> <span class="punct">=</span> MergeTree
+<span class="kw">ORDER BY</span> <span class="punct">(</span>org_id<span class="punct">,</span> created_at<span class="punct">,</span> id<span class="punct">);</span></pre>
+
+      <h3 class="sub">Query patterns <span class="crumb">what the API actually runs</span></h3>
+      <p class="code-cap"><span>Portfolio stats</span><span class="file">src/db/queries.ts</span></p>
+      <pre class="code"><span class="com">-- vendorCount</span>
+<span class="kw">SELECT</span> count<span class="punct">()</span> <span class="kw">FROM</span> vendors_cache<span class="punct">;</span>            <span class="com">-- in-memory; backed by seed/vendors.json</span>
+
+<span class="com">-- changes in window (e.g. last 7d)</span>
+<span class="kw">SELECT</span> count<span class="punct">()</span>
+<span class="kw">FROM</span> change_reports <span class="kw">FINAL</span>
+<span class="kw">WHERE</span> org_id <span class="punct">=</span> <span class="punct">{</span>orgId<span class="punct">:</span>String<span class="punct">}</span>
+  <span class="kw">AND</span> detected_at <span class="punct">&gt;=</span> now<span class="punct">()</span> <span class="punct">-</span> <span class="kw">INTERVAL</span> <span class="num">7</span> <span class="kw">DAY</span><span class="punct">;</span>
+
+<span class="com">-- open P1</span>
+<span class="kw">SELECT</span> count<span class="punct">()</span>
+<span class="kw">FROM</span> change_reports <span class="kw">FINAL</span>
+<span class="kw">WHERE</span> org_id <span class="punct">=</span> <span class="punct">{</span>orgId<span class="punct">:</span>String<span class="punct">}</span>
+  <span class="kw">AND</span> severity <span class="punct">=</span> <span class="str">'P1'</span>
+  <span class="kw">AND</span> state <span class="kw">NOT IN</span> <span class="punct">(</span><span class="str">'resolved'</span><span class="punct">,</span> <span class="str">'snoozed'</span><span class="punct">);</span>
+
+<span class="com">-- $ at risk (sums dollarImpact across all open P1/P2)</span>
+<span class="kw">SELECT</span> sum<span class="punct">(</span>JSONExtractFloat<span class="punct">(</span>changes<span class="punct">,</span> <span class="str">'$[*].dollarImpact.annualUsd'</span><span class="punct">))</span>
+<span class="kw">FROM</span> change_reports <span class="kw">FINAL</span>
+<span class="kw">WHERE</span> org_id <span class="punct">=</span> <span class="punct">{</span>orgId<span class="punct">:</span>String<span class="punct">}</span>
+  <span class="kw">AND</span> severity <span class="kw">IN</span> <span class="punct">(</span><span class="str">'P1'</span><span class="punct">,</span> <span class="str">'P2'</span><span class="punct">)</span>
+  <span class="kw">AND</span> state <span class="kw">NOT IN</span> <span class="punct">(</span><span class="str">'resolved'</span><span class="punct">,</span> <span class="str">'snoozed'</span><span class="punct">);</span></pre>
+
+      <div class="callout warn">
+        <span class="ico">⚠</span>
+        <div>
+          <h4>Always use <code>FINAL</code> on ReplacingMergeTree reads</h4>
+          <p>State transitions (acknowledge / snooze / resolve) work by inserting a new row with the same primary key and a fresher <code>updated_at</code>. ClickHouse merges these in the background, but reads can see both rows until merge. Use <code>SELECT ... FROM change_reports FINAL WHERE ...</code> to always get the latest. <code>FINAL</code> is slower but fine at our row count (≤10k for the hackathon).</p>
+        </div>
+      </div>
+
+      <h3 class="sub">Connection &amp; client</h3>
+      <p class="code-cap"><span>ClickHouse client init</span><span class="file">src/db/client.ts</span></p>
+      <pre class="code"><span class="kw">import</span> <span class="punct">{</span> createClient <span class="punct">}</span> <span class="kw">from</span> <span class="str">"@clickhouse/client"</span><span class="punct">;</span>
+
+<span class="kw">export const</span> ch <span class="punct">=</span> createClient<span class="punct">({</span>
+  url<span class="punct">:</span> process.env.CLICKHOUSE_URL<span class="punct">,</span>      <span class="com">// https://...clickhouse.cloud:8443</span>
+  username<span class="punct">:</span> process.env.CLICKHOUSE_USER<span class="punct">,</span>
+  password<span class="punct">:</span> process.env.CLICKHOUSE_PASSWORD<span class="punct">,</span>
+  database<span class="punct">:</span> <span class="str">"redline"</span><span class="punct">,</span>
+  clickhouse_settings<span class="punct">:</span> <span class="punct">{</span>
+    async_insert<span class="punct">:</span> <span class="num">1</span><span class="punct">,</span>                         <span class="com">// batch inserts at the server</span>
+    wait_for_async_insert<span class="punct">:</span> <span class="num">0</span><span class="punct">,</span>                <span class="com">// fire-and-forget for traces</span>
+    max_execution_time<span class="punct">:</span> <span class="num">10</span><span class="punct">,</span>
+  <span class="punct">},</span>
+<span class="punct">})</span><span class="punct">;</span></pre>
+    </section>
+
+    <!-- ── SEED FILES ─── -->
+    <section class="s" id="seed">
+      <div class="s-head">
+        <div>
+          <div class="num">05</div>
+          <h2>Seed files.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>5 files · loaded at boot</span>
+        </div>
+      </div>
+
+      <p class="lede">Five checked-in files. The loader runs once at server start; <strong>idempotent</strong> (if ClickHouse already has rows for an entity, skip). All paths relative to repo root.</p>
+
+      <table class="spec">
+        <thead>
+          <tr><th>File</th><th>Loaded into</th><th>Idempotency check</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="k">seed/vendors.json</td><td><code>vendors</code> in-memory cache</td><td>Replace on every boot (cache only).</td></tr>
+          <tr><td class="k">seed/users.json</td><td><code>users</code> in-memory cache + <code>seed/tokens.json</code> map</td><td>Replace on every boot.</td></tr>
+          <tr><td class="k">seed/policies.yaml</td><td><code>policies</code> in-memory cache</td><td>Replace on every boot.</td></tr>
+          <tr><td class="k">seed/snapshots.json</td><td>ClickHouse <code>snapshots</code> table</td><td>Skip if <code>SELECT count() WHERE source='seed'</code> &gt; 0.</td></tr>
+          <tr><td class="k">seed/change-reports.json</td><td>ClickHouse <code>change_reports</code> table</td><td>Skip if <code>SELECT count() WHERE id IN (seed ids)</code> matches.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub">vendors.json</h3>
+      <p class="code-cap"><span>8 vendors · the locked story</span><span class="file">seed/vendors.json</span></p>
+      <pre class="code"><span class="punct">[</span>
+  <span class="punct">{</span>
+    <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_notion"</span><span class="punct">,</span>
+    <span class="key">"orgId"</span><span class="punct">:</span> <span class="str">"org_acme"</span><span class="punct">,</span>
+    <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Notion"</span><span class="punct">,</span>
+    <span class="key">"category"</span><span class="punct">:</span> <span class="str">"productivity"</span><span class="punct">,</span>
+    <span class="key">"tier"</span><span class="punct">:</span> <span class="num">1</span><span class="punct">,</span>
+    <span class="key">"posture"</span><span class="punct">:</span> <span class="str">"risk"</span><span class="punct">,</span>
+    <span class="key">"dataClasses"</span><span class="punct">:</span> <span class="punct">[</span><span class="str">"pii"</span><span class="punct">,</span> <span class="str">"content"</span><span class="punct">],</span>
+    <span class="key">"ownerId"</span><span class="punct">:</span> <span class="str">"usr_priya"</span><span class="punct">,</span>
+    <span class="key">"urls"</span><span class="punct">:</span> <span class="punct">{</span>
+      <span class="key">"homepage"</span><span class="punct">:</span> <span class="str">"https://notion.so"</span><span class="punct">,</span>
+      <span class="key">"terms"</span><span class="punct">:</span> <span class="str">"https://notion.so/terms"</span><span class="punct">,</span>
+      <span class="key">"pricing"</span><span class="punct">:</span> <span class="str">"https://notion.so/pricing"</span><span class="punct">,</span>
+      <span class="key">"dpa"</span><span class="punct">:</span> <span class="str">"https://notion.so/dpa"</span><span class="punct">,</span>
+      <span class="key">"subProcessors"</span><span class="punct">:</span> <span class="str">"https://notion.so/subprocessors"</span><span class="punct">,</span>
+      <span class="key">"security"</span><span class="punct">:</span> <span class="str">"https://notion.so/security"</span><span class="punct">,</span>
+      <span class="key">"sla"</span><span class="punct">:</span> <span class="str">"https://notion.so/sla"</span>
+    <span class="punct">},</span>
+    <span class="key">"contract"</span><span class="punct">:</span> <span class="punct">{</span>
+      <span class="key">"renewsAt"</span><span class="punct">:</span> <span class="str">"2026-07-04"</span><span class="punct">,</span>
+      <span class="key">"annualSpendUsd"</span><span class="punct">:</span> <span class="num">158000</span><span class="punct">,</span>
+      <span class="key">"seatCount"</span><span class="punct">:</span> <span class="num">1420</span>
+    <span class="punct">}</span>
+  <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_datadog"</span><span class="punct">,</span>  <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Datadog"</span><span class="punct">,</span>   <span class="key">"category"</span><span class="punct">:</span> <span class="str">"observability"</span><span class="punct">,</span>
+    <span class="key">"tier"</span><span class="punct">:</span> <span class="num">1</span><span class="punct">,</span> <span class="key">"posture"</span><span class="punct">:</span> <span class="str">"ok"</span><span class="punct">,</span>    <span class="key">"dataClasses"</span><span class="punct">:</span> <span class="punct">[</span><span class="str">"content"</span><span class="punct">],</span>
+    <span class="key">"ownerId"</span><span class="punct">:</span> <span class="str">"usr_marcus"</span><span class="punct">,</span> <span class="com">/* urls / contract ... */</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_stripe"</span><span class="punct">,</span>   <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Stripe"</span><span class="punct">,</span>    <span class="key">"category"</span><span class="punct">:</span> <span class="str">"payments"</span><span class="punct">,</span>
+    <span class="key">"tier"</span><span class="punct">:</span> <span class="num">1</span><span class="punct">,</span> <span class="key">"posture"</span><span class="punct">:</span> <span class="str">"watch"</span><span class="punct">,</span> <span class="key">"dataClasses"</span><span class="punct">:</span> <span class="punct">[</span><span class="str">"financial"</span><span class="punct">,</span> <span class="str">"pii"</span><span class="punct">],</span>
+    <span class="key">"ownerId"</span><span class="punct">:</span> <span class="str">"usr_lin"</span><span class="punct">,</span> <span class="com">/* ... */</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_vercel"</span><span class="punct">,</span>   <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Vercel"</span><span class="punct">,</span>    <span class="key">"category"</span><span class="punct">:</span> <span class="str">"infra"</span><span class="punct">,</span>
+    <span class="key">"tier"</span><span class="punct">:</span> <span class="num">2</span><span class="punct">,</span> <span class="key">"posture"</span><span class="punct">:</span> <span class="str">"ok"</span><span class="punct">,</span>    <span class="com">/* ... */</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_linear"</span><span class="punct">,</span>   <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Linear"</span><span class="punct">,</span>    <span class="key">"category"</span><span class="punct">:</span> <span class="str">"pm"</span><span class="punct">,</span>            <span class="com">/* ... */</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_figma"</span><span class="punct">,</span>    <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Figma"</span><span class="punct">,</span>     <span class="key">"category"</span><span class="punct">:</span> <span class="str">"design"</span><span class="punct">,</span>         <span class="com">/* ... */</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_anthropic"</span><span class="punct">,</span><span class="key">"name"</span><span class="punct">:</span> <span class="str">"Anthropic"</span><span class="punct">,</span> <span class="key">"category"</span><span class="punct">:</span> <span class="str">"ai"</span><span class="punct">,</span>             <span class="com">/* ... */</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_snowflake"</span><span class="punct">,</span><span class="key">"name"</span><span class="punct">:</span> <span class="str">"Snowflake"</span><span class="punct">,</span> <span class="key">"category"</span><span class="punct">:</span> <span class="str">"data"</span><span class="punct">,</span>           <span class="com">/* ... */</span> <span class="punct">}</span>
+<span class="punct">]</span></pre>
+
+      <h3 class="sub">users.json</h3>
+      <p class="code-cap"><span>6 seeded users · ownership routes</span><span class="file">seed/users.json</span></p>
+      <pre class="code"><span class="punct">[</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"usr_priya"</span><span class="punct">,</span>   <span class="key">"orgId"</span><span class="punct">:</span> <span class="str">"org_acme"</span><span class="punct">,</span>
+    <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Priya Natarajan"</span><span class="punct">,</span>     <span class="key">"email"</span><span class="punct">:</span> <span class="str">"priya@acme.dev"</span><span class="punct">,</span>
+    <span class="key">"role"</span><span class="punct">:</span> <span class="str">"procurement"</span><span class="punct">,</span> <span class="key">"avatarLetter"</span><span class="punct">:</span> <span class="str">"P"</span><span class="punct">,</span> <span class="key">"slackUserId"</span><span class="punct">:</span> <span class="str">"U010PRIYA"</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"usr_marcus"</span><span class="punct">,</span>  <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Marcus Chen"</span><span class="punct">,</span>          <span class="key">"role"</span><span class="punct">:</span> <span class="str">"security"</span><span class="punct">,</span>
+    <span class="key">"avatarLetter"</span><span class="punct">:</span> <span class="str">"M"</span><span class="punct">,</span> <span class="key">"slackUserId"</span><span class="punct">:</span> <span class="str">"U010MARCUS"</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"usr_lin"</span><span class="punct">,</span>     <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Lin Park"</span><span class="punct">,</span>             <span class="key">"role"</span><span class="punct">:</span> <span class="str">"legal"</span><span class="punct">,</span>
+    <span class="key">"avatarLetter"</span><span class="punct">:</span> <span class="str">"L"</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"usr_jordan"</span><span class="punct">,</span>  <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Jordan Wells"</span><span class="punct">,</span>         <span class="key">"role"</span><span class="punct">:</span> <span class="str">"procurement"</span><span class="punct">,</span>
+    <span class="key">"avatarLetter"</span><span class="punct">:</span> <span class="str">"J"</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"usr_ada"</span><span class="punct">,</span>     <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Ada Owens"</span><span class="punct">,</span>            <span class="key">"role"</span><span class="punct">:</span> <span class="str">"security"</span><span class="punct">,</span>
+    <span class="key">"avatarLetter"</span><span class="punct">:</span> <span class="str">"A"</span> <span class="punct">},</span>
+  <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"usr_devon"</span><span class="punct">,</span>   <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Devon Rao"</span><span class="punct">,</span>            <span class="key">"role"</span><span class="punct">:</span> <span class="str">"owner"</span><span class="punct">,</span>
+    <span class="key">"avatarLetter"</span><span class="punct">:</span> <span class="str">"D"</span> <span class="punct">}</span>
+<span class="punct">]</span></pre>
+
+      <h3 class="sub">policies.yaml</h3>
+      <p class="code-cap"><span>3 seeded rules · first-match-wins</span><span class="file">seed/policies.yaml</span></p>
+      <pre class="code"><span class="com"># See Decisions §05 for the full DSL grammar.</span>
+<span class="key">- id</span><span class="punct">:</span> <span class="str">pol_data_retention_pii_shrink</span>
+  <span class="key">orgId</span><span class="punct">:</span> <span class="str">org_acme</span>
+  <span class="key">name</span><span class="punct">:</span> <span class="str">"Data retention shrinks for PII vendors"</span>
+  <span class="key">description</span><span class="punct">:</span> <span class="str">"Critical when a PII-processing vendor reduces retention period."</span>
+  <span class="key">version</span><span class="punct">:</span> <span class="num">3</span>
+  <span class="key">createdBy</span><span class="punct">:</span> <span class="str">usr_marcus</span>
+  <span class="key">isActive</span><span class="punct">:</span> <span class="kw">true</span>
+  <span class="key">when</span><span class="punct">:</span>
+    <span class="key">change.category</span><span class="punct">:</span> <span class="str">"data"</span>
+    <span class="key">change.summary</span><span class="punct">:</span> <span class="str">"matches:retention"</span>
+    <span class="key">change.trend</span><span class="punct">:</span> <span class="str">"down"</span>
+    <span class="key">vendor.dataClasses</span><span class="punct">:</span> <span class="str">"contains:pii"</span>
+  <span class="key">then</span><span class="punct">:</span>
+    <span class="key">severity</span><span class="punct">:</span> <span class="type">P1</span>
+    <span class="key">route</span><span class="punct">:</span>
+      <span class="punct">-</span> <span class="str">"slack:#sec-grc"</span>
+      <span class="punct">-</span> <span class="str">"jira:SEC"</span>
+      <span class="punct">-</span> <span class="str">"email:ciso@acme.dev"</span>
+
+<span class="key">- id</span><span class="punct">:</span> <span class="str">pol_price_hike_near_renewal</span>
+  <span class="key">name</span><span class="punct">:</span> <span class="str">"Price increase &gt;10% within 90d of renewal"</span>
+  <span class="key">version</span><span class="punct">:</span> <span class="num">2</span><span class="punct">,</span> <span class="key">isActive</span><span class="punct">:</span> <span class="kw">true</span>
+  <span class="key">when</span><span class="punct">:</span>
+    <span class="key">change.category</span><span class="punct">:</span> <span class="str">"pricing"</span>
+    <span class="key">change.dollarImpact.pctChange</span><span class="punct">:</span> <span class="str">"&gt;10"</span>
+    <span class="key">vendor.contract.renewsAt</span><span class="punct">:</span> <span class="str">"within:90d"</span>
+  <span class="key">then</span><span class="punct">:</span>
+    <span class="key">severity</span><span class="punct">:</span> <span class="type">P1</span>
+    <span class="key">route</span><span class="punct">:</span>
+      <span class="punct">-</span> <span class="str">"slack:@vendorOwner"</span>
+      <span class="punct">-</span> <span class="str">"jira:PROC"</span>
+      <span class="punct">-</span> <span class="str">"calendar:renewal-prep-90d"</span>
+
+<span class="key">- id</span><span class="punct">:</span> <span class="str">pol_subprocessor_added_restricted</span>
+  <span class="key">name</span><span class="punct">:</span> <span class="str">"Sub-processor added in non-adequate jurisdiction"</span>
+  <span class="key">version</span><span class="punct">:</span> <span class="num">1</span><span class="punct">,</span> <span class="key">isActive</span><span class="punct">:</span> <span class="kw">true</span>
+  <span class="key">when</span><span class="punct">:</span>
+    <span class="key">change.category</span><span class="punct">:</span> <span class="str">"subprocessor"</span>
+    <span class="key">change.summary</span><span class="punct">:</span> <span class="str">"matches:added"</span>
+    <span class="key">citation.country</span><span class="punct">:</span> <span class="str">"not_in:[EEA,UK,CH,US]"</span>
+  <span class="key">then</span><span class="punct">:</span>
+    <span class="key">severity</span><span class="punct">:</span> <span class="type">P1</span>
+    <span class="key">route</span><span class="punct">:</span>
+      <span class="punct">-</span> <span class="str">"slack:#privacy"</span>
+      <span class="punct">-</span> <span class="str">"draft:customer-notification-30d"</span></pre>
+
+      <h3 class="sub">snapshots.json &amp; change-reports.json</h3>
+      <p class="lede" style="margin-bottom: 14px;">Seeded "before" snapshots (so the live Nimble fetch produces a hash mismatch) and 4–5 historical change reports across the background fleet (so the activity feed isn't empty on page load). Same shape as the API responses; load straight into ClickHouse.</p>
+
+      <p class="code-cap"><span>Seed loader sketch</span><span class="file">src/seed/loader.ts</span></p>
+      <pre class="code"><span class="kw">export async function</span> <span class="fn">loadSeeds</span><span class="punct">()</span> <span class="punct">{</span>
+  <span class="kw">const</span> orgs     <span class="punct">=</span> <span class="fn">readJson</span><span class="punct">(</span><span class="str">"seed/orgs.json"</span><span class="punct">)</span><span class="punct">;</span>
+  <span class="kw">const</span> users    <span class="punct">=</span> <span class="fn">readJson</span><span class="punct">(</span><span class="str">"seed/users.json"</span><span class="punct">)</span><span class="punct">;</span>
+  <span class="kw">const</span> vendors  <span class="punct">=</span> <span class="fn">readJson</span><span class="punct">(</span><span class="str">"seed/vendors.json"</span><span class="punct">)</span><span class="punct">;</span>
+  <span class="kw">const</span> policies <span class="punct">=</span> <span class="fn">parseYaml</span><span class="punct">(</span><span class="fn">readFile</span><span class="punct">(</span><span class="str">"seed/policies.yaml"</span><span class="punct">))</span><span class="punct">;</span>
+
+  <span class="com">// in-memory caches always replace</span>
+  cache.set<span class="punct">(</span><span class="str">"orgs"</span><span class="punct">,</span>     orgs<span class="punct">)</span><span class="punct">;</span>
+  cache.set<span class="punct">(</span><span class="str">"users"</span><span class="punct">,</span>    users<span class="punct">)</span><span class="punct">;</span>
+  cache.set<span class="punct">(</span><span class="str">"vendors"</span><span class="punct">,</span>  vendors<span class="punct">)</span><span class="punct">;</span>
+  cache.set<span class="punct">(</span><span class="str">"policies"</span><span class="punct">,</span> policies<span class="punct">)</span><span class="punct">;</span>
+
+  <span class="com">// CH tables: idempotent on `source='seed'` for snapshots, ids for change_reports</span>
+  <span class="kw">const</span> existingSnaps <span class="punct">=</span> <span class="kw">await</span> ch.query<span class="punct">({</span>
+    query<span class="punct">:</span> <span class="str">"SELECT count() AS n FROM snapshots WHERE source = 'seed'"</span><span class="punct">,</span>
+    format<span class="punct">:</span> <span class="str">"JSONEachRow"</span><span class="punct">,</span>
+  <span class="punct">})</span><span class="punct">;</span>
+  <span class="kw">if</span> <span class="punct">(</span>existingSnaps<span class="punct">[</span><span class="num">0</span><span class="punct">]</span>.n <span class="punct">===</span> <span class="num">0</span><span class="punct">)</span> <span class="punct">{</span>
+    <span class="kw">await</span> ch.insert<span class="punct">({</span> table<span class="punct">:</span> <span class="str">"snapshots"</span><span class="punct">,</span>
+      values<span class="punct">:</span> <span class="fn">readJson</span><span class="punct">(</span><span class="str">"seed/snapshots.json"</span><span class="punct">),</span>
+      format<span class="punct">:</span> <span class="str">"JSONEachRow"</span> <span class="punct">})</span><span class="punct">;</span>
+  <span class="punct">}</span>
+  <span class="com">// ... same for change_reports.json (check by id list)</span>
+<span class="punct">}</span></pre>
+    </section>
+
+    <div class="callout ok" style="margin-top: 24px;">
+      <span class="ico">✓</span>
+      <div>
+        <h4>This is the whole schema</h4>
+        <p>11 interfaces, 5 ClickHouse tables, 5 seed files. Anything beyond this is out of scope. Next: <a href="Runbook.html">the runbook</a> — env vars, dev commands, demo cadence, on-stage script, fallbacks.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="six"><span class="a"></span><span class="b"></span><span class="t"></span><span class="g"></span><span class="s"></span><span class="l"></span></div>
+  <div class="meta">REDLINE · DATA MODEL · <b>v1.0</b> · 2026-05-23 · <a href="index.html">Index</a> · <a href="Product Decisions.html">Decisions</a> · <a href="API.html">API</a> · <a href="Runbook.html">Runbook</a></div>
+</footer>
+
+<script>
+  const navLinks = document.querySelectorAll('.ent-nav a');
+  const targets = [...navLinks].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  targets.forEach(t => io.observe(t));
+</script>
+
+</body>
+</html>

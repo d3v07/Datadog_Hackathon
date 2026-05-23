@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redline · API contract</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="handoff.css">
+<style>
+  /* ── endpoint card ─────────────────────────────────── */
+  .endpoint {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 22px;
+    overflow: hidden;
+  }
+  .endpoint-head {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .endpoint-head .path {
+    font-family: var(--font-mono); font-size: 14px; color: var(--text-strong); font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .endpoint-head .path .param { color: var(--tangerine); }
+  .endpoint-head .desc { font-size: 13px; color: var(--text-2); flex: 1; min-width: 200px; }
+  .endpoint-head .auth { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 3px 8px; border: 1px solid var(--hairline); border-radius: 999px; }
+  .endpoint-head .auth.admin { color: var(--strawberry); border-color: rgba(244,102,136,0.30); background: rgba(244,102,136,0.06); }
+  .endpoint-head .auth.public { color: var(--lime); border-color: rgba(181,220,85,0.30); background: rgba(181,220,85,0.06); }
+
+  .endpoint-body { padding: 18px 20px 20px; display: grid; gap: 18px; }
+  .endpoint-section { }
+  .endpoint-section .lbl {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px; display: flex; gap: 8px; align-items: baseline;
+  }
+  .endpoint-section .lbl b { color: var(--text-2); font-weight: 500; }
+  .endpoint-section .lbl .tag {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+    padding: 2px 6px; border-radius: 4px;
+    background: var(--surface-2); color: var(--muted);
+  }
+
+  /* inline param list */
+  .params { display: grid; gap: 10px; }
+  .param-row {
+    display: grid;
+    grid-template-columns: 160px 110px 1fr;
+    gap: 14px;
+    padding: 8px 12px;
+    background: var(--surface-2);
+    border-radius: 8px;
+    font-size: 13px;
+    align-items: baseline;
+  }
+  @media (max-width: 700px) { .param-row { grid-template-columns: 1fr; gap: 4px; } }
+  .param-row .name { font-family: var(--font-mono); font-size: 12.5px; color: var(--text); }
+  .param-row .name .opt { color: var(--muted); font-size: 10px; margin-left: 4px; }
+  .param-row .type { font-family: var(--font-mono); font-size: 11.5px; color: var(--tangerine); }
+  .param-row .desc { color: var(--text-2); font-size: 12.5px; line-height: 1.5; }
+  .param-row .desc code { font-family: var(--font-mono); font-size: 11.5px; background: var(--bg); padding: 0 4px; border-radius: 3px; color: var(--bondi); }
+  .param-row .desc b { color: var(--text); font-weight: 500; }
+
+  /* status table */
+  table.status { width: 100%; border-collapse: collapse; }
+  table.status td { padding: 8px 12px; font-size: 12.5px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+  table.status tr:last-child td { border-bottom: none; }
+  table.status td.code { font-family: var(--font-mono); width: 70px; font-weight: 500; }
+  table.status td.code.s2 { color: var(--lime); }
+  table.status td.code.s4 { color: var(--tangerine); }
+  table.status td.code.s5 { color: var(--strawberry); }
+  table.status td.name { font-family: var(--font-mono); font-size: 12px; color: var(--text-2); width: 160px; }
+  table.status td.desc { color: var(--text-2); }
+  table.status td.desc code { font-family: var(--font-mono); font-size: 11.5px; background: var(--surface-2); padding: 0 4px; border-radius: 3px; color: var(--bondi); }
+
+  /* sidebar of endpoint navigation */
+  .ep-nav {
+    display: grid; gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+  }
+  .ep-nav .grp { margin-top: 14px; }
+  .ep-nav .grp:first-child { margin-top: 0; }
+  .ep-nav .grp-lbl { font-size: 9.5px; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px; padding-left: 4px; }
+  .ep-nav a {
+    display: grid; grid-template-columns: 38px 1fr; align-items: baseline;
+    text-decoration: none; padding: 5px 8px; border-radius: 6px;
+    color: var(--text-2); transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+    line-height: 1.3;
+  }
+  .ep-nav a:hover { background: var(--surface); color: var(--text); }
+  .ep-nav a .m {
+    font-size: 9px; letter-spacing: 0.08em; font-weight: 500;
+    padding: 1px 4px; border-radius: 3px; text-align: center; align-self: center;
+  }
+  .ep-nav a .m.get  { background: var(--bondi-soft); color: var(--bondi); }
+  .ep-nav a .m.post { background: var(--lime-soft); color: var(--lime); }
+  .ep-nav a .m.sse  { background: var(--grape-soft); color: var(--grape); }
+  .ep-nav a .m.whk  { background: var(--strawberry-soft); color: var(--strawberry); }
+  .ep-nav a .p { font-size: 11px; color: var(--text-2); word-break: break-all; }
+
+  /* SSE event card */
+  .sse-event {
+    background: var(--surface-2);
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--grape);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+  }
+  .sse-event .ev-name { font-family: var(--font-mono); font-size: 12.5px; color: var(--grape); font-weight: 500; margin-bottom: 4px; }
+  .sse-event .ev-desc { font-size: 12.5px; color: var(--text-2); margin-bottom: 6px; line-height: 1.5; }
+  .sse-event pre.code { padding: 10px 14px; font-size: 11.5px; }
+
+  /* TOC override for this doc */
+  .toc-wrap { position: sticky; top: 84px; height: max-content; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 8px; }
+
+  /* sub-heading */
+  h3.sub {
+    font-family: var(--font-display); font-weight: 500; font-size: 20px;
+    letter-spacing: -0.018em; color: var(--text-strong); margin: 28px 0 14px;
+    font-variation-settings: "opsz" 24;
+  }
+  h3.sub:first-child { margin-top: 0; }
+  h3.sub em { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+
+  .small-note { font-size: 12px; color: var(--muted); margin-top: 8px; font-family: var(--font-mono); letter-spacing: 0.02em; }
+  .small-note b { color: var(--text-2); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/logo-mark.svg" alt="">
+    <span class="word">Redline</span>
+  </div>
+  <span class="crumb">Hackathon · <b>API contract</b> · v1.0</span>
+  <span class="spacer"></span>
+  <nav class="tabs">
+    <a href="index.html">Index</a>
+    <a href="Product Decisions.html">Decisions</a>
+    <a href="API.html" class="current">API</a>
+    <a href="Data Model.html">Data</a>
+    <a href="Runbook.html">Runbook</a>
+  </nav>
+</header>
+
+<div class="layout">
+  <aside class="toc-wrap">
+    <div class="toc-label">Endpoints</div>
+    <nav class="ep-nav">
+      <div class="grp">
+        <div class="grp-lbl">Conventions</div>
+        <a href="#conventions"><span class="m get">§</span><span class="p">Auth, errors, pagination</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Portfolio</div>
+        <a href="#get-portfolio-stats"><span class="m get">GET</span><span class="p">/v1/portfolio/stats</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Vendors</div>
+        <a href="#get-vendors"><span class="m get">GET</span><span class="p">/v1/vendors</span></a>
+        <a href="#get-vendor"><span class="m get">GET</span><span class="p">/v1/vendors/:id</span></a>
+        <a href="#post-vendor"><span class="m post">POST</span><span class="p">/v1/vendors</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Changes</div>
+        <a href="#get-changes"><span class="m get">GET</span><span class="p">/v1/changes</span></a>
+        <a href="#get-change"><span class="m get">GET</span><span class="p">/v1/changes/:id</span></a>
+        <a href="#ack-change"><span class="m post">POST</span><span class="p">/v1/changes/:id/acknowledge</span></a>
+        <a href="#snooze-change"><span class="m post">POST</span><span class="p">/v1/changes/:id/snooze</span></a>
+        <a href="#resolve-change"><span class="m post">POST</span><span class="p">/v1/changes/:id/resolve</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Policies</div>
+        <a href="#get-policies"><span class="m get">GET</span><span class="p">/v1/policies</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Bundles</div>
+        <a href="#post-bundle"><span class="m post">POST</span><span class="p">/v1/bundles</span></a>
+        <a href="#get-bundle"><span class="m get">GET</span><span class="p">/v1/bundles/:id</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Billing</div>
+        <a href="#get-products"><span class="m get">GET</span><span class="p">/v1/billing/products</span></a>
+        <a href="#post-intent"><span class="m post">POST</span><span class="p">/v1/billing/payment-intents</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Admin</div>
+        <a href="#admin-scan"><span class="m post">POST</span><span class="p">/v1/admin/vendors/:id/scan</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Streaming</div>
+        <a href="#sse"><span class="m sse">SSE</span><span class="p">/v1/stream</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">Webhooks</div>
+        <a href="#stripe-webhook"><span class="m whk">WHK</span><span class="p">/webhooks/stripe</span></a>
+      </div>
+      <div class="grp">
+        <div class="grp-lbl">External</div>
+        <a href="#external"><span class="m get">§</span><span class="p">Nimble · Gemini · Senso · Slack</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <main>
+
+    <div class="hero">
+      <div class="eyebrow">02 · the contract</div>
+      <h1>The <em>API</em>, fully shaped.</h1>
+      <p>15 REST endpoints, 1 SSE channel, 1 inbound webhook. All under <code>/v1</code>. JSON in, JSON out. Cursor pagination where lists could grow. Zod-validated on the server; <a href="Data Model.html">TS interfaces</a> are the source of truth for shapes.</p>
+      <div class="quickstats">
+        <div class="qs"><div class="lbl">REST</div><div class="val">15</div><div class="sub">14 product · 1 admin</div></div>
+        <div class="qs"><div class="lbl">SSE</div><div class="val bondi">1</div><div class="sub">6 event kinds</div></div>
+        <div class="qs"><div class="lbl">Webhooks</div><div class="val lime">1</div><div class="sub">Stripe inbound</div></div>
+        <div class="qs"><div class="lbl">Live external calls</div><div class="val tang">4</div><div class="sub">Nimble · Gemini · Senso · Slack</div></div>
+      </div>
+    </div>
+
+    <!-- ── CONVENTIONS ─── -->
+    <section class="s" id="conventions">
+      <div class="s-head">
+        <div>
+          <div class="num">01</div>
+          <h2><em>Conventions</em> &middot; read once.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>Locked</span>
+        </div>
+      </div>
+
+      <p class="lede">Everything here is global &mdash; assume it applies to every endpoint unless an endpoint says otherwise.</p>
+
+      <h3 class="sub">Base URL &amp; versioning</h3>
+      <p class="code-cap"><span>Base URLs</span><span class="file">all environments</span></p>
+      <pre class="code"><span class="com"># local dev</span>
+http://localhost:8787
+
+<span class="com"># prod (TBD; spec-only)</span>
+https://api.redline.dev
+
+<span class="com"># all endpoints prefixed with /v1; we cut new majors on breaking changes</span></pre>
+
+      <h3 class="sub">Authentication</h3>
+      <p class="lede" style="margin-bottom: 14px;">For the hackathon there's <b>one seeded org</b> and a static demo bearer token. Production uses session cookies + scoped API keys; not built today.</p>
+      <pre class="code"><span class="com"># Every request (except /webhooks/* and the Senso public brief) sends:</span>
+Authorization: Bearer <span class="str">"demo_token_acme_corp_2026"</span>
+
+<span class="com"># The server resolves token → orgId, attaches to ctx.org, and scopes all queries.</span>
+<span class="com"># If missing or invalid:</span>
+HTTP/1.1 <span class="num">401</span> Unauthorized
+<span class="punct">{</span> <span class="key">"error"</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">"code"</span><span class="punct">:</span> <span class="str">"unauthenticated"</span><span class="punct">,</span> <span class="key">"message"</span><span class="punct">:</span> <span class="str">"Missing or invalid bearer token"</span> <span class="punct">}</span> <span class="punct">}</span></pre>
+
+      <h3 class="sub">Error envelope</h3>
+      <p class="lede" style="margin-bottom: 14px;">All errors share the same shape. <code>code</code> is a stable kebab string &mdash; clients switch on this, never on the message.</p>
+      <pre class="code"><span class="punct">{</span>
+  <span class="key">"error"</span><span class="punct">:</span> <span class="punct">{</span>
+    <span class="key">"code"</span><span class="punct">:</span> <span class="str">"validation-failed"</span><span class="punct">,</span>      <span class="com">// machine-stable</span>
+    <span class="key">"message"</span><span class="punct">:</span> <span class="str">"vendor.name is required"</span><span class="punct">,</span>  <span class="com">// human-friendly</span>
+    <span class="key">"details"</span><span class="punct">:</span> <span class="punct">{</span>                          <span class="com">// optional, schema-specific</span>
+      <span class="key">"path"</span><span class="punct">:</span> <span class="punct">[</span><span class="str">"vendor"</span><span class="punct">,</span> <span class="str">"name"</span><span class="punct">]</span>
+    <span class="punct">}</span><span class="punct">,</span>
+    <span class="key">"requestId"</span><span class="punct">:</span> <span class="str">"req_01H2KJ4S7P3F"</span>           <span class="com">// echo of X-Request-Id</span>
+  <span class="punct">}</span>
+<span class="punct">}</span></pre>
+
+      <table class="status" style="margin-top: 14px;">
+        <tbody>
+          <tr><td class="code s4">400</td><td class="name">validation-failed</td><td class="desc">Body or query did not match the zod schema. <code>details</code> contains the path.</td></tr>
+          <tr><td class="code s4">401</td><td class="name">unauthenticated</td><td class="desc">Missing or invalid bearer token.</td></tr>
+          <tr><td class="code s4">403</td><td class="name">forbidden</td><td class="desc">Token valid but lacks scope (e.g. trying to hit an admin endpoint).</td></tr>
+          <tr><td class="code s4">404</td><td class="name">not-found</td><td class="desc">Resource id not in scope of the calling org.</td></tr>
+          <tr><td class="code s4">409</td><td class="name">conflict</td><td class="desc">State transition not allowed (e.g. resolving a change that's already resolved).</td></tr>
+          <tr><td class="code s4">422</td><td class="name">unprocessable</td><td class="desc">Schema parsed but semantics fail (e.g. URL not parseable, severity-override unknown).</td></tr>
+          <tr><td class="code s4">429</td><td class="name">rate-limited</td><td class="desc">Per-org rate limit hit. Honour <code>Retry-After</code>. (Not enforced in hackathon scope.)</td></tr>
+          <tr><td class="code s5">500</td><td class="name">internal</td><td class="desc">Uncaught error. Server logs include <code>requestId</code>.</td></tr>
+          <tr><td class="code s5">502</td><td class="name">upstream-failed</td><td class="desc">Nimble, Gemini, Senso, or Slack returned an error or timed out. <code>details.provider</code> names which.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="sub">Idempotency</h3>
+      <p class="lede" style="margin-bottom: 14px;">Mutating POSTs (anything that creates a row in ClickHouse or fires an external call) accept an <code>Idempotency-Key</code> header. Same key within 24h returns the cached response.</p>
+      <pre class="code"><span class="com"># Recommended: client UUID v4 generated at the click site</span>
+POST /v1/bundles
+Authorization: Bearer ...
+Idempotency-Key: 0190ab12-7c47-7e88-9c5d-d5e0a1b2c3d4
+Content-Type: application/json
+<span class="punct">{</span> ... <span class="punct">}</span></pre>
+
+      <h3 class="sub">Pagination</h3>
+      <p class="lede" style="margin-bottom: 14px;">Cursor-based on the lists that grow: <code>/v1/changes</code> and (later) <code>/v1/vendors</code>. Always <code>limit ≤ 100</code>; default 25. Response shape:</p>
+      <pre class="code"><span class="punct">{</span>
+  <span class="key">"data"</span><span class="punct">:</span> <span class="punct">[</span> ... <span class="punct">],</span>
+  <span class="key">"page"</span><span class="punct">:</span> <span class="punct">{</span>
+    <span class="key">"cursor"</span><span class="punct">:</span> <span class="str">"01H2KJ4S7P3F"</span><span class="punct">,</span>  <span class="com">// pass back as ?cursor=...</span>
+    <span class="key">"hasMore"</span><span class="punct">:</span> <span class="kw">true</span><span class="punct">,</span>
+    <span class="key">"limit"</span><span class="punct">:</span> <span class="num">25</span>
+  <span class="punct">}</span>
+<span class="punct">}</span></pre>
+
+      <h3 class="sub">Demo override headers</h3>
+      <p class="lede" style="margin-bottom: 14px;">Two opt-in headers exist so the tweaks panel can rehearse alternative narratives. The server ignores them unless explicitly set.</p>
+      <pre class="code">X-Demo-Force-Severity: <span class="type">P1 | P2 | P3</span>     <span class="com">// overrides policy eval result for the next scheduled tick on the named vendor</span>
+X-Demo-Vendor-Override: <span class="type">vnd_notion</span>    <span class="com">// scopes the override to this vendor only</span></pre>
+    </section>
+
+    <!-- ── PORTFOLIO ─── -->
+    <section class="s" id="portfolio-section">
+      <div class="s-head">
+        <div>
+          <div class="num">02</div>
+          <h2>Portfolio.</h2>
+        </div>
+      </div>
+
+      <article class="endpoint" id="get-portfolio-stats">
+        <div class="endpoint-head">
+          <span class="chip method-get"><span class="d"></span>GET</span>
+          <span class="path">/v1/portfolio/stats</span>
+          <span class="desc">Aggregate stats for the portfolio header (the four big numbers).</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Query <span class="tag">all optional</span></div>
+            <div class="params">
+              <div class="param-row"><span class="name">window<span class="opt">opt</span></span><span class="type">"7d" | "30d" | "90d"</span><span class="desc">Default <code>7d</code>. Used to compute the "changes this week" counter.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">200 · response</div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"vendorCount"</span><span class="punct">:</span> <span class="num">8</span><span class="punct">,</span>
+  <span class="key">"changesInWindow"</span><span class="punct">:</span> <span class="num">12</span><span class="punct">,</span>
+  <span class="key">"openP1"</span><span class="punct">:</span> <span class="num">3</span><span class="punct">,</span>
+  <span class="key">"dollarsAtRisk"</span><span class="punct">:</span> <span class="num">84000</span><span class="punct">,</span>      <span class="com">// USD, summed across open P1/P2</span>
+  <span class="key">"lastScanAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:14:42Z"</span><span class="punct">,</span>
+  <span class="key">"scheduler"</span><span class="punct">:</span> <span class="punct">{</span>
+    <span class="key">"status"</span><span class="punct">:</span> <span class="str">"live"</span><span class="punct">,</span>             <span class="com">// "live" | "paused" | "degraded"</span>
+    <span class="key">"intervalSec"</span><span class="punct">:</span> <span class="num">60</span><span class="punct">,</span>            <span class="com">// matches SCAN_INTERVAL_SEC env</span>
+    <span class="key">"nextTickAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:15:42Z"</span>
+  <span class="punct">}</span>
+<span class="punct">}</span></pre>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Status codes</div>
+            <table class="status"><tbody>
+              <tr><td class="code s2">200</td><td class="name">ok</td><td class="desc">Stats returned.</td></tr>
+              <tr><td class="code s4">401</td><td class="name">unauthenticated</td><td class="desc">Missing or invalid bearer.</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- ── VENDORS ─── -->
+    <section class="s" id="vendors-section">
+      <div class="s-head">
+        <div>
+          <div class="num">03</div>
+          <h2>Vendors.</h2>
+        </div>
+      </div>
+
+      <article class="endpoint" id="get-vendors">
+        <div class="endpoint-head">
+          <span class="chip method-get"><span class="d"></span>GET</span>
+          <span class="path">/v1/vendors</span>
+          <span class="desc">List all vendors in scope of the calling org. Powers the portfolio grid.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Query</div>
+            <div class="params">
+              <div class="param-row"><span class="name">tier<span class="opt">opt</span></span><span class="type">1 | 2 | 3</span><span class="desc">Filter by criticality tier.</span></div>
+              <div class="param-row"><span class="name">posture<span class="opt">opt</span></span><span class="type">"ok" | "watch" | "risk"</span><span class="desc">Filter by current posture chip.</span></div>
+              <div class="param-row"><span class="name">renewsWithinDays<span class="opt">opt</span></span><span class="type">number</span><span class="desc">Only vendors renewing within N days. Useful for the Renewal Radar story.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">200 · response · <code>Vendor[]</code></div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"data"</span><span class="punct">:</span> <span class="punct">[</span>
+    <span class="punct">{</span>
+      <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_notion"</span><span class="punct">,</span>
+      <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Notion"</span><span class="punct">,</span>
+      <span class="key">"category"</span><span class="punct">:</span> <span class="str">"productivity"</span><span class="punct">,</span>
+      <span class="key">"tier"</span><span class="punct">:</span> <span class="num">1</span><span class="punct">,</span>
+      <span class="key">"posture"</span><span class="punct">:</span> <span class="str">"risk"</span><span class="punct">,</span>           <span class="com">// derived from latest ChangeReport severity</span>
+      <span class="key">"dataClasses"</span><span class="punct">:</span> <span class="punct">[</span><span class="str">"pii"</span><span class="punct">,</span> <span class="str">"content"</span><span class="punct">],</span>
+      <span class="key">"owner"</span><span class="punct">:</span> <span class="punct">{</span>
+        <span class="key">"id"</span><span class="punct">:</span> <span class="str">"usr_priya"</span><span class="punct">,</span>
+        <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Priya Natarajan"</span><span class="punct">,</span>
+        <span class="key">"avatarLetter"</span><span class="punct">:</span> <span class="str">"P"</span>
+      <span class="punct">}</span><span class="punct">,</span>
+      <span class="key">"contract"</span><span class="punct">:</span> <span class="punct">{</span>
+        <span class="key">"renewsAt"</span><span class="punct">:</span> <span class="str">"2026-07-04"</span><span class="punct">,</span>
+        <span class="key">"renewsInDays"</span><span class="punct">:</span> <span class="num">42</span><span class="punct">,</span>
+        <span class="key">"annualSpendUsd"</span><span class="punct">:</span> <span class="num">158000</span><span class="punct">,</span>
+        <span class="key">"seatCount"</span><span class="punct">:</span> <span class="num">1420</span>
+      <span class="punct">}</span><span class="punct">,</span>
+      <span class="key">"latestChangeId"</span><span class="punct">:</span> <span class="str">"chg_2026_05_22_notion"</span><span class="punct">,</span>
+      <span class="key">"lastScanAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:14:42Z"</span>
+    <span class="punct">},</span>
+    <span class="com">// ... 7 more</span>
+  <span class="punct">]</span>
+<span class="punct">}</span></pre>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Status codes</div>
+            <table class="status"><tbody>
+              <tr><td class="code s2">200</td><td class="name">ok</td><td class="desc"><code>data</code> may be an empty array.</td></tr>
+              <tr><td class="code s4">401</td><td class="name">unauthenticated</td><td class="desc">—</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </article>
+
+      <article class="endpoint" id="get-vendor">
+        <div class="endpoint-head">
+          <span class="chip method-get"><span class="d"></span>GET</span>
+          <span class="path">/v1/vendors/<span class="param">:id</span></span>
+          <span class="desc">Full vendor detail including the six monitored URLs and recent run history.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">200 · response · <code>VendorDetail</code></div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_notion"</span><span class="punct">,</span>
+  <span class="com">// ... all Vendor fields above, plus:</span>
+  <span class="key">"urls"</span><span class="punct">:</span> <span class="punct">{</span>
+    <span class="key">"terms"</span><span class="punct">:</span> <span class="str">"https://notion.so/terms"</span><span class="punct">,</span>
+    <span class="key">"pricing"</span><span class="punct">:</span> <span class="str">"https://notion.so/pricing"</span><span class="punct">,</span>
+    <span class="key">"dpa"</span><span class="punct">:</span> <span class="str">"https://notion.so/dpa"</span><span class="punct">,</span>
+    <span class="key">"subProcessors"</span><span class="punct">:</span> <span class="str">"https://notion.so/subprocessors"</span><span class="punct">,</span>
+    <span class="key">"security"</span><span class="punct">:</span> <span class="str">"https://notion.so/security"</span><span class="punct">,</span>
+    <span class="key">"sla"</span><span class="punct">:</span> <span class="str">"https://notion.so/sla"</span>
+  <span class="punct">}</span><span class="punct">,</span>
+  <span class="key">"recentRuns"</span><span class="punct">:</span> <span class="punct">[</span>
+    <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"run_..."</span><span class="punct">,</span> <span class="key">"startedAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:14:42Z"</span><span class="punct">,</span>
+      <span class="key">"status"</span><span class="punct">:</span> <span class="str">"changed"</span><span class="punct">,</span> <span class="key">"changeReportId"</span><span class="punct">:</span> <span class="str">"chg_2026_05_22_notion"</span> <span class="punct">},</span>
+    <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"run_..."</span><span class="punct">,</span> <span class="key">"startedAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:13:42Z"</span><span class="punct">,</span>
+      <span class="key">"status"</span><span class="punct">:</span> <span class="str">"unchanged"</span> <span class="punct">}</span>
+  <span class="punct">]</span>
+<span class="punct">}</span></pre>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Status codes</div>
+            <table class="status"><tbody>
+              <tr><td class="code s2">200</td><td class="name">ok</td><td class="desc">Vendor found.</td></tr>
+              <tr><td class="code s4">404</td><td class="name">not-found</td><td class="desc">Vendor id not in this org.</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </article>
+
+      <article class="endpoint" id="post-vendor">
+        <div class="endpoint-head">
+          <span class="chip method-post"><span class="d"></span>POST</span>
+          <span class="path">/v1/vendors</span>
+          <span class="desc">Add a new vendor (Onboarding screen). Schedules first scan immediately; subsequent scans on the normal cadence.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Body</div>
+            <div class="params">
+              <div class="param-row"><span class="name">name</span><span class="type">string</span><span class="desc">Display name. 2–60 chars.</span></div>
+              <div class="param-row"><span class="name">homepageUrl</span><span class="type">string (url)</span><span class="desc">The server discovers the other 5 URLs from sitemap + common paths (terms, pricing, dpa…). If discovery fails, returns 422 with the URLs we did find so the UI can re-prompt.</span></div>
+              <div class="param-row"><span class="name">ownerId</span><span class="type">string</span><span class="desc">User id to route alerts to. Must be in the org.</span></div>
+              <div class="param-row"><span class="name">tier</span><span class="type">1 | 2 | 3</span><span class="desc">Criticality. Affects which policies apply.</span></div>
+              <div class="param-row"><span class="name">dataClasses<span class="opt">opt</span></span><span class="type">("pii" | "phi" | "financial" | "content")[]</span><span class="desc">Data classes the vendor processes; needed for retention/sub-processor policies.</span></div>
+              <div class="param-row"><span class="name">contract<span class="opt">opt</span></span><span class="type">{ renewsAt, annualSpendUsd, seatCount }</span><span class="desc">If omitted, the vendor shows in the portfolio but is excluded from "renewal radar" until set.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">201 · response</div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_01H2K..."</span><span class="punct">,</span>
+  <span class="key">"name"</span><span class="punct">:</span> <span class="str">"PagerDuty"</span><span class="punct">,</span>
+  <span class="key">"firstScanRunId"</span><span class="punct">:</span> <span class="str">"run_01H2K..."</span><span class="punct">,</span>     <span class="com">// queued immediately; subscribe via SSE</span>
+  <span class="key">"discoveredUrls"</span><span class="punct">:</span> <span class="punct">{</span>
+    <span class="key">"terms"</span><span class="punct">:</span> <span class="str">"https://pagerduty.com/terms"</span><span class="punct">,</span>
+    <span class="key">"pricing"</span><span class="punct">:</span> <span class="str">"https://pagerduty.com/pricing"</span><span class="punct">,</span>
+    <span class="com">// ...</span>
+  <span class="punct">}</span>
+<span class="punct">}</span></pre>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Status codes</div>
+            <table class="status"><tbody>
+              <tr><td class="code s2">201</td><td class="name">created</td><td class="desc">Vendor created and first scan queued. Subscribe to SSE for progress.</td></tr>
+              <tr><td class="code s4">400</td><td class="name">validation-failed</td><td class="desc">Body did not parse.</td></tr>
+              <tr><td class="code s4">422</td><td class="name">discovery-incomplete</td><td class="desc">URL discovery couldn't find all 6 URLs. Returns what it found; UI re-prompts for missing.</td></tr>
+              <tr><td class="code s4">409</td><td class="name">duplicate</td><td class="desc">Vendor with this normalized homepage already exists in the org.</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- ── CHANGES ─── -->
+    <section class="s" id="changes-section">
+      <div class="s-head">
+        <div>
+          <div class="num">04</div>
+          <h2>Change <em>reports</em>.</h2>
+        </div>
+      </div>
+
+      <article class="endpoint" id="get-changes">
+        <div class="endpoint-head">
+          <span class="chip method-get"><span class="d"></span>GET</span>
+          <span class="path">/v1/changes</span>
+          <span class="desc">List change reports. Used by the portfolio activity feed and the "all changes" view.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Query</div>
+            <div class="params">
+              <div class="param-row"><span class="name">recent<span class="opt">opt</span></span><span class="type">boolean</span><span class="desc">If true, returns the 10 most recent across all vendors; ignores other filters except <code>severity</code>.</span></div>
+              <div class="param-row"><span class="name">vendorId<span class="opt">opt</span></span><span class="type">string</span><span class="desc">Filter to one vendor.</span></div>
+              <div class="param-row"><span class="name">severity<span class="opt">opt</span></span><span class="type">"P1" | "P2" | "P3"</span><span class="desc">Filter by severity.</span></div>
+              <div class="param-row"><span class="name">state<span class="opt">opt</span></span><span class="type">"new" | "acknowledged" | "in-progress" | "resolved" | "snoozed"</span><span class="desc">Filter by state. Defaults to all except <code>resolved</code> if absent.</span></div>
+              <div class="param-row"><span class="name">cursor<span class="opt">opt</span></span><span class="type">string</span><span class="desc">From a previous page's <code>page.cursor</code>.</span></div>
+              <div class="param-row"><span class="name">limit<span class="opt">opt</span></span><span class="type">number (1–100)</span><span class="desc">Default 25.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">200 · response · <code>ChangeReportSummary[]</code></div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"data"</span><span class="punct">:</span> <span class="punct">[</span>
+    <span class="punct">{</span>
+      <span class="key">"id"</span><span class="punct">:</span> <span class="str">"chg_2026_05_22_notion"</span><span class="punct">,</span>
+      <span class="key">"vendorId"</span><span class="punct">:</span> <span class="str">"vnd_notion"</span><span class="punct">,</span>
+      <span class="key">"vendorName"</span><span class="punct">:</span> <span class="str">"Notion"</span><span class="punct">,</span>
+      <span class="key">"detectedAt"</span><span class="punct">:</span> <span class="str">"2026-05-22T14:42:18Z"</span><span class="punct">,</span>
+      <span class="key">"severity"</span><span class="punct">:</span> <span class="str">"P1"</span><span class="punct">,</span>
+      <span class="key">"state"</span><span class="punct">:</span> <span class="str">"new"</span><span class="punct">,</span>
+      <span class="key">"headline"</span><span class="punct">:</span> <span class="str">"Retention shrinks 90→30 days · per-seat pricing +18%"</span><span class="punct">,</span>
+      <span class="key">"policyName"</span><span class="punct">:</span> <span class="str">"Data retention shrinks for PII vendors"</span><span class="punct">,</span>
+      <span class="key">"dollarImpactUsd"</span><span class="punct">:</span> <span class="num">28400</span><span class="punct">,</span>
+      <span class="key">"changeCount"</span><span class="punct">:</span> <span class="num">2</span>
+    <span class="punct">}</span>
+  <span class="punct">],</span>
+  <span class="key">"page"</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">"cursor"</span><span class="punct">:</span> <span class="kw">null</span><span class="punct">,</span> <span class="key">"hasMore"</span><span class="punct">:</span> <span class="kw">false</span><span class="punct">,</span> <span class="key">"limit"</span><span class="punct">:</span> <span class="num">25</span> <span class="punct">}</span>
+<span class="punct">}</span></pre>
+          </div>
+        </div>
+      </article>
+
+      <article class="endpoint" id="get-change">
+        <div class="endpoint-head">
+          <span class="chip method-get"><span class="d"></span>GET</span>
+          <span class="path">/v1/changes/<span class="param">:id</span></span>
+          <span class="desc">Full ChangeReport with every change, citation, and routed action. Powers the ChangeReport detail screen.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">200 · response · <code>ChangeReport</code></div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"id"</span><span class="punct">:</span> <span class="str">"chg_2026_05_22_notion"</span><span class="punct">,</span>
+  <span class="key">"vendor"</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"vnd_notion"</span><span class="punct">,</span> <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Notion"</span><span class="punct">,</span> ... <span class="punct">},</span>
+  <span class="key">"runId"</span><span class="punct">:</span> <span class="str">"run_01H2K..."</span><span class="punct">,</span>
+  <span class="key">"detectedAt"</span><span class="punct">:</span> <span class="str">"2026-05-22T14:42:18Z"</span><span class="punct">,</span>
+  <span class="key">"severity"</span><span class="punct">:</span> <span class="str">"P1"</span><span class="punct">,</span>
+  <span class="key">"state"</span><span class="punct">:</span> <span class="str">"new"</span><span class="punct">,</span>
+  <span class="key">"policyFired"</span><span class="punct">:</span> <span class="punct">{</span>
+    <span class="key">"id"</span><span class="punct">:</span> <span class="str">"pol_data_retention_pii_shrink"</span><span class="punct">,</span>
+    <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Data retention shrinks for PII vendors"</span><span class="punct">,</span>
+    <span class="key">"version"</span><span class="punct">:</span> <span class="num">3</span>
+  <span class="punct">},</span>
+  <span class="key">"policyAlsoMatched"</span><span class="punct">:</span> <span class="punct">[</span>     <span class="com">// rules that would have fired but weren't first</span>
+    <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"pol_price_hike_near_renewal"</span><span class="punct">,</span>
+      <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Price increase &gt;10% within 90d of renewal"</span> <span class="punct">}</span>
+  <span class="punct">],</span>
+  <span class="key">"changes"</span><span class="punct">:</span> <span class="punct">[</span>
+    <span class="punct">{</span>
+      <span class="key">"id"</span><span class="punct">:</span> <span class="str">"d1"</span><span class="punct">,</span>
+      <span class="key">"category"</span><span class="punct">:</span> <span class="str">"data"</span><span class="punct">,</span>
+      <span class="key">"summary"</span><span class="punct">:</span> <span class="str">"User-content retention reduced from 90 to 30 days"</span><span class="punct">,</span>
+      <span class="key">"before"</span><span class="punct">:</span> <span class="str">"... retained for ninety (90) days ..."</span><span class="punct">,</span>
+      <span class="key">"after"</span><span class="punct">:</span> <span class="str">"... retained for thirty (30) days ..."</span><span class="punct">,</span>
+      <span class="key">"materiality"</span><span class="punct">:</span> <span class="str">"material"</span><span class="punct">,</span>     <span class="com">// "material" | "minor" | "cosmetic"</span>
+      <span class="key">"citations"</span><span class="punct">:</span> <span class="punct">[</span>
+        <span class="punct">{</span>
+          <span class="key">"url"</span><span class="punct">:</span> <span class="str">"https://notion.so/terms"</span><span class="punct">,</span>
+          <span class="key">"quote"</span><span class="punct">:</span> <span class="str">"User content is retained for thirty (30) days after account deletion."</span><span class="punct">,</span>
+          <span class="key">"section"</span><span class="punct">:</span> <span class="str">"§7.2 — Data Retention"</span><span class="punct">,</span>
+          <span class="key">"fetchedAt"</span><span class="punct">:</span> <span class="str">"2026-05-22T14:42:11Z"</span>
+        <span class="punct">}</span>
+      <span class="punct">]</span>
+    <span class="punct">},</span>
+    <span class="punct">{</span>
+      <span class="key">"id"</span><span class="punct">:</span> <span class="str">"d2"</span><span class="punct">,</span>
+      <span class="key">"category"</span><span class="punct">:</span> <span class="str">"pricing"</span><span class="punct">,</span>
+      <span class="key">"summary"</span><span class="punct">:</span> <span class="str">"Team plan per-seat rises from $16 to $19 (+18.75%)"</span><span class="punct">,</span>
+      <span class="key">"before"</span><span class="punct">:</span> <span class="str">"$16 per user / month"</span><span class="punct">,</span>
+      <span class="key">"after"</span><span class="punct">:</span> <span class="str">"$19 per user / month"</span><span class="punct">,</span>
+      <span class="key">"materiality"</span><span class="punct">:</span> <span class="str">"material"</span><span class="punct">,</span>
+      <span class="key">"dollarImpact"</span><span class="punct">:</span> <span class="punct">{</span>
+        <span class="key">"annualUsd"</span><span class="punct">:</span> <span class="num">28400</span><span class="punct">,</span>
+        <span class="key">"pctChange"</span><span class="punct">:</span> <span class="num">18.75</span>
+      <span class="punct">},</span>
+      <span class="key">"citations"</span><span class="punct">:</span> <span class="punct">[</span> <span class="com">/* ... */</span> <span class="punct">]</span>
+    <span class="punct">}</span>
+  <span class="punct">],</span>
+  <span class="key">"recommendation"</span><span class="punct">:</span> <span class="punct">{</span>
+    <span class="key">"action"</span><span class="punct">:</span> <span class="str">"renegotiate"</span><span class="punct">,</span>
+    <span class="key">"copy"</span><span class="punct">:</span> <span class="str">"Open renewal conversation; cite §7.2 retention shortfall as material change."</span>
+  <span class="punct">},</span>
+  <span class="key">"actions"</span><span class="punct">:</span> <span class="punct">[</span>
+    <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"act_..."</span><span class="punct">,</span> <span class="key">"kind"</span><span class="punct">:</span> <span class="str">"slack"</span><span class="punct">,</span>
+      <span class="key">"target"</span><span class="punct">:</span> <span class="str">"#redline-demo"</span><span class="punct">,</span> <span class="key">"firedAt"</span><span class="punct">:</span> <span class="str">"2026-05-22T14:42:18Z"</span><span class="punct">,</span>
+      <span class="key">"status"</span><span class="punct">:</span> <span class="str">"delivered"</span> <span class="punct">},</span>
+    <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"act_..."</span><span class="punct">,</span> <span class="key">"kind"</span><span class="punct">:</span> <span class="str">"jira"</span><span class="punct">,</span>
+      <span class="key">"target"</span><span class="punct">:</span> <span class="str">"SEC"</span><span class="punct">,</span> <span class="key">"externalId"</span><span class="punct">:</span> <span class="str">"SEC-1247"</span><span class="punct">,</span> <span class="key">"status"</span><span class="punct">:</span> <span class="str">"queued"</span> <span class="punct">},</span>
+    <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"act_..."</span><span class="punct">,</span> <span class="key">"kind"</span><span class="punct">:</span> <span class="str">"calendar"</span><span class="punct">,</span>
+      <span class="key">"target"</span><span class="punct">:</span> <span class="str">"renewal-prep-90d"</span><span class="punct">,</span> <span class="key">"status"</span><span class="punct">:</span> <span class="str">"queued"</span> <span class="punct">}</span>
+  <span class="punct">],</span>
+  <span class="key">"sensoUrl"</span><span class="punct">:</span> <span class="str">"https://senso.com/r/notion-2026-05-22-retention"</span><span class="punct">,</span>
+  <span class="key">"owner"</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"usr_priya"</span><span class="punct">,</span> <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Priya Natarajan"</span> <span class="punct">}</span>
+<span class="punct">}</span></pre>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Status codes</div>
+            <table class="status"><tbody>
+              <tr><td class="code s2">200</td><td class="name">ok</td><td class="desc">—</td></tr>
+              <tr><td class="code s4">404</td><td class="name">not-found</td><td class="desc">Change id not in org.</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </article>
+
+      <article class="endpoint" id="ack-change">
+        <div class="endpoint-head">
+          <span class="chip method-post"><span class="d"></span>POST</span>
+          <span class="path">/v1/changes/<span class="param">:id</span>/acknowledge</span>
+          <span class="desc">Move state <code>new → acknowledged</code>. Persists an event row.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Body <span class="tag">optional</span></div>
+            <div class="params">
+              <div class="param-row"><span class="name">note<span class="opt">opt</span></span><span class="type">string</span><span class="desc">Free-text reason. ≤500 chars.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">200 · response</div>
+            <pre class="code"><span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"chg_..."</span><span class="punct">,</span> <span class="key">"state"</span><span class="punct">:</span> <span class="str">"acknowledged"</span><span class="punct">,</span> <span class="key">"acknowledgedAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:18:00Z"</span> <span class="punct">}</span></pre>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Status codes</div>
+            <table class="status"><tbody>
+              <tr><td class="code s2">200</td><td class="name">ok</td><td class="desc">State advanced.</td></tr>
+              <tr><td class="code s4">409</td><td class="name">conflict</td><td class="desc">Already acknowledged or in a later state.</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </article>
+
+      <article class="endpoint" id="snooze-change">
+        <div class="endpoint-head">
+          <span class="chip method-post"><span class="d"></span>POST</span>
+          <span class="path">/v1/changes/<span class="param">:id</span>/snooze</span>
+          <span class="desc">Hide from portfolio until <code>untilAt</code>. Same shape as ack; adds an until field.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Body</div>
+            <div class="params">
+              <div class="param-row"><span class="name">untilAt</span><span class="type">ISO 8601</span><span class="desc">When the change should reappear in the active feed. Must be in the future, ≤30d.</span></div>
+              <div class="param-row"><span class="name">note<span class="opt">opt</span></span><span class="type">string</span><span class="desc">Free-text reason.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">200 · response</div>
+            <pre class="code"><span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"chg_..."</span><span class="punct">,</span> <span class="key">"state"</span><span class="punct">:</span> <span class="str">"snoozed"</span><span class="punct">,</span> <span class="key">"snoozedUntil"</span><span class="punct">:</span> <span class="str">"2026-06-15T00:00:00Z"</span> <span class="punct">}</span></pre>
+          </div>
+        </div>
+      </article>
+
+      <article class="endpoint" id="resolve-change">
+        <div class="endpoint-head">
+          <span class="chip method-post"><span class="d"></span>POST</span>
+          <span class="path">/v1/changes/<span class="param">:id</span>/resolve</span>
+          <span class="desc">Final state. Removes from active counts; remains in evidence bundles.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Body</div>
+            <div class="params">
+              <div class="param-row"><span class="name">resolution</span><span class="type">"accepted" | "renegotiated" | "rejected" | "no-action"</span><span class="desc">How the change was resolved. Drives recommendation analytics.</span></div>
+              <div class="param-row"><span class="name">note<span class="opt">opt</span></span><span class="type">string</span><span class="desc">Free-text outcome notes (e.g. "Renewal closed at +12% with retention restored to 90d").</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">200 · response</div>
+            <pre class="code"><span class="punct">{</span> <span class="key">"id"</span><span class="punct">:</span> <span class="str">"chg_..."</span><span class="punct">,</span> <span class="key">"state"</span><span class="punct">:</span> <span class="str">"resolved"</span><span class="punct">,</span> <span class="key">"resolution"</span><span class="punct">:</span> <span class="str">"renegotiated"</span> <span class="punct">}</span></pre>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- ── POLICIES ─── -->
+    <section class="s" id="policies-section">
+      <div class="s-head">
+        <div>
+          <div class="num">05</div>
+          <h2>Policies.</h2>
+        </div>
+      </div>
+
+      <article class="endpoint" id="get-policies">
+        <div class="endpoint-head">
+          <span class="chip method-get"><span class="d"></span>GET</span>
+          <span class="path">/v1/policies</span>
+          <span class="desc">List the org's active policies. Read-only today (editor is deferred); used by the policy panel on the ChangeReport screen.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">200 · response · <code>Policy[]</code></div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"data"</span><span class="punct">:</span> <span class="punct">[</span>
+    <span class="punct">{</span>
+      <span class="key">"id"</span><span class="punct">:</span> <span class="str">"pol_data_retention_pii_shrink"</span><span class="punct">,</span>
+      <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Data retention shrinks for PII vendors"</span><span class="punct">,</span>
+      <span class="key">"severity"</span><span class="punct">:</span> <span class="str">"P1"</span><span class="punct">,</span>
+      <span class="key">"route"</span><span class="punct">:</span> <span class="punct">[</span><span class="str">"slack:#sec-grc"</span><span class="punct">,</span> <span class="str">"jira:SEC"</span><span class="punct">,</span> <span class="str">"email:ciso@org"</span><span class="punct">],</span>
+      <span class="key">"dsl"</span><span class="punct">:</span> <span class="str">"# YAML source as a string ...\n"</span><span class="punct">,</span>
+      <span class="key">"version"</span><span class="punct">:</span> <span class="num">3</span><span class="punct">,</span>
+      <span class="key">"createdBy"</span><span class="punct">:</span> <span class="str">"usr_priya"</span><span class="punct">,</span>
+      <span class="key">"isActive"</span><span class="punct">:</span> <span class="kw">true</span>
+    <span class="punct">}</span>
+  <span class="punct">]</span>
+<span class="punct">}</span></pre>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- ── BUNDLES ─── -->
+    <section class="s" id="bundles-section">
+      <div class="s-head">
+        <div>
+          <div class="num">06</div>
+          <h2>Evidence <em>bundles</em>.</h2>
+        </div>
+      </div>
+
+      <article class="endpoint" id="post-bundle">
+        <div class="endpoint-head">
+          <span class="chip method-post"><span class="d"></span>POST</span>
+          <span class="path">/v1/bundles</span>
+          <span class="desc">Generate an evidence bundle (auditor PDF). Server gathers ChangeReports + citations + policy snapshots for the requested vendor × date range, publishes through Senso, and returns the public URL.</span>
+          <span class="auth">Org-scoped · Compliance Pack required</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Body</div>
+            <div class="params">
+              <div class="param-row"><span class="name">vendorIds</span><span class="type">string[] (1–20)</span><span class="desc">Vendors to include. At least one.</span></div>
+              <div class="param-row"><span class="name">dateRange</span><span class="type">{ from, to }</span><span class="desc">ISO date strings. Inclusive. <code>to</code> defaults to today.</span></div>
+              <div class="param-row"><span class="name">includeResolved<span class="opt">opt</span></span><span class="type">boolean</span><span class="desc">Default <code>true</code>. If false, omits resolved changes from the bundle.</span></div>
+              <div class="param-row"><span class="name">note<span class="opt">opt</span></span><span class="type">string</span><span class="desc">Free-text purpose ("SOC2 Q2 audit"). Appears on cover page.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">201 · response · <code>EvidenceBundle</code></div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"id"</span><span class="punct">:</span> <span class="str">"bnd_01H2K..."</span><span class="punct">,</span>
+  <span class="key">"vendorIds"</span><span class="punct">:</span> <span class="punct">[</span><span class="str">"vnd_notion"</span><span class="punct">,</span> <span class="str">"vnd_stripe"</span><span class="punct">],</span>
+  <span class="key">"dateRange"</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">"from"</span><span class="punct">:</span> <span class="str">"2026-04-01"</span><span class="punct">,</span> <span class="key">"to"</span><span class="punct">:</span> <span class="str">"2026-05-23"</span> <span class="punct">},</span>
+  <span class="key">"changeReportCount"</span><span class="punct">:</span> <span class="num">7</span><span class="punct">,</span>
+  <span class="key">"sensoUrl"</span><span class="punct">:</span> <span class="str">"https://senso.com/b/acme-q2-audit-01H2K"</span><span class="punct">,</span>
+  <span class="key">"createdBy"</span><span class="punct">:</span> <span class="str">"usr_priya"</span><span class="punct">,</span>
+  <span class="key">"createdAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:22:11Z"</span>
+<span class="punct">}</span></pre>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Status codes</div>
+            <table class="status"><tbody>
+              <tr><td class="code s2">201</td><td class="name">created</td><td class="desc">Bundle generated; <code>sensoUrl</code> ready.</td></tr>
+              <tr><td class="code s4">402</td><td class="name">payment-required</td><td class="desc">Org doesn't have Compliance Pack. UI shows upgrade modal.</td></tr>
+              <tr><td class="code s5">502</td><td class="name">upstream-failed</td><td class="desc">Senso publish failed; the bundle row is created with <code>sensoUrl: null</code>. Retryable via repeat POST with same Idempotency-Key.</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </article>
+
+      <article class="endpoint" id="get-bundle">
+        <div class="endpoint-head">
+          <span class="chip method-get"><span class="d"></span>GET</span>
+          <span class="path">/v1/bundles/<span class="param">:id</span></span>
+          <span class="desc">Bundle metadata + the assembled HTML for the print view (used by the in-app print-to-PDF page).</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">200 · response</div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"bundle"</span><span class="punct">:</span> <span class="punct">{</span> <span class="com">/* ... EvidenceBundle as above ... */</span> <span class="punct">},</span>
+  <span class="key">"changeReports"</span><span class="punct">:</span> <span class="punct">[</span> <span class="com">/* full ChangeReports in date order */</span> <span class="punct">],</span>
+  <span class="key">"policies"</span><span class="punct">:</span> <span class="punct">[</span> <span class="com">/* policies referenced */</span> <span class="punct">]</span>
+<span class="punct">}</span></pre>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- ── BILLING ─── -->
+    <section class="s" id="billing-section">
+      <div class="s-head">
+        <div>
+          <div class="num">07</div>
+          <h2>Billing &middot; Stripe.</h2>
+        </div>
+      </div>
+
+      <article class="endpoint" id="get-products">
+        <div class="endpoint-head">
+          <span class="chip method-get"><span class="d"></span>GET</span>
+          <span class="path">/v1/billing/products</span>
+          <span class="desc">List purchasable products. Today returns exactly one: Compliance Pack.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">200 · response</div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"data"</span><span class="punct">:</span> <span class="punct">[</span>
+    <span class="punct">{</span>
+      <span class="key">"id"</span><span class="punct">:</span> <span class="str">"compliance-pack"</span><span class="punct">,</span>
+      <span class="key">"name"</span><span class="punct">:</span> <span class="str">"Compliance Pack"</span><span class="punct">,</span>
+      <span class="key">"description"</span><span class="punct">:</span> <span class="str">"Evidence Bundles · Auditor portal · Vanta/Drata push"</span><span class="punct">,</span>
+      <span class="key">"priceUsdCents"</span><span class="punct">:</span> <span class="num">99900</span><span class="punct">,</span>
+      <span class="key">"currency"</span><span class="punct">:</span> <span class="str">"usd"</span><span class="punct">,</span>
+      <span class="key">"billing"</span><span class="punct">:</span> <span class="str">"one-time"</span><span class="punct">,</span>     <span class="com">// hackathon scope; "subscription" deferred</span>
+      <span class="key">"features"</span><span class="punct">:</span> <span class="punct">[</span>
+        <span class="str">"Evidence Bundles"</span><span class="punct">,</span>
+        <span class="str">"Auditor portal access"</span><span class="punct">,</span>
+        <span class="str">"Vanta / Drata push"</span><span class="punct">,</span>
+        <span class="str">"Signed PDF exports"</span>
+      <span class="punct">]</span>
+    <span class="punct">}</span>
+  <span class="punct">],</span>
+  <span class="key">"orgEntitlements"</span><span class="punct">:</span> <span class="punct">{</span>
+    <span class="key">"compliancePack"</span><span class="punct">:</span> <span class="kw">false</span>
+  <span class="punct">}</span>
+<span class="punct">}</span></pre>
+          </div>
+        </div>
+      </article>
+
+      <article class="endpoint" id="post-intent">
+        <div class="endpoint-head">
+          <span class="chip method-post"><span class="d"></span>POST</span>
+          <span class="path">/v1/billing/payment-intents</span>
+          <span class="desc">Create a Stripe PaymentIntent for the requested SKU. Server holds the secret key; client receives only <code>clientSecret</code> and confirms with Stripe Elements.</span>
+          <span class="auth">Org-scoped</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Body</div>
+            <div class="params">
+              <div class="param-row"><span class="name">sku</span><span class="type">"compliance-pack"</span><span class="desc">Product id. Only one supported today.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">200 · response</div>
+            <pre class="code"><span class="punct">{</span>
+  <span class="key">"paymentIntentId"</span><span class="punct">:</span> <span class="str">"pi_3OabcXYZ..."</span><span class="punct">,</span>
+  <span class="key">"clientSecret"</span><span class="punct">:</span> <span class="str">"pi_3OabcXYZ_secret_..."</span><span class="punct">,</span>
+  <span class="key">"amountUsdCents"</span><span class="punct">:</span> <span class="num">99900</span><span class="punct">,</span>
+  <span class="key">"currency"</span><span class="punct">:</span> <span class="str">"usd"</span><span class="punct">,</span>
+  <span class="key">"publishableKey"</span><span class="punct">:</span> <span class="str">"pk_test_..."</span>    <span class="com">// echoed for Stripe Elements init</span>
+<span class="punct">}</span></pre>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Status codes</div>
+            <table class="status"><tbody>
+              <tr><td class="code s2">200</td><td class="name">ok</td><td class="desc">Intent created; client confirms via Stripe Elements.</td></tr>
+              <tr><td class="code s4">409</td><td class="name">conflict</td><td class="desc">Org already has this entitlement.</td></tr>
+              <tr><td class="code s5">502</td><td class="name">upstream-failed</td><td class="desc">Stripe API errored. Stage fallback (runbook) creates a synthetic intent.</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </article>
+
+      <article class="endpoint" id="stripe-webhook">
+        <div class="endpoint-head">
+          <span class="chip method-delete"><span class="d"></span>WEBHOOK</span>
+          <span class="path">/webhooks/stripe</span>
+          <span class="desc">Stripe-signed webhook. Verifies signature; on <code>payment_intent.succeeded</code> flips <code>org.compliancePack=true</code> and persists an <code>Action(kind:"payment")</code>.</span>
+          <span class="auth public">Stripe-signed</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Headers</div>
+            <div class="params">
+              <div class="param-row"><span class="name">Stripe-Signature</span><span class="type">string</span><span class="desc">Verified with <code>STRIPE_WEBHOOK_SECRET</code> using <code>stripe.webhooks.constructEvent</code>. Reject 400 if invalid.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Events handled</div>
+            <table class="status"><tbody>
+              <tr><td class="name">payment_intent.succeeded</td><td class="desc">Flip <code>org.compliancePack=true</code>; persist <code>Action(kind:"payment")</code>; emit SSE <code>org.entitlements.changed</code>.</td></tr>
+              <tr><td class="name">payment_intent.payment_failed</td><td class="desc">Log; persist <code>Action</code> with status <code>failed</code>. No entitlement change.</td></tr>
+              <tr><td class="name">charge.refunded</td><td class="desc">Out of scope for hackathon; ack with 200 and log.</td></tr>
+            </tbody></table>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">200 · response</div>
+            <pre class="code"><span class="punct">{</span> <span class="key">"received"</span><span class="punct">:</span> <span class="kw">true</span> <span class="punct">}</span></pre>
+            <p class="small-note"><b>Important:</b> always return 200 quickly even for unhandled events — Stripe retries on non-2xx for 3 days. Process async if heavy work.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- ── ADMIN ─── -->
+    <section class="s" id="admin-section">
+      <div class="s-head">
+        <div>
+          <div class="num">08</div>
+          <h2>Admin.</h2>
+        </div>
+        <div class="status">
+          <span class="chip mock"><span class="d"></span>Not in product UI</span>
+        </div>
+      </div>
+
+      <article class="endpoint" id="admin-scan">
+        <div class="endpoint-head">
+          <span class="chip method-post"><span class="d"></span>POST</span>
+          <span class="path">/v1/admin/vendors/<span class="param">:id</span>/scan</span>
+          <span class="desc">Force-trigger a scan outside the schedule. Used for backfill, demo rehearsals, and post-add first-runs.</span>
+          <span class="auth admin">Admin only</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Headers</div>
+            <div class="params">
+              <div class="param-row"><span class="name">X-Admin-Token</span><span class="type">string</span><span class="desc">Static admin key from <code>ADMIN_TOKEN</code> env. Separate from the user bearer token.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Body <span class="tag">optional</span></div>
+            <div class="params">
+              <div class="param-row"><span class="name">urls<span class="opt">opt</span></span><span class="type">string[]</span><span class="desc">Subset of the vendor's URLs to scan. Default: all 6.</span></div>
+              <div class="param-row"><span class="name">forceGemini<span class="opt">opt</span></span><span class="type">boolean</span><span class="desc">Skip hash-cache; always call Gemini. Use for rehearsals.</span></div>
+            </div>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">202 · response</div>
+            <pre class="code"><span class="punct">{</span> <span class="key">"runId"</span><span class="punct">:</span> <span class="str">"run_01H2K..."</span><span class="punct">,</span> <span class="key">"queuedAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:30:00Z"</span> <span class="punct">}</span></pre>
+            <p class="small-note">Returns <b>202 Accepted</b> &mdash; the scan runs asynchronously. Subscribe to SSE for stages.</p>
+          </div>
+        </div>
+      </article>
+
+      <div class="callout warn">
+        <span class="ico">⚠</span>
+        <div>
+          <h4>This endpoint is never surfaced in the product UI</h4>
+          <p>The agent is always-on (see <a href="Product Decisions.html#scope">Decisions §01-B</a>). This endpoint exists for: (1) the first-scan after <code>POST /v1/vendors</code> (server calls it internally), (2) demo rehearsals, (3) production backfill. A judge watching the screen must see the change <em>arrive</em>, never see anyone click "run".</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SSE ─── -->
+    <section class="s" id="streaming-section">
+      <div class="s-head">
+        <div>
+          <div class="num">09</div>
+          <h2>Streaming &middot; <em>SSE</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip live"><span class="d"></span>Server-Sent Events</span>
+        </div>
+      </div>
+
+      <article class="endpoint" id="sse">
+        <div class="endpoint-head">
+          <span class="chip method-sse"><span class="d"></span>SSE</span>
+          <span class="path">/v1/stream</span>
+          <span class="desc">Long-lived event channel. UI subscribes once on app load to drive live updates: new ChangeReports landing, scheduler ticks, Slack delivery confirmations, entitlement changes.</span>
+          <span class="auth">Org-scoped (bearer in query)</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-section">
+            <div class="lbl">Connection</div>
+            <pre class="code">GET /v1/stream?token=demo_token_acme_corp_2026
+
+<span class="com"># Content-Type: text/event-stream</span>
+<span class="com"># Keepalive: server emits ":heartbeat\n\n" every 15s</span>
+<span class="com"># Client should reconnect with Last-Event-ID on disconnect</span></pre>
+            <p class="small-note"><b>Why query param, not header:</b> EventSource doesn't support custom headers. The server resolves <code>?token=</code> exactly like an <code>Authorization</code> bearer.</p>
+          </div>
+          <div class="endpoint-section">
+            <div class="lbl">Events</div>
+            <div class="sse-event">
+              <div class="ev-name">scheduler.tick</div>
+              <div class="ev-desc">Emitted every time the scheduler kicks off a vendor scan. Updates the portfolio "last scan Ns ago" indicator.</div>
+              <pre class="code">event: scheduler.tick
+data: <span class="punct">{</span> <span class="key">"vendorId"</span><span class="punct">:</span> <span class="str">"vnd_notion"</span><span class="punct">,</span> <span class="key">"runId"</span><span class="punct">:</span> <span class="str">"run_..."</span><span class="punct">,</span>
+        <span class="key">"startedAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:14:42Z"</span> <span class="punct">}</span></pre>
+            </div>
+            <div class="sse-event">
+              <div class="ev-name">run.stage</div>
+              <div class="ev-desc">Per-stage progress for the 7-stage pipeline. Powers the run-history detail and any "Datadog story" surfacing.</div>
+              <pre class="code">event: run.stage
+data: <span class="punct">{</span> <span class="key">"runId"</span><span class="punct">:</span> <span class="str">"run_..."</span><span class="punct">,</span> <span class="key">"stage"</span><span class="punct">:</span> <span class="str">"fetch"</span><span class="punct">,</span>
+        <span class="key">"status"</span><span class="punct">:</span> <span class="str">"completed"</span><span class="punct">,</span> <span class="key">"durationMs"</span><span class="punct">:</span> <span class="num">1180</span> <span class="punct">}</span>
+<span class="com"># stage: "fetch" | "diff" | "reason" | "classify" | "route" | "publish"</span>
+<span class="com"># status: "started" | "completed" | "failed" | "skipped"</span></pre>
+            </div>
+            <div class="sse-event">
+              <div class="ev-name">change.detected</div>
+              <div class="ev-desc">A new ChangeReport just landed. UI prepends it to the activity feed and (if severity ≥ P2) shows a toast.</div>
+              <pre class="code">event: change.detected
+data: <span class="punct">{</span> <span class="key">"changeReportId"</span><span class="punct">:</span> <span class="str">"chg_..."</span><span class="punct">,</span> <span class="key">"vendorId"</span><span class="punct">:</span> <span class="str">"vnd_notion"</span><span class="punct">,</span>
+        <span class="key">"severity"</span><span class="punct">:</span> <span class="str">"P1"</span><span class="punct">,</span> <span class="key">"headline"</span><span class="punct">:</span> <span class="str">"..."</span> <span class="punct">}</span></pre>
+            </div>
+            <div class="sse-event">
+              <div class="ev-name">action.delivered</div>
+              <div class="ev-desc">An external route succeeded (Slack 200) or failed.</div>
+              <pre class="code">event: action.delivered
+data: <span class="punct">{</span> <span class="key">"actionId"</span><span class="punct">:</span> <span class="str">"act_..."</span><span class="punct">,</span> <span class="key">"changeReportId"</span><span class="punct">:</span> <span class="str">"chg_..."</span><span class="punct">,</span>
+        <span class="key">"kind"</span><span class="punct">:</span> <span class="str">"slack"</span><span class="punct">,</span> <span class="key">"status"</span><span class="punct">:</span> <span class="str">"delivered"</span><span class="punct">,</span>
+        <span class="key">"externalId"</span><span class="punct">:</span> <span class="str">"slack_msg_1716482538.000200"</span> <span class="punct">}</span></pre>
+            </div>
+            <div class="sse-event">
+              <div class="ev-name">change.stateChanged</div>
+              <div class="ev-desc">A change advanced state (someone clicked acknowledge / snooze / resolve). UI updates the corresponding card.</div>
+              <pre class="code">event: change.stateChanged
+data: <span class="punct">{</span> <span class="key">"changeReportId"</span><span class="punct">:</span> <span class="str">"chg_..."</span><span class="punct">,</span>
+        <span class="key">"state"</span><span class="punct">:</span> <span class="str">"acknowledged"</span><span class="punct">,</span> <span class="key">"by"</span><span class="punct">:</span> <span class="str">"usr_priya"</span> <span class="punct">}</span></pre>
+            </div>
+            <div class="sse-event">
+              <div class="ev-name">org.entitlements.changed</div>
+              <div class="ev-desc">Fired when the Stripe webhook flips an entitlement. The Stripe modal listens for this to switch to the success state.</div>
+              <pre class="code">event: org.entitlements.changed
+data: <span class="punct">{</span> <span class="key">"compliancePack"</span><span class="punct">:</span> <span class="kw">true</span><span class="punct">,</span>
+        <span class="key">"changedAt"</span><span class="punct">:</span> <span class="str">"2026-05-23T13:22:00Z"</span> <span class="punct">}</span></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- ── EXTERNAL ─── -->
+    <section class="s" id="external">
+      <div class="s-head">
+        <div>
+          <div class="num">10</div>
+          <h2>External &middot; what we call <em>outward</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip live"><span class="d"></span>4 live</span>
+          <span class="chip mock"><span class="d"></span>3 typed-only</span>
+        </div>
+      </div>
+
+      <p class="lede">Outbound integrations. Four are real wire calls; three are typed Action records persisted to ClickHouse with no external side effect. Full provider rationale in <a href="Product Decisions.html#stack">Decisions §02</a>.</p>
+
+      <h3 class="sub">Nimble &middot; <em>fetch</em></h3>
+      <p class="code-cap"><span>Live · 1 call per URL per scan</span><span class="file">src/providers/nimble.ts</span></p>
+      <pre class="code"><span class="kw">import</span> <span class="punct">{</span> <span class="fn">NimbleClient</span> <span class="punct">}</span> <span class="kw">from</span> <span class="str">"@nimble/sdk"</span><span class="punct">;</span>
+
+<span class="kw">const</span> nimble <span class="punct">=</span> <span class="kw">new</span> <span class="fn">NimbleClient</span><span class="punct">({</span> <span class="key">apiKey</span><span class="punct">:</span> process.env.NIMBLE_API_KEY <span class="punct">})</span><span class="punct">;</span>
+
+<span class="kw">export async function</span> <span class="fn">fetchUrl</span><span class="punct">(</span>url<span class="punct">:</span> <span class="type">string</span><span class="punct">):</span> <span class="type">Promise&lt;NimbleFetchResult&gt;</span> <span class="punct">{</span>
+  <span class="kw">const</span> resp <span class="punct">=</span> <span class="kw">await</span> nimble.fetch<span class="punct">({</span>
+    <span class="key">url</span><span class="punct">,</span>
+    <span class="key">render</span><span class="punct">:</span> <span class="str">"static"</span><span class="punct">,</span>            <span class="com">// no JS rendering today</span>
+    <span class="key">timeoutMs</span><span class="punct">:</span> <span class="num">12000</span><span class="punct">,</span>
+    <span class="key">retries</span><span class="punct">:</span> <span class="num">1</span><span class="punct">,</span>
+  <span class="punct">})</span><span class="punct">;</span>
+  <span class="kw">if</span> <span class="punct">(</span><span class="punct">!</span>resp.ok<span class="punct">)</span> <span class="kw">throw new</span> <span class="fn">UpstreamError</span><span class="punct">(</span><span class="str">"nimble"</span><span class="punct">,</span> resp.error<span class="punct">)</span><span class="punct">;</span>
+  <span class="kw">return</span> <span class="punct">{</span>
+    <span class="key">text</span><span class="punct">:</span> <span class="fn">clean</span><span class="punct">(</span>resp.text<span class="punct">),</span>     <span class="com">// strip nav/footer/scripts</span>
+    <span class="key">html</span><span class="punct">:</span> resp.html<span class="punct">,</span>
+    <span class="key">sourceUrl</span><span class="punct">:</span> resp.finalUrl<span class="punct">,</span>
+    <span class="key">fetchedAt</span><span class="punct">:</span> <span class="kw">new</span> <span class="fn">Date</span><span class="punct">().</span>toISOString<span class="punct">(),</span>
+    <span class="key">hash</span><span class="punct">:</span> <span class="fn">sha256</span><span class="punct">(</span><span class="fn">clean</span><span class="punct">(</span>resp.text<span class="punct">)),</span>
+  <span class="punct">}</span><span class="punct">;</span>
+<span class="punct">}</span></pre>
+
+      <h3 class="sub">Gemini &middot; <em>structured diff</em></h3>
+      <p class="code-cap"><span>Live · 1 call per changed URL</span><span class="file">src/providers/gemini.ts</span></p>
+      <pre class="code"><span class="kw">import</span> <span class="punct">{</span> <span class="fn">GoogleGenAI</span> <span class="punct">}</span> <span class="kw">from</span> <span class="str">"@google/genai"</span><span class="punct">;</span>
+<span class="kw">import</span> <span class="punct">{</span> ChangeReportSchemaJsonSchema <span class="punct">}</span> <span class="kw">from</span> <span class="str">"./schemas"</span><span class="punct">;</span>
+
+<span class="kw">const</span> ai <span class="punct">=</span> <span class="kw">new</span> <span class="fn">GoogleGenAI</span><span class="punct">({</span> <span class="key">apiKey</span><span class="punct">:</span> process.env.GEMINI_API_KEY <span class="punct">})</span><span class="punct">;</span>
+
+<span class="kw">export async function</span> <span class="fn">structuredDiff</span><span class="punct">(</span>before<span class="punct">,</span> after<span class="punct">,</span> vendor<span class="punct">)</span> <span class="punct">{</span>
+  <span class="kw">const</span> resp <span class="punct">=</span> <span class="kw">await</span> ai.models.generateContent<span class="punct">({</span>
+    <span class="key">model</span><span class="punct">:</span> <span class="str">"gemini-2.5-pro"</span><span class="punct">,</span>
+    <span class="key">contents</span><span class="punct">:</span> <span class="fn">prompt</span><span class="punct">(</span>before<span class="punct">,</span> after<span class="punct">,</span> vendor<span class="punct">),</span>
+    <span class="key">config</span><span class="punct">:</span> <span class="punct">{</span>
+      <span class="key">responseMimeType</span><span class="punct">:</span> <span class="str">"application/json"</span><span class="punct">,</span>
+      <span class="key">responseSchema</span><span class="punct">:</span> ChangeReportSchemaJsonSchema<span class="punct">,</span>
+      <span class="key">temperature</span><span class="punct">:</span> <span class="num">0.1</span><span class="punct">,</span>
+    <span class="punct">},</span>
+  <span class="punct">})</span><span class="punct">;</span>
+  <span class="kw">const</span> parsed <span class="punct">=</span> ChangeReportSchema.<span class="fn">parse</span><span class="punct">(</span><span class="fn">JSON.parse</span><span class="punct">(</span>resp.text<span class="punct">))</span><span class="punct">;</span>
+  <span class="com">// every change must include ≥1 citation, enforced by zod refine</span>
+  <span class="kw">return</span> parsed<span class="punct">;</span>
+<span class="punct">}</span></pre>
+
+      <h3 class="sub">Senso &middot; <em>publish</em></h3>
+      <p class="code-cap"><span>Live · 1 publish per ChangeReport · 1 per Bundle</span><span class="file">src/providers/senso.ts</span></p>
+      <pre class="code"><span class="kw">export async function</span> <span class="fn">publishChangeReport</span><span class="punct">(</span>cr<span class="punct">:</span> <span class="type">ChangeReport</span><span class="punct">):</span> <span class="type">Promise&lt;string&gt;</span> <span class="punct">{</span>
+  <span class="kw">const</span> resp <span class="punct">=</span> <span class="kw">await</span> <span class="fn">fetch</span><span class="punct">(</span><span class="str">"https://api.senso.com/v1/publish"</span><span class="punct">,</span> <span class="punct">{</span>
+    <span class="key">method</span><span class="punct">:</span> <span class="str">"POST"</span><span class="punct">,</span>
+    <span class="key">headers</span><span class="punct">:</span> <span class="punct">{</span>
+      <span class="key">Authorization</span><span class="punct">:</span> <span class="str">`Bearer </span><span class="punct">${</span>process.env.SENSO_API_KEY<span class="punct">}</span><span class="str">`</span><span class="punct">,</span>
+      <span class="key">"Content-Type"</span><span class="punct">:</span> <span class="str">"application/json"</span><span class="punct">,</span>
+    <span class="punct">},</span>
+    <span class="key">body</span><span class="punct">:</span> <span class="fn">JSON.stringify</span><span class="punct">({</span>
+      <span class="key">slug</span><span class="punct">:</span> <span class="str">`</span><span class="punct">${</span>cr.vendor.id<span class="punct">}</span><span class="str">-</span><span class="punct">${</span>cr.detectedAt.slice<span class="punct">(</span><span class="num">0</span><span class="punct">,</span><span class="num">10</span><span class="punct">)}</span><span class="str">`</span><span class="punct">,</span>
+      <span class="key">type</span><span class="punct">:</span> <span class="str">"change-report"</span><span class="punct">,</span>
+      <span class="key">payload</span><span class="punct">:</span> cr<span class="punct">,</span>     <span class="com">// Senso renders the brief from this JSON</span>
+      <span class="key">immutable</span><span class="punct">:</span> <span class="kw">true</span><span class="punct">,</span>
+    <span class="punct">}),</span>
+  <span class="punct">})</span><span class="punct">;</span>
+  <span class="kw">if</span> <span class="punct">(</span><span class="punct">!</span>resp.ok<span class="punct">)</span> <span class="kw">throw new</span> <span class="fn">UpstreamError</span><span class="punct">(</span><span class="str">"senso"</span><span class="punct">,</span> <span class="kw">await</span> resp.text<span class="punct">())</span><span class="punct">;</span>
+  <span class="kw">const</span> <span class="punct">{</span> publicUrl <span class="punct">}</span> <span class="punct">=</span> <span class="kw">await</span> resp.json<span class="punct">()</span><span class="punct">;</span>
+  <span class="kw">return</span> publicUrl<span class="punct">;</span>
+<span class="punct">}</span></pre>
+
+      <h3 class="sub">Slack &middot; <em>routed alert</em></h3>
+      <p class="code-cap"><span>Live · 1 incoming webhook</span><span class="file">src/providers/slack.ts</span></p>
+      <pre class="code"><span class="kw">export async function</span> <span class="fn">postAlert</span><span class="punct">(</span>cr<span class="punct">:</span> <span class="type">ChangeReport</span><span class="punct">):</span> <span class="type">Promise&lt;string&gt;</span> <span class="punct">{</span>
+  <span class="kw">const</span> blocks <span class="punct">=</span> <span class="punct">[</span>
+    <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"header"</span><span class="punct">,</span> <span class="key">text</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"plain_text"</span><span class="punct">,</span>
+      <span class="key">text</span><span class="punct">:</span> <span class="str">`</span><span class="punct">${</span>cr.severity<span class="punct">}</span><span class="str"> · </span><span class="punct">${</span>cr.vendor.name<span class="punct">}</span><span class="str"> · Redline alert`</span> <span class="punct">}</span> <span class="punct">},</span>
+    <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"section"</span><span class="punct">,</span> <span class="key">text</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"mrkdwn"</span><span class="punct">,</span>
+      <span class="key">text</span><span class="punct">:</span> <span class="str">`*</span><span class="punct">${</span>cr.changes<span class="punct">[</span><span class="num">0</span><span class="punct">]</span>.summary<span class="punct">}</span><span class="str">*\n_Policy: </span><span class="punct">${</span>cr.policyFired.name<span class="punct">}</span><span class="str">_`</span> <span class="punct">}</span> <span class="punct">},</span>
+    <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"context"</span><span class="punct">,</span> <span class="key">elements</span><span class="punct">:</span> <span class="punct">[</span>
+      <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"mrkdwn"</span><span class="punct">,</span> <span class="key">text</span><span class="punct">:</span> <span class="str">`Impact: $</span><span class="punct">${</span>cr.changes<span class="punct">[</span><span class="num">1</span><span class="punct">]</span>.dollarImpact?.annualUsd <span class="punct">??</span> <span class="num">0</span><span class="punct">}</span><span class="str">/yr`</span> <span class="punct">}</span>
+    <span class="punct">]</span> <span class="punct">},</span>
+    <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"actions"</span><span class="punct">,</span> <span class="key">elements</span><span class="punct">:</span> <span class="punct">[</span>
+      <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"button"</span><span class="punct">,</span> <span class="key">text</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"plain_text"</span><span class="punct">,</span> <span class="key">text</span><span class="punct">:</span> <span class="str">"Open in Redline"</span> <span class="punct">},</span>
+        <span class="key">url</span><span class="punct">:</span> <span class="str">`</span><span class="punct">${</span>BASE_URL<span class="punct">}</span><span class="str">/changes/</span><span class="punct">${</span>cr.id<span class="punct">}</span><span class="str">`</span><span class="punct">,</span> <span class="key">style</span><span class="punct">:</span> <span class="str">"primary"</span> <span class="punct">},</span>
+      <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"button"</span><span class="punct">,</span> <span class="key">text</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">type</span><span class="punct">:</span> <span class="str">"plain_text"</span><span class="punct">,</span> <span class="key">text</span><span class="punct">:</span> <span class="str">"View evidence"</span> <span class="punct">},</span>
+        <span class="key">url</span><span class="punct">:</span> cr.sensoUrl <span class="punct">}</span>
+    <span class="punct">]</span> <span class="punct">}</span>
+  <span class="punct">]</span><span class="punct">;</span>
+  <span class="kw">const</span> resp <span class="punct">=</span> <span class="kw">await</span> <span class="fn">fetch</span><span class="punct">(</span>process.env.SLACK_WEBHOOK_URL<span class="punct">,</span> <span class="punct">{</span>
+    <span class="key">method</span><span class="punct">:</span> <span class="str">"POST"</span><span class="punct">,</span> <span class="key">headers</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">"Content-Type"</span><span class="punct">:</span> <span class="str">"application/json"</span> <span class="punct">},</span>
+    <span class="key">body</span><span class="punct">:</span> <span class="fn">JSON.stringify</span><span class="punct">({</span> blocks <span class="punct">}),</span>
+  <span class="punct">})</span><span class="punct">;</span>
+  <span class="kw">if</span> <span class="punct">(</span><span class="punct">!</span>resp.ok<span class="punct">)</span> <span class="kw">throw new</span> <span class="fn">UpstreamError</span><span class="punct">(</span><span class="str">"slack"</span><span class="punct">,</span> <span class="kw">await</span> resp.text<span class="punct">())</span><span class="punct">;</span>
+  <span class="kw">return</span> resp.headers.get<span class="punct">(</span><span class="str">"x-slack-msg-id"</span><span class="punct">)</span> <span class="punct">??</span> <span class="str">""</span><span class="punct">;</span>
+<span class="punct">}</span></pre>
+
+      <h3 class="sub">Mocked routes &middot; typed-only</h3>
+      <table class="spec">
+        <thead>
+          <tr><th>Kind</th><th>Action.payload shape</th><th>Side effect</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="k">jira</td>
+            <td><code>{ projectKey, issueType, summary, description, priority, labels, assignee? }</code></td>
+            <td>Row inserted with <code>status:"queued"</code>. The UI renders it as "queued for SEC-1247" with a Jira-shaped icon. No external call.</td>
+          </tr>
+          <tr>
+            <td class="k">email</td>
+            <td><code>{ to, subject, html, text }</code></td>
+            <td>Row inserted with <code>status:"queued"</code>. <code>html</code> is the rendered template; viewable in the action drawer.</td>
+          </tr>
+          <tr>
+            <td class="k">calendar</td>
+            <td><code>{ title, startsAt, endsAt, attendees[], description, location? }</code></td>
+            <td>Row inserted with <code>status:"queued"</code>. Renders as an ICS-shaped card.</td>
+          </tr>
+          <tr>
+            <td class="k">draft</td>
+            <td><code>{ template, payload }</code></td>
+            <td>Content (e.g. customer-notification email) generated and stored on the row. Useful for the "negotiation copilot" Q&amp;A even though that flow isn't built.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="callout ok" style="margin-top: 24px;">
+      <span class="ico">✓</span>
+      <div>
+        <h4>That's the entire surface</h4>
+        <p>15 REST endpoints, 1 SSE channel, 1 webhook, 7 outbound integrations (4 live, 3 typed-mock). Anything not on this page is out of scope for the hackathon. For implementation details &mdash; entity shapes, ClickHouse DDL, seed file format &mdash; head to <a href="Data Model.html">Data Model</a>. For env vars and the demo script, head to <a href="Runbook.html">Runbook</a>.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="six"><span class="a"></span><span class="b"></span><span class="t"></span><span class="g"></span><span class="s"></span><span class="l"></span></div>
+  <div class="meta">REDLINE · API CONTRACT · <b>v1.0</b> · 2026-05-23 · <a href="index.html">Index</a> · <a href="Product Decisions.html">Decisions</a> · <a href="Data Model.html">Data</a> · <a href="Runbook.html">Runbook</a></div>
+</footer>
+
+<script>
+  const navLinks = document.querySelectorAll('.ep-nav a');
+  const targets = [...navLinks].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  targets.forEach(t => io.observe(t));
+</script>
+
+</body>
+</html>

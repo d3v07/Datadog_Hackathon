@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redline · Product Decisions · 5.5h scope</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font-text); -webkit-font-smoothing: antialiased; }
+  body {
+    background:
+      radial-gradient(60vw 50vh at 8% -8%, rgba(91,160,240,0.12), transparent 60%),
+      radial-gradient(50vw 45vh at 92% 4%, rgba(43,202,232,0.08), transparent 60%),
+      radial-gradient(55vw 50vh at 100% 60%, rgba(244,102,136,0.10), transparent 60%),
+      radial-gradient(55vw 60vh at -5% 70%, rgba(160,151,216,0.10), transparent 60%),
+      radial-gradient(50vw 40vh at 50% 110%, rgba(181,220,85,0.07), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ─────────────────────────────────────────── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: var(--space-4);
+    padding: 14px 36px;
+    background: rgba(10,10,18,0.72);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand img { width: 22px; height: 22px; display: block; }
+  .brand .word { font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: -0.015em; color: var(--text-strong); font-variation-settings: "opsz" 18; }
+  .topbar .crumb { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .topbar .crumb b { color: var(--text-2); font-weight: 500; }
+  .topbar .spacer { flex: 1; }
+  .topbar .meta { display: flex; gap: 14px; align-items: center; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted); }
+  .topbar .meta .v { color: var(--text-2); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 999px;
+    background: var(--strawberry-soft); border: 1px solid rgba(244,102,136,0.30);
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--strawberry);
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--strawberry); box-shadow: 0 0 8px var(--strawberry); animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+
+  /* ── LAYOUT ──────────────────────────────────────────── */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr) 240px;
+    gap: 36px;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 32px 36px 120px;
+  }
+  @media (max-width: 1200px) { .layout { grid-template-columns: 220px minmax(0,1fr); } .rail { display: none; } }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; padding: 24px; } .toc-wrap { display: none; } }
+
+  /* ── TOC ─────────────────────────────────────────────── */
+  .toc-wrap { position: sticky; top: 84px; height: max-content; }
+  .toc-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; padding-left: 4px; }
+  .toc { display: flex; flex-direction: column; gap: 2px; }
+  .toc a {
+    display: flex; gap: 10px; align-items: baseline;
+    padding: 7px 10px; border-radius: 8px;
+    text-decoration: none; color: var(--text-2);
+    font-size: 13px; line-height: 1.3;
+    transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+  .toc a:hover { background: var(--surface); color: var(--text); }
+  .toc a.active { background: var(--surface); color: var(--text-strong); }
+  .toc a .n { font-family: var(--font-mono); font-size: 11px; color: var(--muted); flex-shrink: 0; min-width: 22px; }
+  .toc a.active .n { color: var(--aqua); }
+
+  /* ── RAIL ───────────────────────────────────────────── */
+  .rail { position: sticky; top: 84px; height: max-content; display: flex; flex-direction: column; gap: 14px; }
+  .rail .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+  .rail h4 { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+  .rail .row { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--hairline); }
+  .rail .row:first-of-type { border-top: 0; padding-top: 0; }
+  .rail .row .k { color: var(--text-2); font-size: 12px; }
+  .rail .row .v { font-family: var(--font-mono); font-size: 12px; color: var(--text); }
+  .legend-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  .legend-row .swatch { width: 10px; height: 10px; border-radius: 999px; flex-shrink: 0; }
+  .legend-row .lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-2); }
+  .legend-row .what { font-size: 11.5px; color: var(--muted); margin-left: auto; }
+
+  /* ── SECTIONS ───────────────────────────────────────── */
+  section.s { margin-bottom: 72px; scroll-margin-top: 96px; }
+  .s-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .s-head .num { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; color: var(--muted); margin-bottom: 8px; }
+  .s-head h2 { font-family: var(--font-display); font-weight: 500; font-size: 36px; line-height: 1.05; letter-spacing: -0.025em; margin: 0; color: var(--text-strong); font-variation-settings: "opsz" 48; }
+  .s-head h2 em { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--text-strong); }
+  .s-head .status { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 999px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; line-height: 1; }
+  .chip .d { width: 5px; height: 5px; border-radius: 999px; }
+  .chip.decided { background: var(--lime-soft); border: 1px solid rgba(181,220,85,0.30); color: var(--lime); }
+  .chip.decided .d { background: var(--lime); }
+  .chip.live { background: var(--bondi-soft); border: 1px solid rgba(43,202,232,0.30); color: var(--bondi); }
+  .chip.live .d { background: var(--bondi); box-shadow: 0 0 6px var(--bondi); }
+  .chip.mock { background: var(--tangerine-soft); border: 1px solid rgba(255,149,64,0.30); color: var(--tangerine); }
+  .chip.mock .d { background: var(--tangerine); }
+  .chip.deferred { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--muted); }
+  .chip.deferred .d { background: var(--muted); }
+  .chip.open { background: var(--strawberry-soft); border: 1px solid rgba(244,102,136,0.30); color: var(--strawberry); }
+  .chip.open .d { background: var(--strawberry); box-shadow: 0 0 6px var(--strawberry); }
+  .chip.role { background: var(--surface); border: 1px solid var(--border); color: var(--text-2); }
+
+  .lede { font-size: 17px; line-height: 1.55; color: var(--text); max-width: 68ch; margin: 0 0 24px; }
+  .lede em { font-family: var(--font-serif); font-style: italic; }
+
+  /* ── DECISIONS ──────────────────────────────────────── */
+  .decisions { display: flex; flex-direction: column; gap: 14px; }
+  .decision {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    position: relative;
+  }
+  .decision .id { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--muted); padding-top: 2px; }
+  .decision .id .num { color: var(--aqua); display: block; font-size: 13px; margin-top: 2px; font-feature-settings: "tnum" 1; }
+  .decision .body h3 { font-family: var(--font-display); font-weight: 500; font-size: 19px; letter-spacing: -0.012em; margin: 0 0 6px; color: var(--text-strong); font-variation-settings: "opsz" 24; }
+  .decision .body p { font-size: 14px; line-height: 1.55; color: var(--text-2); margin: 0 0 8px; }
+  .decision .body p:last-child { margin-bottom: 0; }
+  .decision .body strong { color: var(--text); font-weight: 500; }
+  .decision .body code { font-family: var(--font-mono); font-size: 12.5px; background: var(--surface-2); padding: 1.5px 6px; border-radius: 5px; color: var(--text); font-feature-settings: "tnum" 1; }
+  .decision .tag { position: absolute; top: 18px; right: 22px; }
+  .decision.open-d { border-color: rgba(244,102,136,0.30); background: linear-gradient(180deg, rgba(244,102,136,0.04), transparent 40%) , var(--surface); }
+  .decision .why { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--hairline); }
+  .decision .why b { color: var(--text-2); font-weight: 500; }
+
+  /* ── TABLES ─────────────────────────────────────────── */
+  table.spec { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  table.spec th, table.spec td { text-align: left; padding: 12px 16px; font-size: 13px; vertical-align: top; border-top: 1px solid var(--hairline); }
+  table.spec thead th { background: var(--surface-2); border-top: 0; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  table.spec tbody tr:first-child td { border-top: 0; }
+  table.spec td.k { font-family: var(--font-mono); font-size: 12.5px; color: var(--text); white-space: nowrap; }
+  table.spec td .sub { display: block; font-size: 11.5px; color: var(--muted); margin-top: 3px; font-family: var(--font-text); letter-spacing: 0; }
+  table.spec td code { font-family: var(--font-mono); font-size: 12px; color: var(--bondi); }
+  table.spec td.severity { font-family: var(--font-mono); font-weight: 600; font-size: 12px; letter-spacing: 0.06em; }
+  .sev-p1 { color: var(--strawberry); }
+  .sev-p2 { color: var(--tangerine); }
+  .sev-p3 { color: var(--lime); }
+
+  /* ── CODE ───────────────────────────────────────────── */
+  pre.code {
+    background: #0F0F18;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text);
+    margin: 0;
+  }
+  pre.code .kw { color: var(--grape); }
+  pre.code .str { color: var(--lime); }
+  pre.code .num { color: var(--bondi); font-feature-settings: "tnum" 1; }
+  pre.code .com { color: var(--muted); font-style: italic; }
+  pre.code .key { color: var(--aqua); }
+  pre.code .punct { color: var(--text-2); }
+  pre.code .type { color: var(--tangerine); }
+  .code-cap { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; display: flex; justify-content: space-between; }
+  .code-cap .file { color: var(--text-2); }
+
+  /* ── PIPELINE ───────────────────────────────────────── */
+  .pipeline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px 20px;
+    margin-bottom: 18px;
+  }
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+    align-items: stretch;
+  }
+  .stage {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 9px 12px;
+    position: relative;
+    display: flex; flex-direction: column; gap: 5px;
+    min-width: 0;
+  }
+  .stage > * { min-width: 0; word-wrap: break-word; }
+  .stage .step { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.10em; color: var(--muted); }
+  .stage .name { font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-strong); line-height: 1.15; font-variation-settings: "opsz" 18; letter-spacing: -0.01em; }
+  .stage .desc { font-size: 10.5px; line-height: 1.4; color: var(--text-2); }
+  .stage .desc code { font-family: var(--font-mono); font-size: 9.5px; background: rgba(255,255,255,0.04); padding: 0 3px; border-radius: 3px; word-break: break-all; }
+  .stage .prov { margin-top: auto; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted); padding-top: 6px; border-top: 1px solid var(--hairline); }
+  .stage.s1 { border-color: rgba(43,202,232,0.30); } .stage.s1 .step { color: var(--bondi); } .stage.s1 .prov { color: var(--bondi); }
+  .stage.s2 { border-color: rgba(91,160,240,0.30); } .stage.s2 .step { color: var(--aqua); } .stage.s2 .prov { color: var(--aqua); }
+  .stage.s3 { border-color: rgba(160,151,216,0.30); } .stage.s3 .step { color: var(--grape); } .stage.s3 .prov { color: var(--grape); }
+  .stage.s4 { border-color: rgba(244,102,136,0.30); } .stage.s4 .step { color: var(--strawberry); } .stage.s4 .prov { color: var(--strawberry); }
+  .stage.s5 { border-color: rgba(255,149,64,0.30); } .stage.s5 .step { color: var(--tangerine); } .stage.s5 .prov { color: var(--tangerine); }
+  .stage.s6 { border-color: rgba(181,220,85,0.30); } .stage.s6 .step { color: var(--lime); } .stage.s6 .prov { color: var(--lime); }
+  .stage.s7 { border-color: rgba(43,202,232,0.30); } .stage.s7 .step { color: var(--bondi); } .stage.s7 .prov { color: var(--bondi); }
+
+  .arrows { display: grid; grid-template-columns: repeat(7, 1fr); margin: 8px 0; font-family: var(--font-mono); font-size: 14px; color: var(--muted); }
+  .arrows span { text-align: center; }
+
+  .pipeline-legend { display: flex; gap: 22px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--hairline); flex-wrap: wrap; }
+  .pipeline-legend .item { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--text-2); }
+  .pipeline-legend .item .sw { width: 8px; height: 8px; border-radius: 999px; }
+
+  /* ── PROVIDER CARDS ─────────────────────────────────── */
+  .providers { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .provider {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .provider::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(60% 80% at 0% 0%, var(--g, transparent) 0%, transparent 60%);
+    opacity: 0.45; pointer-events: none;
+  }
+  .provider > * { position: relative; }
+  .provider.nimble { --g: rgba(43,202,232,0.30); }
+  .provider.gemini { --g: rgba(160,151,216,0.30); }
+  .provider.clickhouse { --g: rgba(91,160,240,0.30); }
+  .provider.senso { --g: rgba(244,102,136,0.30); }
+  .provider.stripe { --g: rgba(181,220,85,0.30); }
+  .provider.slack { --g: rgba(255,149,64,0.30); }
+
+  .provider .name { font-family: var(--font-display); font-weight: 500; font-size: 26px; letter-spacing: -0.02em; color: var(--text-strong); line-height: 1; margin-bottom: 6px; font-variation-settings: "opsz" 32; }
+  .provider .role-lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .provider .status-stack { display: flex; flex-direction: column; gap: 6px; }
+  .provider .body p { margin: 0 0 10px; font-size: 13.5px; line-height: 1.55; color: var(--text-2); }
+  .provider .body p:last-child { margin-bottom: 0; }
+  .provider .body strong { color: var(--text); font-weight: 500; }
+  .provider .body code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 6px; border-radius: 5px; color: var(--bondi); }
+  .provider h5 { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; font-weight: 500; }
+  .provider ul { margin: 0; padding-left: 18px; }
+  .provider ul li { font-size: 13px; line-height: 1.55; color: var(--text-2); margin-bottom: 2px; }
+  .provider ul li code { font-size: 11.5px; }
+
+  /* ── INFO BOXES ─────────────────────────────────────── */
+  .callout {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 18px 22px; display: grid; grid-template-columns: 28px 1fr; gap: 14px; align-items: start;
+  }
+  .callout .ico { font-family: var(--font-mono); font-size: 16px; line-height: 1; margin-top: 1px; }
+  .callout.warn { border-color: rgba(255,149,64,0.30); background: linear-gradient(180deg, rgba(255,149,64,0.04), transparent 50%), var(--surface); }
+  .callout.warn .ico { color: var(--tangerine); }
+  .callout.crit { border-color: rgba(244,102,136,0.30); background: linear-gradient(180deg, rgba(244,102,136,0.05), transparent 50%), var(--surface); }
+  .callout.crit .ico { color: var(--strawberry); }
+  .callout.ok { border-color: rgba(181,220,85,0.30); background: linear-gradient(180deg, rgba(181,220,85,0.04), transparent 50%), var(--surface); }
+  .callout.ok .ico { color: var(--lime); }
+  .callout h4 { font-family: var(--font-display); font-weight: 500; font-size: 16px; margin: 0 0 4px; color: var(--text-strong); letter-spacing: -0.01em; font-variation-settings: "opsz" 24; }
+  .callout p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--text-2); }
+  .callout p + p { margin-top: 6px; }
+  .callout code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 6px; border-radius: 5px; color: var(--text); }
+
+  /* ── TIMELINE ───────────────────────────────────────── */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 8px; bottom: 8px; width: 2px; background: var(--border); }
+  .tl-row { position: relative; padding: 12px 0 12px 16px; border-bottom: 1px solid var(--hairline); display: grid; grid-template-columns: 88px 1fr 1fr 1fr; gap: 16px; align-items: baseline; }
+  .tl-row:last-child { border-bottom: 0; }
+  .tl-row::before { content: ''; position: absolute; left: -23px; top: 18px; width: 12px; height: 12px; border-radius: 999px; background: var(--surface); border: 2px solid var(--aqua); }
+  .tl-row.t-now::before { background: var(--bondi); border-color: var(--bondi); box-shadow: 0 0 10px var(--bondi); }
+  .tl-row .when { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.08em; color: var(--text-2); font-feature-settings: "tnum" 1; }
+  .tl-row .who { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .tl-row .who.a { color: var(--aqua); }
+  .tl-row .who.b { color: var(--bondi); }
+  .tl-row .who.g { color: var(--grape); }
+  .tl-row .who.l { color: var(--lime); }
+  .tl-row .who.t { color: var(--tangerine); }
+  .tl-row .who.s { color: var(--strawberry); }
+  .tl-row .what { font-size: 13px; color: var(--text); }
+  .tl-row .out { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+
+  /* ── 2-col ──────────────────────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── TEAM ───────────────────────────────────────────── */
+  .team { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .team { grid-template-columns: 1fr; } }
+  .dev {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .dev::before { content: ''; position: absolute; top: -40%; right: -20%; width: 220px; height: 220px; background: radial-gradient(circle, var(--g), transparent 70%); opacity: 0.55; pointer-events: none; }
+  .dev > * { position: relative; }
+  .dev.a { --g: rgba(43,202,232,0.32); }
+  .dev.b { --g: rgba(160,151,216,0.32); }
+  .dev.c { --g: rgba(181,220,85,0.32); }
+  .dev .role { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .dev h3 { font-family: var(--font-display); font-weight: 500; font-size: 22px; letter-spacing: -0.018em; margin: 0 0 4px; color: var(--text-strong); font-variation-settings: "opsz" 24; }
+  .dev .owns { font-size: 13px; color: var(--text-2); margin-bottom: 14px; line-height: 1.5; }
+  .dev ul { margin: 0 0 12px; padding-left: 18px; }
+  .dev ul li { font-size: 12.5px; line-height: 1.55; color: var(--text-2); margin-bottom: 4px; }
+  .dev ul li code { font-family: var(--font-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; color: var(--text); }
+  .dev .depblock { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; color: var(--muted); padding: 8px 10px; background: var(--surface-2); border-radius: 8px; margin-top: 8px; }
+  .dev .depblock b { color: var(--text-2); font-weight: 500; }
+
+  /* ── TIMEBOX ────────────────────────────────────────── */
+  .gantt {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px;
+    overflow-x: auto;
+  }
+  .gantt-grid { display: grid; grid-template-columns: 160px repeat(11, minmax(0, 1fr)); gap: 6px; align-items: center; min-width: 700px; }
+  .gantt-grid .h, .gantt-grid .l { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted); padding: 6px 4px; text-align: center; }
+  .gantt-grid .h.first { text-align: left; padding-left: 0; color: var(--text-2); }
+  .gantt-grid .l { text-align: left; padding: 8px 0; color: var(--text); font-size: 12.5px; letter-spacing: 0; text-transform: none; font-family: var(--font-text); }
+  .gantt-grid .bar { height: 22px; border-radius: 5px; }
+  .gantt-grid .bar.bondi    { background: var(--bondi);     box-shadow: 0 0 10px var(--bondi-glow); }
+  .gantt-grid .bar.aqua     { background: var(--aqua);      box-shadow: 0 0 10px var(--aqua-glow); }
+  .gantt-grid .bar.grape    { background: var(--grape);     box-shadow: 0 0 10px var(--grape-glow); }
+  .gantt-grid .bar.straw    { background: var(--strawberry); box-shadow: 0 0 10px var(--strawberry-glow); }
+  .gantt-grid .bar.tang     { background: var(--tangerine); box-shadow: 0 0 10px var(--tangerine-glow); }
+  .gantt-grid .bar.lime     { background: var(--lime);      box-shadow: 0 0 10px var(--lime-glow); }
+  .gantt-grid .bar.ghost    { background: var(--surface-3); border: 1px dashed var(--border-strong); height: 20px; }
+  .gantt-track { grid-column: 2 / -1; display: grid; grid-template-columns: repeat(11, 1fr); }
+
+  /* ── FOOTER ─────────────────────────────────────────── */
+  footer { padding: 60px 36px 80px; text-align: center; border-top: 1px solid var(--border); margin-top: 60px; }
+  footer .six { display: inline-flex; gap: 6px; margin-bottom: 16px; }
+  footer .six span { width: 28px; height: 4px; border-radius: 999px; }
+  footer .six .a { background: var(--aqua); }
+  footer .six .b { background: var(--bondi); }
+  footer .six .t { background: var(--tangerine); }
+  footer .six .g { background: var(--grape); }
+  footer .six .s { background: var(--strawberry); }
+  footer .six .l { background: var(--lime); }
+  footer .meta { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  footer .meta b { color: var(--text-2); font-weight: 500; }
+
+  /* ── KBD ────────────────────────────────────────────── */
+  kbd { font-family: var(--font-mono); font-size: 11px; padding: 2px 6px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); border-bottom-width: 2px; color: var(--text); }
+
+  /* ── HEADLINE BLOCK (TOP) ───────────────────────────── */
+  .hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px 36px 28px;
+    margin-bottom: 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(40% 80% at 100% 0%, rgba(244,102,136,0.20), transparent 60%),
+                radial-gradient(40% 80% at 0% 100%, rgba(43,202,232,0.14), transparent 60%);
+    pointer-events: none;
+  }
+  .hero > * { position: relative; }
+  .hero .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .hero h1 { font-family: var(--font-display); font-weight: 500; font-size: 56px; line-height: 1.02; letter-spacing: -0.035em; margin: 0 0 16px; color: var(--text-strong); max-width: 22ch; font-variation-settings: "opsz" 96; }
+  .hero h1 em { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--text-strong); }
+  .hero p { font-size: 17px; line-height: 1.5; color: var(--text-2); max-width: 60ch; margin: 0 0 24px; }
+  .hero .quickstats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding-top: 24px; border-top: 1px solid var(--border); margin-top: 8px; }
+  .hero .qs .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .hero .qs .val { font-family: var(--font-display); font-weight: 500; font-size: 32px; letter-spacing: -0.02em; color: var(--text-strong); font-variation-settings: "opsz" 48; font-feature-settings: "tnum" 1; line-height: 1; }
+  .hero .qs .val.straw { color: var(--strawberry); text-shadow: 0 0 20px var(--strawberry-glow); }
+  .hero .qs .val.bondi { color: var(--bondi); text-shadow: 0 0 20px var(--bondi-glow); }
+  .hero .qs .val.lime  { color: var(--lime);  text-shadow: 0 0 20px var(--lime-glow); }
+  .hero .qs .sub { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+
+  /* index links (cross-doc) */
+  .xref { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--bondi); text-decoration: none; border-bottom: 1px dashed rgba(43,202,232,0.40); padding-bottom: 1px; }
+  .xref:hover { color: var(--text-strong); border-bottom-color: var(--text-strong); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/logo-mark.svg" alt="">
+    <span class="word">Redline</span>
+  </div>
+  <span class="crumb">Hackathon · <b>Product decisions</b> · v0.3</span>
+  <span class="spacer"></span>
+  <span class="meta">
+    <span>LAST UPDATED · <span class="v">2026-05-23 · 09:14 EST</span></span>
+    <span>SCOPE · <span class="v">POINT 12 / 5.5H</span></span>
+  </span>
+  <span class="pill"><span class="dot"></span>Lock before code</span>
+</header>
+
+<div class="layout">
+
+  <!-- LEFT TOC -->
+  <aside class="toc-wrap">
+    <div class="toc-label">Contents</div>
+    <nav class="toc" id="toc">
+      <a href="#scope"><span class="n">01</span><span>Scope lock</span></a>
+      <a href="#stack"><span class="n">02</span><span>Provider stack</span></a>
+      <a href="#pipeline"><span class="n">03</span><span>The pipeline</span></a>
+      <a href="#data"><span class="n">04</span><span>Data model MVP</span></a>
+      <a href="#policy"><span class="n">05</span><span>Policy DSL</span></a>
+      <a href="#severity"><span class="n">06</span><span>Severity &amp; routing</span></a>
+      <a href="#seed"><span class="n">07</span><span>Demo seed</span></a>
+      <a href="#screens"><span class="n">08</span><span>Screens</span></a>
+      <a href="#stripe"><span class="n">09</span><span>Stripe</span></a>
+      <a href="#tweaks"><span class="n">10</span><span>Tweaks</span></a>
+      <a href="#open"><span class="n">11</span><span>Open questions</span></a>
+      <a href="#team"><span class="n">12</span><span>Team &amp; timebox</span></a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="eyebrow">5.5h hackathon · point 12 · enterprise demo slice</div>
+      <h1>Lock every product decision now, so backend can <em>build</em> in parallel.</h1>
+      <p>This is the single source of truth for what gets built today. Three providers (Nimble, Senso, ClickHouse) must integrate cleanly; one Slack webhook fires for real; everything else is a typed mock with a real-looking record. The demo is the Notion change. The wedge is the policy that fires. The handoff is the bundle.</p>
+      <div class="quickstats">
+        <div class="qs">
+          <div class="lbl">Vendors seeded</div>
+          <div class="val">8</div>
+          <div class="sub">1 live · 7 background fleet</div>
+        </div>
+        <div class="qs">
+          <div class="lbl">Live providers</div>
+          <div class="val bondi">3</div>
+          <div class="sub">Nimble · Senso · ClickHouse</div>
+        </div>
+        <div class="qs">
+          <div class="lbl">P1 demo change</div>
+          <div class="val straw">1</div>
+          <div class="sub">Notion · retention + price</div>
+        </div>
+        <div class="qs">
+          <div class="lbl">Screens new today</div>
+          <div class="val lime">4</div>
+          <div class="sub">Senso · Stripe · Bundle · Onboard</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 01 SCOPE -->
+    <section class="s" id="scope">
+      <div class="s-head">
+        <div>
+          <div class="num">01</div>
+          <h2>Scope <em>lock</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>Decided</span>
+          <span class="chip role">3 devs · 5.5h</span>
+        </div>
+      </div>
+
+      <p class="lede">Point 12 of the enterprise vision — the 5.5h slice. Ship the minimum that lets the demo tell the maximum story. Below is the binding list. Everything outside this list is vision-only and does not get a line of code today.</p>
+
+      <div class="two-col" style="margin-bottom: 24px;">
+        <div class="callout ok">
+          <span class="ico">✓</span>
+          <div>
+            <h4>Ships today (the only things)</h4>
+            <p>1 · Portfolio (already designed) · 2 · ChangeReport (already designed) · 3 · Senso public evidence brief · 4 · Stripe upgrade modal · 5 · Evidence Bundle print view · 6 · Add Vendor flow · 7 · One real Slack webhook · 8 · One real PaymentIntent · 9 · One real Senso URL.</p>
+          </div>
+        </div>
+        <div class="callout warn">
+          <span class="ico">⏸</span>
+          <div>
+            <h4>Mentioned on stage, not built</h4>
+            <p>Renewal Radar · Sub-Processor Watch · Spend Reconciliation · Negotiation Copilot · Policy Studio editor (we show the YAML, not the editor) · SSO/SCIM · Datadog connector · Vanta push · Ironclad/Vendr/Ramp/Brex/Okta integrations.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="decisions">
+        <div class="decision">
+          <div class="id">DEC <span class="num">01-A</span></div>
+          <div class="body">
+            <h3>One vendor runs <em>truly live</em>; everything else is seeded.</h3>
+            <p>The <strong>Notion ChangeReport</strong> is the live moment — Nimble fetches the page, Gemini diffs, Senso publishes, Slack fires. The other 7 vendors in the portfolio are pre-seeded ClickHouse rows. Demo runbook calls this out explicitly so judges can <em>verify</em> the live moment is real.</p>
+            <div class="why"><b>Why:</b> live-everywhere is fragile on stage. One verifiable live path + seeded fleet = enterprise feel + zero demo risk.</div>
+            <span class="tag"><span class="chip live"><span class="d"></span>Live</span></span>
+          </div>
+        </div>
+
+        <div class="decision">
+          <div class="id">DEC <span class="num">01-B</span></div>
+          <div class="body">
+            <h3>The agent is <em>always on</em>. No “run” button.</h3>
+            <p>Redline scans every monitored vendor on a continuous schedule — nothing is missed because nothing waits for a human click. Production cadence: <strong>once every 6 hours per vendor</strong>, plus an immediate scan on add. Demo cadence: <strong>every 60 seconds</strong> via an env-var override so judges see fresh activity during the talk. The portfolio shows a live indicator (<code>● LIVE · last scan 11s ago</code>); the change appears in the activity feed when it happens, pushed over SSE.</p>
+            <p>The trigger endpoint <em>exists</em> for backfills and admin use (<code>POST /v1/admin/vendors/:id/scan</code>, auth-gated) but is never exposed in the product UI. A judge watching the screen sees the agent <em>find</em> the change, not the user <em>request</em> it.</p>
+            <div class="why"><b>Why:</b> the product promise is “always-on grounded change layer.” A button breaks that promise. Always-on plus a visible last-scan timestamp + live ticker tells the story without any click.</div>
+            <span class="tag"><span class="chip decided"><span class="d"></span>Decided</span></span>
+          </div>
+        </div>
+
+        <div class="decision">
+          <div class="id">DEC <span class="num">01-C</span></div>
+          <div class="body">
+            <h3>The wedge is the <em>policy that fires</em>, not the diff.</h3>
+            <p>The diff is table stakes (every monitoring tool has it). The product story is <strong>one rule fires → one Slack alert → one Senso brief → one PDF bundle</strong>. That is the entire enterprise loop in 90 seconds. Everything else in the UI exists to make this loop legible.</p>
+            <div class="why"><b>Why:</b> this is what the README says ("policy engine — the enterprise differentiator") and it's the difference between a diff tool and a platform.</div>
+            <span class="tag"><span class="chip decided"><span class="d"></span>Decided</span></span>
+          </div>
+        </div>
+
+        <div class="decision">
+          <div class="id">DEC <span class="num">01-D</span></div>
+          <div class="body">
+            <h3>Stack assumption: Node + TypeScript + Hono (or Express).</h3>
+            <p>The §5 vision document is written in TypeScript interfaces. Backend handoff matches: <code>fastify</code> or <code>hono</code> for the API server, <code>zod</code> for request/response validation, official client SDKs for Nimble/Senso/ClickHouse/Stripe/Slack/Gemini. Single repo, single deploy target (Vercel or Fly). No microservices today.</p>
+            <div class="why"><b>Why:</b> matches the interfaces already drafted; one runtime, one tsconfig, one deploy. Three devs can ship without bikeshedding stack.</div>
+            <span class="tag"><span class="chip decided"><span class="d"></span>Decided</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 PROVIDER STACK -->
+    <section class="s" id="stack">
+      <div class="s-head">
+        <div>
+          <div class="num">02</div>
+          <h2>The provider <em>stack</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip live"><span class="d"></span>3 Live</span>
+          <span class="chip mock"><span class="d"></span>4 Mocked</span>
+          <span class="chip deferred"><span class="d"></span>5 Deferred</span>
+        </div>
+      </div>
+
+      <p class="lede">Six providers compose the live demo loop. Three of them run for real (Nimble, Senso, ClickHouse + Gemini). Slack fires a real webhook to a demo channel. Stripe is real but test-mode. Jira / Calendar / Email are <em>typed Action records</em> — we persist the payload but don't call the external service.</p>
+
+      <div class="providers">
+
+        <article class="provider nimble">
+          <div>
+            <div class="role-lbl">Provider · scraping</div>
+            <div class="name">Nimble</div>
+            <div class="status-stack">
+              <span class="chip live"><span class="d"></span>Real call on stage</span>
+              <span class="chip role">Demo · Notion only</span>
+            </div>
+          </div>
+          <div class="body">
+            <p><strong>What it does in Redline.</strong> Pulls the six monitored URLs per vendor and returns cleaned HTML + extracted text. We call it once per run, per URL, with deterministic cleaning. Its output becomes a <code>Snapshot</code> row in ClickHouse.</p>
+            <p><strong>What we ask it for today.</strong> One call: <code>nimble.fetch("https://notion.so/terms")</code> → <code>{ text, html, fetchedAt, sourceUrl }</code>. We do not use Nimble's structured-extraction features — the diff is Gemini's job, not Nimble's.</p>
+            <h5>Decisions locked</h5>
+            <ul>
+              <li><code>fetcher.kind</code> = <code>"nimble"</code> · single-strategy, no fallback today. Wayback backfill is deferred.</li>
+              <li><strong>Caching:</strong> SHA-256 of cleaned text; if hash matches the last Snapshot, skip Gemini and exit early. The scheduler still records an AgentRun (status <code>unchanged</code>) so the “last scan” timestamp keeps ticking. (Demo path always changes — seeded “before” snapshot ensures the hash never matches on the live moment.)</li>
+              <li><strong>Timeout:</strong> 12s per URL, retry once with backoff. If both fail → emit a typed <code>FetchFailed</code> event, surface in UI as an error state.</li>
+              <li><strong>Rate:</strong> we run six URLs concurrently per vendor; Nimble's quota is fine.</li>
+            </ul>
+            <h5>Deferred (vision)</h5>
+            <ul>
+              <li>Wayback Machine backfill for new vendors (Flow 2)</li>
+              <li>JS-rendered status pages (would need browser mode)</li>
+              <li>PDF parsing for signed DPAs</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="provider gemini">
+          <div>
+            <div class="role-lbl">Model · reasoning</div>
+            <div class="name">Gemini</div>
+            <div class="status-stack">
+              <span class="chip live"><span class="d"></span>Real call on stage</span>
+              <span class="chip role">2.5 Pro · structured</span>
+            </div>
+          </div>
+          <div class="body">
+            <p><strong>What it does in Redline.</strong> Takes <code>(snapshotBefore, snapshotAfter, vendor)</code> and returns a structured <code>ChangeReport.changes[]</code> with citations. <strong>No prose output, ever.</strong> If the schema validation fails, the run halts and we emit a <code>SchemaViolation</code> trace.</p>
+            <p><strong>Schema-enforced.</strong> Gemini's <code>responseSchema</code> is the <code>ChangeReport</code> JSON shape (see §04). The system prompt says: <em>"For every claim, return the exact quote from the source document. If you cannot quote it, do not claim it."</em></p>
+            <h5>Decisions locked</h5>
+            <ul>
+              <li><strong>Model:</strong> <code>gemini-2.5-pro</code> · responseMimeType <code>application/json</code> · responseSchema = <code>ChangeReportSchema</code> (zod → JSON-Schema)</li>
+              <li><strong>Citations are mandatory:</strong> every <code>Change</code> must include ≥1 <code>Citation</code> with the exact quoted text. UI hides any change without a citation. <em>No citation, no claim.</em></li>
+              <li><strong>Temperature 0.1.</strong> Determinism for a live demo matters more than creativity.</li>
+              <li><strong>Cost budget:</strong> 1 Gemini call per <em>changed</em> URL. Hash-match short-circuits before we spend a token.</li>
+            </ul>
+            <h5>Deferred (vision)</h5>
+            <ul>
+              <li>Negotiation packet drafting (Flow 8)</li>
+              <li>Policy DSL compilation from natural language (Flow 9)</li>
+              <li>Per-clause materiality re-classification</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="provider clickhouse">
+          <div>
+            <div class="role-lbl">Store · append-only events</div>
+            <div class="name">ClickHouse</div>
+            <div class="status-stack">
+              <span class="chip live"><span class="d"></span>Cloud · US-East</span>
+              <span class="chip role">5 tables</span>
+            </div>
+          </div>
+          <div class="body">
+            <p><strong>What it does in Redline.</strong> The append-only spine. Every snapshot, every ChangeReport, every Action, every policy eval, every agent trace lands here. The UI reads from ClickHouse via a thin API layer.</p>
+            <p><strong>Five tables ship today</strong> (full schema in <a class="xref" href="#">handoff/data-model</a> →): <code>snapshots</code>, <code>change_reports</code>, <code>actions</code>, <code>policy_evaluations</code>, <code>agent_traces</code>. No relational DB — vendors and policies are seeded JSON loaded into ClickHouse as a versioned dictionary.</p>
+            <h5>Decisions locked</h5>
+            <ul>
+              <li><strong>One ClickHouse Cloud instance,</strong> single region (US-East). Data-residency multi-region is deferred.</li>
+              <li><strong>Ordering key</strong> for <code>snapshots</code>: <code>(orgId, vendorId, url, fetchedAt)</code>. <code>change_reports</code>: <code>(orgId, vendorId, detectedAt)</code>.</li>
+              <li><strong>Retention:</strong> infinite for demo. Production policy is in the data-model doc.</li>
+              <li><strong>UI reads are aggregate queries</strong> (fleet stats, severity counts) plus point lookups by id. No row-level mutation.</li>
+              <li><strong>Vendors + policies live in</strong> <code>vendors.json</code> + <code>policies.yaml</code> — checked into the repo, loaded at boot. No CRUD UI today (the "Add Vendor" screen calls a stub that appends to a runtime cache).</li>
+            </ul>
+            <h5>Deferred (vision)</h5>
+            <ul>
+              <li>Multi-tenant row-level security</li>
+              <li>Per-org region pinning (EU residency)</li>
+              <li>Time-windowed materialised views for the heatmap</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="provider senso">
+          <div>
+            <div class="role-lbl">Publisher · grounded evidence</div>
+            <div class="name">Senso</div>
+            <div class="status-stack">
+              <span class="chip live"><span class="d"></span>Real public URL</span>
+              <span class="chip role">Demo · 1 brief + 1 bundle</span>
+            </div>
+          </div>
+          <div class="body">
+            <p><strong>What it does in Redline.</strong> Publishes the immutable, citable brief that the demo opens in a new tab. Senso is our trust artifact — every claim in a ChangeReport renders to a Senso page with the quoted clause, the source URL, the fetch timestamp, and a stable public hash.</p>
+            <p><strong>Two publish calls today.</strong> (1) After every successful run: <code>senso.publish(changeReport)</code> → public URL stored on the ChangeReport. (2) On <em>Generate Evidence Bundle</em>: <code>senso.publish(bundle)</code> → long-lived auditor URL.</p>
+            <h5>Decisions locked</h5>
+            <ul>
+              <li><strong>Senso is the canonical "Open Evidence" target.</strong> The ChangeReport screen's "OPEN EVIDENCE" CTA links to <code>changeReport.sensoUrl</code>. Live, real, judges can click and verify.</li>
+              <li><strong>Bundle = HTML print view served from Senso.</strong> No PDF generation client-side. Print-to-PDF from the Senso URL = our "downloadable bundle". Browser-rendered, Cmd-P, reliable.</li>
+              <li><strong>Bundle scope:</strong> one vendor × date range. Inputs come from the Bundle screen.</li>
+              <li><strong>Senso publish is async-fire-and-forget</strong> but we await it for the demo path so the URL is ready when judges click.</li>
+            </ul>
+            <h5>Deferred (vision)</h5>
+            <ul>
+              <li>Auditor portal with login</li>
+              <li>Signed PDF with embedded signatures</li>
+              <li>Vanta / Drata push of evidence</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="provider stripe">
+          <div>
+            <div class="role-lbl">Transact · monetization</div>
+            <div class="name">Stripe</div>
+            <div class="status-stack">
+              <span class="chip live"><span class="d"></span>Test mode</span>
+              <span class="chip role">1 product · 1 price</span>
+            </div>
+          </div>
+          <div class="body">
+            <p><strong>What it does in Redline.</strong> The "Compliance Pack" add-on upgrade — one PaymentIntent, one webhook listener, one success state. This is the transact check-the-box, framed as an enterprise contract close.</p>
+            <h5>Decisions locked</h5>
+            <ul>
+              <li><strong>Product:</strong> <code>Compliance Pack</code> · <strong>Price:</strong> $999/mo · <strong>Mode:</strong> <code>payment</code> (not subscription) — one-off PaymentIntent is the simplest live path on stage.</li>
+              <li><strong>UI:</strong> modal inside the app, not Stripe Checkout redirect. Stripe Elements embedded card form. Reliability &gt; UX polish.</li>
+              <li><strong>Webhook to listen for:</strong> <code>payment_intent.succeeded</code>. On receipt: persist a typed <code>Action(kind: "payment")</code>, flip the org's <code>compliancePack</code> feature flag, show success state in the modal.</li>
+              <li><strong>If on-stage Stripe fails:</strong> the modal has a fallback button that emits a fake <code>payment_intent.succeeded</code> event locally. (Runbook calls this out as the only allowable fallback.)</li>
+            </ul>
+            <h5>Deferred (vision)</h5>
+            <ul>
+              <li>Subscriptions + proration</li>
+              <li>Multiple SKUs (Team / Business / Enterprise)</li>
+              <li>Invoice PDF in-product</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="provider slack">
+          <div>
+            <div class="role-lbl">Route · alerting</div>
+            <div class="name">Slack</div>
+            <div class="status-stack">
+              <span class="chip live"><span class="d"></span>Real incoming webhook</span>
+              <span class="chip role">1 channel</span>
+            </div>
+          </div>
+          <div class="body">
+            <p><strong>What it does in Redline.</strong> The Slack DM is the routed action that judges <em>see fire</em>. One incoming webhook URL pointing at a demo channel. The message uses Block Kit with the severity badge, vendor name, hero diff line, dollar impact, and an "Open" button linking to the ChangeReport URL.</p>
+            <h5>Decisions locked</h5>
+            <ul>
+              <li><strong>One channel:</strong> <code>#redline-demo</code> in the demo Slack workspace. Webhook URL is an env var.</li>
+              <li><strong>Block Kit message shape is locked</strong> — see the runbook doc.</li>
+              <li><strong>Jira, Calendar, Email</strong> are persisted as typed <code>Action</code> rows but <em>never call the external service</em>. The Routed Actions panel on the ChangeReport renders these from the DB; they look real.</li>
+            </ul>
+            <h5>Deferred (vision)</h5>
+            <ul>
+              <li>Real Jira / Linear API call</li>
+              <li>Real calendar event creation</li>
+              <li>Email send via Resend / SES</li>
+              <li>Slack interactive ack buttons</li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 03 PIPELINE -->
+    <section class="s" id="pipeline">
+      <div class="s-head">
+        <div>
+          <div class="num">03</div>
+          <h2>The agent <em>pipeline</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>Locked</span>
+          <span class="chip role">7 stages</span>
+        </div>
+      </div>
+
+      <p class="lede">One linear pipeline. Triggered by a button (today) or a cron (later). Halts on any failure with a typed error event. Every stage emits a row to <code>agent_traces</code> — that's how we tell the Datadog story even without Datadog wired.</p>
+
+      <div class="pipeline">
+        <div class="pipeline-grid">
+          <div class="stage s1">
+            <div class="step">01 · TICK</div>
+            <div class="name">Scheduler fires</div>
+            <div class="desc">Per-vendor scan every 6h (60s in demo). Creates an <code>AgentRun</code> row.</div>
+            <div class="prov">Scheduler · in-process</div>
+          </div>
+          <div class="stage s2">
+            <div class="step">02 · FETCH</div>
+            <div class="name">Pull URLs</div>
+            <div class="desc">Six URLs fetched concurrently; cleaned text + SHA-256 hash.</div>
+            <div class="prov">Nimble</div>
+          </div>
+          <div class="stage s3">
+            <div class="step">03 · DIFF</div>
+            <div class="name">Compare</div>
+            <div class="desc">Hash vs last Snapshot. Unchanged → stop. Changed → continue.</div>
+            <div class="prov">ClickHouse</div>
+          </div>
+          <div class="stage s4">
+            <div class="step">04 · REASON</div>
+            <div class="name">Structured diff</div>
+            <div class="desc">Gemini returns <code>Change[]</code> with mandatory citations.</div>
+            <div class="prov">Gemini</div>
+          </div>
+          <div class="stage s5">
+            <div class="step">05 · CLASSIFY</div>
+            <div class="name">Policy fires</div>
+            <div class="desc">Rule engine matches; severity assigned; routes resolved.</div>
+            <div class="prov">In-process</div>
+          </div>
+          <div class="stage s6">
+            <div class="step">06 · ROUTE</div>
+            <div class="name">Actions fire</div>
+            <div class="desc">Slack webhook called; Jira/Email/Calendar persisted as typed Actions.</div>
+            <div class="prov">Slack live · others mocked</div>
+          </div>
+          <div class="stage s7">
+            <div class="step">07 · PUBLISH</div>
+            <div class="name">Evidence</div>
+            <div class="desc">ChangeReport written; Senso brief published; UI notified.</div>
+            <div class="prov">Senso · ClickHouse · SSE</div>
+          </div>
+        </div>
+        <div class="pipeline-legend">
+          <div class="item"><span class="sw" style="background:var(--bondi)"></span>Live external call</div>
+          <div class="item"><span class="sw" style="background:var(--aqua)"></span>Internal API</div>
+          <div class="item"><span class="sw" style="background:var(--grape)"></span>Model call</div>
+          <div class="item"><span class="sw" style="background:var(--tangerine)"></span>Policy / rule eval</div>
+          <div class="item"><span class="sw" style="background:var(--lime)"></span>Persistence / publish</div>
+        </div>
+      </div>
+
+      <div class="callout warn" style="margin-top: 18px;">
+        <span class="ico">⚠</span>
+        <div>
+          <h4>Halt semantics</h4>
+          <p>If <strong>any</strong> stage fails, the run halts: row in <code>agent_traces</code> with <code>status: "failed"</code>, error surfaced in the UI's run history, no partial ChangeReport published. Senso publish failure is a soft-fail — the ChangeReport persists with <code>sensoUrl: null</code> and a retry job picks it up. (We trigger the retry manually from the run history if needed during the demo.)</p>
+        </div>
+      </div>
+
+      <h3 style="font-family: var(--font-display); font-weight: 500; font-size: 22px; margin: 36px 0 14px; color: var(--text-strong); letter-spacing: -0.018em;">Demo timeline · what judges see</h3>
+      <div class="callout" style="border-color: var(--border); padding: 8px 24px 8px 32px;">
+        <span class="ico" style="visibility:hidden;">•</span>
+        <div>
+          <div class="timeline">
+            <div class="tl-row"><span class="when">T+0s</span><span class="who a">SCHED</span><span class="what">Notion scheduler tick fires · portfolio LIVE pip glows briefly.</span><span class="out">AgentRun row · status running</span></div>
+            <div class="tl-row"><span class="when">T+1.2s</span><span class="who b">NIMBLE</span><span class="what">Fetches notion.so/terms · returns cleaned text.</span><span class="out">Snapshot persisted</span></div>
+            <div class="tl-row"><span class="when">T+1.4s</span><span class="who a">CH</span><span class="what">Hash compared vs seeded "before" snapshot → CHANGED.</span><span class="out">Diff candidate flagged</span></div>
+            <div class="tl-row"><span class="when">T+4.6s</span><span class="who g">GEMINI</span><span class="what">Structured diff returned · 2 changes · 4 citations validated.</span><span class="out">ChangeReport draft</span></div>
+            <div class="tl-row"><span class="when">T+4.8s</span><span class="who t">POLICY</span><span class="what">Rule <code>data-retention-pii-p1</code> matches → severity <code>P1</code>.</span><span class="out">Routes resolved</span></div>
+            <div class="tl-row t-now"><span class="when">T+5.1s</span><span class="who s">SLACK</span><span class="what">Webhook fires · DM lands in <code>#redline-demo</code>.</span><span class="out">200 OK</span></div>
+            <div class="tl-row"><span class="when">T+5.4s</span><span class="who l">SENSO</span><span class="what">Brief published · public URL ready · UI swaps to the ChangeReport.</span><span class="out">sensoUrl set</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 DATA MODEL MVP -->
+    <section class="s" id="data">
+      <div class="s-head">
+        <div>
+          <div class="num">04</div>
+          <h2>Data model · <em>MVP</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>Locked subset</span>
+          <span class="chip role">9 entities</span>
+        </div>
+      </div>
+
+      <p class="lede">A pruned, ship-today subset of the §5 vision interfaces. Optional fields and fields that aren't used by any of today's four screens are deferred. Full TypeScript file is in <code>handoff/data-model.html</code> (next deliverable).</p>
+
+      <table class="spec">
+        <thead>
+          <tr><th>Entity</th><th>Today's required fields</th><th>Notes / deferred</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="k">Org<span class="sub">tenant</span></td>
+            <td><code>id, name, seatCount, compliancePack: boolean</code></td>
+            <td>Single seeded org. <em>compliancePack</em> flips on Stripe success. SCIM / connectors deferred.</td>
+          </tr>
+          <tr>
+            <td class="k">User<span class="sub">person</span></td>
+            <td><code>id, orgId, name, email, role, avatarLetter</code></td>
+            <td>Seeded list of 6. Roles: <code>procurement</code> · <code>legal</code> · <code>security</code> · <code>owner</code>. Role-switcher UI deferred — backend supports it.</td>
+          </tr>
+          <tr>
+            <td class="k">Vendor<span class="sub">monitored</span></td>
+            <td><code>id, orgId, name, category, urls{terms,pricing,dpa,subProcessors,security,sla}, ownerId, tier, dataClasses[], contract{renewsAt, annualSpendUsd, seatCount}</code></td>
+            <td>8 seeded vendors. <code>urls.statusPage</code> deferred. <code>signedDpaUrl</code> deferred (no upload UI today).</td>
+          </tr>
+          <tr>
+            <td class="k">Snapshot<span class="sub">fetched page</span></td>
+            <td><code>id, vendorId, url, fetchedAt, source, text, hash, sourceUrl</code></td>
+            <td>Append-only. Seeded "before" snapshot exists for Notion terms. <code>cleanedSections</code> deferred.</td>
+          </tr>
+          <tr>
+            <td class="k">ChangeReport<span class="sub">the deliverable</span></td>
+            <td><code>id, vendorId, runId, detectedAt, severity, policyFiredId, changes[], recommendation, sensoUrl, state, ownerId</code></td>
+            <td><code>state</code>: <code>new | acknowledged | in-progress | resolved | snoozed</code>. Routed actions linked via <code>actions.changeReportId</code>.</td>
+          </tr>
+          <tr>
+            <td class="k">Change<span class="sub">embedded in report</span></td>
+            <td><code>category, summary, before, after, materiality, dollarImpact?, citations[]</code></td>
+            <td>Each Change has ≥1 Citation. <em>No citation, no claim</em> — enforced in API contract.</td>
+          </tr>
+          <tr>
+            <td class="k">Citation<span class="sub">grounding</span></td>
+            <td><code>url, quote, section, fetchedAt</code></td>
+            <td>The trust primitive. Renders verbatim in Senso brief.</td>
+          </tr>
+          <tr>
+            <td class="k">Policy<span class="sub">YAML rule</span></td>
+            <td><code>id, orgId, name, dsl, severity, route[], createdBy, version, isActive</code></td>
+            <td>Loaded from <code>policies.yaml</code>; no editor UI. Seeded with 3 rules (§05).</td>
+          </tr>
+          <tr>
+            <td class="k">Action<span class="sub">routed</span></td>
+            <td><code>id, changeReportId, kind, target, payload, firedAt, status, externalId?</code></td>
+            <td><code>kind</code>: <code>slack | jira | email | calendar | payment</code>. Slack and payment make real external calls; others persist only.</td>
+          </tr>
+          <tr>
+            <td class="k">AgentRun<span class="sub">trace</span></td>
+            <td><code>id, vendorId, startedAt, endedAt, status, stagesCompleted, errorEvent?</code></td>
+            <td>Powers the "Datadog story" — every run leaves a trail. Stage-level rows in <code>agent_traces</code>.</td>
+          </tr>
+          <tr>
+            <td class="k">EvidenceBundle<span class="sub">audit</span></td>
+            <td><code>id, orgId, vendorIds[], dateRange, sensoUrl, createdBy, createdAt</code></td>
+            <td>Generated on demand from the Evidence Bundle screen.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 36px 0 10px;">Cut from the vision interfaces (vision-only)</h4>
+      <p style="color: var(--text-2); font-size: 13.5px; line-height: 1.6;">
+        <code>DirectorySync</code>, <code>RenewalEvent</code>, <code>Invoice</code>, <code>SpendFinding</code> — none of today's four screens read these.
+        <code>Vendor.contract.signedDpaUrl</code>, <code>Vendor.urls.statusPage</code>, <code>Snapshot.cleanedSections</code>, <code>User.directorySourceId</code> — backend can include them as optional fields if zero-cost; UI ignores.
+      </p>
+    </section>
+
+    <!-- 05 POLICY DSL -->
+    <section class="s" id="policy">
+      <div class="s-head">
+        <div>
+          <div class="num">05</div>
+          <h2>Policy DSL.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>YAML</span>
+          <span class="chip role">3 seeded rules</span>
+        </div>
+      </div>
+
+      <p class="lede">YAML in, eval result out. No DSL compiler today. Rules live in a checked-in <code>policies.yaml</code>; the engine is a small TypeScript function that matches predicates against a <code>(ChangeReport, Vendor)</code> tuple and returns severity + routes. Natural-language → DSL compilation (Flow 9) is mentioned on stage, not built.</p>
+
+      <p class="code-cap"><span>Policy DSL · evaluation grammar</span><span class="file">policies.yaml</span></p>
+      <pre class="code"><span class="com"># Each rule is one of these objects.</span>
+<span class="com"># The engine loops over rules in order; the FIRST that matches wins.</span>
+<span class="com"># If no rule matches, severity defaults to P3 and route is ["email:owner"].</span>
+
+<span class="key">- id</span><span class="punct">:</span> <span class="str">data-retention-pii-shrink</span>
+  <span class="key">name</span><span class="punct">:</span> <span class="str">"Data retention shrinks for PII vendors → P1 to Security"</span>
+  <span class="key">when</span><span class="punct">:</span>
+    <span class="key">change.category</span><span class="punct">:</span> <span class="str">"data"</span>
+    <span class="key">change.summary</span><span class="punct">:</span> <span class="str">"matches:retention AND decreases"</span>
+    <span class="key">vendor.dataClasses</span><span class="punct">:</span> <span class="str">"contains:pii"</span>
+  <span class="key">then</span><span class="punct">:</span>
+    <span class="key">severity</span><span class="punct">:</span> <span class="type">P1</span>
+    <span class="key">route</span><span class="punct">:</span>
+      <span class="punct">-</span> <span class="str">"slack:#sec-grc"</span>
+      <span class="punct">-</span> <span class="str">"jira:SEC"</span>
+      <span class="punct">-</span> <span class="str">"email:ciso@org"</span>
+
+<span class="key">- id</span><span class="punct">:</span> <span class="str">price-hike-near-renewal</span>
+  <span class="key">name</span><span class="punct">:</span> <span class="str">"Price increase >10% within 90d of renewal → P1 to Procurement"</span>
+  <span class="key">when</span><span class="punct">:</span>
+    <span class="key">change.category</span><span class="punct">:</span> <span class="str">"pricing"</span>
+    <span class="key">change.dollarImpact.pct</span><span class="punct">:</span> <span class="str">">10"</span>
+    <span class="key">vendor.contract.renewsAt</span><span class="punct">:</span> <span class="str">"within:90d"</span>
+  <span class="key">then</span><span class="punct">:</span>
+    <span class="key">severity</span><span class="punct">:</span> <span class="type">P1</span>
+    <span class="key">route</span><span class="punct">:</span>
+      <span class="punct">-</span> <span class="str">"slack:@vendorOwner"</span>
+      <span class="punct">-</span> <span class="str">"jira:PROC"</span>
+      <span class="punct">-</span> <span class="str">"calendar:renewal-prep-90d"</span>
+
+<span class="key">- id</span><span class="punct">:</span> <span class="str">subprocessor-added-restricted</span>
+  <span class="key">name</span><span class="punct">:</span> <span class="str">"Sub-processor added in non-adequate jurisdiction → P1 to Privacy"</span>
+  <span class="key">when</span><span class="punct">:</span>
+    <span class="key">change.category</span><span class="punct">:</span> <span class="str">"subprocessor"</span>
+    <span class="key">change.summary</span><span class="punct">:</span> <span class="str">"matches:added"</span>
+    <span class="key">citation.country</span><span class="punct">:</span> <span class="str">"not_in:[EEA,UK,CH,US]"</span>
+  <span class="key">then</span><span class="punct">:</span>
+    <span class="key">severity</span><span class="punct">:</span> <span class="type">P1</span>
+    <span class="key">route</span><span class="punct">:</span>
+      <span class="punct">-</span> <span class="str">"slack:#privacy"</span>
+      <span class="punct">-</span> <span class="str">"draft:customer-notification-30d"</span></pre>
+
+      <div class="two-col" style="margin-top: 18px;">
+        <div class="callout ok">
+          <span class="ico">✓</span>
+          <div>
+            <h4>Predicate grammar (locked)</h4>
+            <p>Six predicate forms — that's all the engine supports today:</p>
+            <p><code>"matches:&lt;substring&gt;"</code> · <code>"contains:&lt;val&gt;"</code> · <code>"&gt;N"</code> / <code>"&lt;N"</code> · <code>"within:&lt;duration&gt;"</code> · <code>"not_in:[...]"</code> · <code>"increases"</code> / <code>"decreases"</code> (computed from before/after).</p>
+            <p>Predicates AND together within a <code>when</code> block. No OR, no negation, no nested groups in MVP.</p>
+          </div>
+        </div>
+        <div class="callout warn">
+          <span class="ico">⏵</span>
+          <div>
+            <h4>Demo rule that fires</h4>
+            <p>The Notion ChangeReport matches both <code>data-retention-pii-shrink</code> and <code>price-hike-near-renewal</code>. <strong>First-match-wins</strong> → the retention rule fires. The price rule is shown as "would-have-fired" in the policy panel — proves the engine is real, not hardcoded.</p>
+            <p>(Alternative: a "compound severity" P0 if multiple P1s fire on the same report. Deferred — call it out in Q&amp;A.)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 SEVERITY -->
+    <section class="s" id="severity">
+      <div class="s-head">
+        <div>
+          <div class="num">06</div>
+          <h2>Severity &amp; routing.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>Matrix locked</span>
+        </div>
+      </div>
+
+      <p class="lede">Three severities. One default. Six routes. The matrix below is how the policy engine decides what colour the badge is and which actions get fired.</p>
+
+      <table class="spec">
+        <thead>
+          <tr><th>Severity</th><th>Means</th><th>Default routes</th><th>UI surface</th><th>Owner</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="severity sev-p1">P1 · CRITICAL</td>
+            <td>Liability creep, data-class change, sub-processor risk, pricing &gt;10% near renewal. Action required &lt;72h.</td>
+            <td>Slack DM · Jira ticket · Email · Calendar event (if near renewal)</td>
+            <td>Strawberry badge · top of portfolio · floating action bar visible</td>
+            <td>Routed per rule</td>
+          </tr>
+          <tr>
+            <td class="severity sev-p2">P2 · MATERIAL</td>
+            <td>Material change but not blocking — SLA softens, terms volatility, posture drift. Owner reviews &lt;7d.</td>
+            <td>Slack channel · Email digest</td>
+            <td>Tangerine badge · in feed · no floating bar</td>
+            <td>Vendor owner</td>
+          </tr>
+          <tr>
+            <td class="severity sev-p3">P3 · INFORMATIONAL</td>
+            <td>Minor or already-acknowledged change. Visible in feed, no alert.</td>
+            <td>Email weekly digest</td>
+            <td>Lime badge · feed only</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 28px 0 10px;">Route targets · what they resolve to</h4>
+      <table class="spec">
+        <thead>
+          <tr><th>Route string</th><th>Resolves to</th><th>Today</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="k">slack:#&lt;channel&gt;</td><td>Webhook URL from env var; renders Block Kit message.</td><td><span class="chip live"><span class="d"></span>Live</span></td></tr>
+          <tr><td class="k">slack:@vendorOwner</td><td>Resolves to <code>vendor.ownerId.slackUserId</code> via seed; DMs that user.</td><td><span class="chip live"><span class="d"></span>Live (same channel for demo)</span></td></tr>
+          <tr><td class="k">jira:&lt;PROJECT&gt;</td><td>Typed <code>Action</code> with payload shaped like a Jira issue create body.</td><td><span class="chip mock"><span class="d"></span>Mock</span></td></tr>
+          <tr><td class="k">email:&lt;addr&gt;</td><td>Typed <code>Action</code> with rendered HTML body; not sent.</td><td><span class="chip mock"><span class="d"></span>Mock</span></td></tr>
+          <tr><td class="k">calendar:&lt;eventKind&gt;</td><td>Typed <code>Action</code> with ICS-shaped payload.</td><td><span class="chip mock"><span class="d"></span>Mock</span></td></tr>
+          <tr><td class="k">draft:&lt;template&gt;</td><td>Generates draft content (e.g. customer-notification email). Stored as Action payload.</td><td><span class="chip mock"><span class="d"></span>Mock</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 07 SEED -->
+    <section class="s" id="seed">
+      <div class="s-head">
+        <div>
+          <div class="num">07</div>
+          <h2>Demo seed · the <em>locked</em> story.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>Story locked</span>
+          <span class="chip role">8 vendors</span>
+        </div>
+      </div>
+
+      <p class="lede">Seed data ships in the repo. <strong>The Notion story is the demo</strong>. Backend persists this exact narrative to ClickHouse on boot so the UI has something to render before any agent runs.</p>
+
+      <div class="two-col">
+        <div class="callout crit">
+          <span class="ico">●</span>
+          <div>
+            <h4>The locked story — Notion</h4>
+            <p>
+              <strong>Vendor:</strong> Notion · Productivity · Tier 1 · PII<br>
+              <strong>Owner:</strong> Priya Natarajan (Procurement Lead)<br>
+              <strong>Contract:</strong> annual · seats 1,420 · $158,000/yr · renews 2026-07-04 (<strong>42 days</strong>)<br>
+              <strong>Change detected:</strong> 2026-05-22 · 14:42 EST<br>
+              <strong>Diff:</strong> Data retention <em>shrinks</em> from 90→30 days · per-seat pricing rises 18%<br>
+              <strong>Impact:</strong> +$28,400/yr · GDPR retention non-compliant<br>
+              <strong>Policy fired:</strong> <code>data-retention-pii-shrink</code> → P1<br>
+              <strong>Routed:</strong> Slack DM to Priya · Jira <code>SEC-1247</code> · Calendar renewal-prep · Email CISO
+            </p>
+          </div>
+        </div>
+        <div class="callout">
+          <span class="ico" style="color: var(--aqua);">●</span>
+          <div>
+            <h4>Background fleet · 7 vendors</h4>
+            <p>Each seeded with name, owner, renewal date, posture chip, and 1–3 historical ChangeReports so the portfolio doesn't look empty.</p>
+            <p><strong>Datadog</strong> · Observability · Lime/OK · renews 89d · 1× P3<br>
+            <strong>Vercel</strong> · Infra · Lime/OK · renews 217d · 0×<br>
+            <strong>Stripe</strong> · Payments · Tangerine/P2 · renews 56d · 1× P2 (sub-processor added)<br>
+            <strong>Linear</strong> · PM · Lime/OK · renews 312d · 0×<br>
+            <strong>Figma</strong> · Design · Tangerine/P2 · renews 31d · 1× P2 (pricing +6%)<br>
+            <strong>Anthropic</strong> · AI · Lime/OK · renews 145d · 1× P3 (terms minor)<br>
+            <strong>Snowflake</strong> · Data · Lime/OK · renews 401d · 1× P3</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout ok" style="margin-top: 14px;">
+        <span class="ico">✓</span>
+        <div>
+          <h4>Seed file location</h4>
+          <p>Three checked-in JSON / YAML files load at server boot and write to ClickHouse if the table is empty:</p>
+          <p><code>seed/vendors.json</code> · <code>seed/users.json</code> · <code>seed/policies.yaml</code> · <code>seed/snapshots.json</code> (the seeded "before" snapshots) · <code>seed/change-reports.json</code> (the background fleet's historical reports).</p>
+          <p>The Notion <em>current</em> snapshot is <strong>not</strong> seeded — it must come from a live Nimble fetch on stage. That's the verifiability moment.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 SCREENS -->
+    <section class="s" id="screens">
+      <div class="s-head">
+        <div>
+          <div class="num">08</div>
+          <h2>Screens · status &amp; intent.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>2 built · 4 to design</span>
+        </div>
+      </div>
+
+      <p class="lede">Six screens total. Two exist as canonical Aurora HTML; four get designed today against the locked decisions in this doc. Each screen's API surface is listed so backend can stub endpoints in parallel.</p>
+
+      <table class="spec">
+        <thead>
+          <tr><th>Screen</th><th>Status</th><th>Reads (API)</th><th>Writes (API)</th><th>Owner</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="k">Portfolio<span class="sub">homepage · the fleet</span></td>
+            <td><span class="chip decided"><span class="d"></span>Done</span></td>
+            <td><code>GET /v1/vendors</code> · <code>GET /v1/portfolio/stats</code> · <code>GET /v1/changes?recent=true</code></td>
+            <td>—</td>
+            <td>Design ✓</td>
+          </tr>
+          <tr>
+            <td class="k">ChangeReport<span class="sub">detail · the hero</span></td>
+            <td><span class="chip decided"><span class="d"></span>Done</span></td>
+            <td><code>GET /v1/changes/:id</code></td>
+            <td><code>POST /v1/changes/:id/acknowledge</code> · <code>POST /v1/changes/:id/snooze</code></td>
+            <td>Design ✓</td>
+          </tr>
+          <tr>
+            <td class="k">Senso brief<span class="sub">public · immutable</span></td>
+            <td><span class="chip open"><span class="d"></span>To design</span></td>
+            <td><code>GET {sensoUrl}</code> (Senso-hosted)</td>
+            <td>—</td>
+            <td>Design + Senso template</td>
+          </tr>
+          <tr>
+            <td class="k">Evidence Bundle<span class="sub">print view</span></td>
+            <td><span class="chip open"><span class="d"></span>To design</span></td>
+            <td><code>GET /v1/bundles/:id</code></td>
+            <td><code>POST /v1/bundles</code></td>
+            <td>Design + Senso template</td>
+          </tr>
+          <tr>
+            <td class="k">Stripe upgrade modal<span class="sub">monetization</span></td>
+            <td><span class="chip open"><span class="d"></span>To design</span></td>
+            <td><code>GET /v1/billing/products</code></td>
+            <td><code>POST /v1/billing/payment-intents</code> · webhook in <code>POST /webhooks/stripe</code></td>
+            <td>Design + Stripe Elements</td>
+          </tr>
+          <tr>
+            <td class="k">Add Vendor<span class="sub">simplified onboard</span></td>
+            <td><span class="chip open"><span class="d"></span>To design</span></td>
+            <td>—</td>
+            <td><code>POST /v1/vendors</code> · triggers first run async</td>
+            <td>Design + form</td>
+          </tr>
+          <tr>
+            <td class="k">Role switcher<span class="sub">demo dressing</span></td>
+            <td><span class="chip deferred"><span class="d"></span>Static</span></td>
+            <td>—</td>
+            <td>—</td>
+            <td>UI mock only</td>
+          </tr>
+          <tr>
+            <td class="k">Policy Studio<span class="sub">YAML view only</span></td>
+            <td><span class="chip deferred"><span class="d"></span>Read-only</span></td>
+            <td><code>GET /v1/policies</code></td>
+            <td>—</td>
+            <td>Stretch · not blocking</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 09 STRIPE -->
+    <section class="s" id="stripe">
+      <div class="s-head">
+        <div>
+          <div class="num">09</div>
+          <h2>Stripe · the upgrade contract.</h2>
+        </div>
+        <div class="status">
+          <span class="chip live"><span class="d"></span>Test mode</span>
+          <span class="chip decided"><span class="d"></span>Modal · PaymentIntent</span>
+        </div>
+      </div>
+
+      <p class="lede">One product, one price, one PaymentIntent, one webhook. The modal opens from a <strong>"Upgrade to Compliance Pack"</strong> CTA on the ChangeReport screen (right rail) and from a button on the Evidence Bundle screen ("Bundles need Compliance Pack").</p>
+
+      <p class="code-cap"><span>Stripe configuration · seed</span><span class="file">seed/stripe.ts</span></p>
+      <pre class="code"><span class="com">// Created at server boot if not exists (idempotent).</span>
+<span class="kw">const</span> compliancePack <span class="punct">=</span> <span class="kw">await</span> stripe.products.create<span class="punct">({</span>
+  <span class="key">id</span><span class="punct">:</span> <span class="str">"compliance-pack"</span><span class="punct">,</span>
+  <span class="key">name</span><span class="punct">:</span> <span class="str">"Compliance Pack"</span><span class="punct">,</span>
+  <span class="key">description</span><span class="punct">:</span> <span class="str">"Evidence Bundles · Auditor portal · Vanta/Drata push"</span><span class="punct">,</span>
+  <span class="key">metadata</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">tier</span><span class="punct">:</span> <span class="str">"addon"</span> <span class="punct">}</span><span class="punct">,</span>
+<span class="punct">})</span><span class="punct">;</span>
+
+<span class="kw">const</span> price <span class="punct">=</span> <span class="kw">await</span> stripe.prices.create<span class="punct">({</span>
+  <span class="key">product</span><span class="punct">:</span> <span class="str">"compliance-pack"</span><span class="punct">,</span>
+  <span class="key">unit_amount</span><span class="punct">:</span> <span class="num">99900</span><span class="punct">,</span>  <span class="com">// $999.00</span>
+  <span class="key">currency</span><span class="punct">:</span> <span class="str">"usd"</span><span class="punct">,</span>
+  <span class="com">// payment-mode for the demo, not subscription</span>
+<span class="punct">})</span><span class="punct">;</span>
+
+<span class="com">// API endpoint that the modal hits</span>
+<span class="kw">app</span>.post<span class="punct">(</span><span class="str">"/v1/billing/payment-intents"</span><span class="punct">,</span> <span class="kw">async</span> <span class="punct">(</span>req<span class="punct">,</span> res<span class="punct">) =&gt; {</span>
+  <span class="kw">const</span> intent <span class="punct">=</span> <span class="kw">await</span> stripe.paymentIntents.create<span class="punct">({</span>
+    <span class="key">amount</span><span class="punct">:</span> <span class="num">99900</span><span class="punct">,</span>
+    <span class="key">currency</span><span class="punct">:</span> <span class="str">"usd"</span><span class="punct">,</span>
+    <span class="key">metadata</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">orgId</span><span class="punct">:</span> req.orgId<span class="punct">,</span> <span class="key">sku</span><span class="punct">:</span> <span class="str">"compliance-pack"</span> <span class="punct">}</span><span class="punct">,</span>
+  <span class="punct">})</span><span class="punct">;</span>
+  res.json<span class="punct">({</span> <span class="key">clientSecret</span><span class="punct">:</span> intent.client_secret <span class="punct">})</span><span class="punct">;</span>
+<span class="punct">})</span><span class="punct">;</span>
+
+<span class="com">// Webhook</span>
+<span class="kw">app</span>.post<span class="punct">(</span><span class="str">"/webhooks/stripe"</span><span class="punct">,</span> <span class="kw">async</span> <span class="punct">(</span>req<span class="punct">,</span> res<span class="punct">) =&gt; {</span>
+  <span class="kw">const</span> event <span class="punct">=</span> stripe.webhooks.constructEvent<span class="punct">(...)</span><span class="punct">;</span>
+  <span class="kw">if</span> <span class="punct">(</span>event.type <span class="punct">===</span> <span class="str">"payment_intent.succeeded"</span><span class="punct">) {</span>
+    <span class="kw">await</span> orgs.flipFeature<span class="punct">(</span>orgId<span class="punct">,</span> <span class="str">"compliancePack"</span><span class="punct">,</span> <span class="kw">true</span><span class="punct">)</span><span class="punct">;</span>
+    <span class="kw">await</span> actions.create<span class="punct">({</span> <span class="key">kind</span><span class="punct">:</span> <span class="str">"payment"</span><span class="punct">,</span> ... <span class="punct">})</span><span class="punct">;</span>
+  <span class="punct">}</span>
+  res.json<span class="punct">({</span> <span class="key">received</span><span class="punct">:</span> <span class="kw">true</span> <span class="punct">})</span><span class="punct">;</span>
+<span class="punct">})</span><span class="punct">;</span></pre>
+
+      <div class="callout warn" style="margin-top: 18px;">
+        <span class="ico">⚠</span>
+        <div>
+          <h4>Stage fallback</h4>
+          <p>If Stripe Elements fails to load or the test-mode card is rejected: the modal has a hidden <kbd>Shift</kbd>+<kbd>Enter</kbd> path that emits a local <code>payment_intent.succeeded</code> directly to the webhook endpoint, same payload. The user never sees this path unless triggered. Runbook documents.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 TWEAKS -->
+    <section class="s" id="tweaks">
+      <div class="s-head">
+        <div>
+          <div class="num">10</div>
+          <h2>Tweaks · the demo controls.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>2 knobs</span>
+        </div>
+      </div>
+
+      <p class="lede">A floating tweaks panel in the bottom-right of the app (hidden by default; toggled from the toolbar). Two knobs only: <strong>severity</strong> and <strong>vendor swap</strong>. Both modify the live demo path so we can dry-run alternative narratives without leaving the app.</p>
+
+      <table class="spec">
+        <thead><tr><th>Knob</th><th>Values</th><th>What it changes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="k">Severity</td>
+            <td><code>P1</code> · <code>P2</code> · <code>P3</code></td>
+            <td>Forces the policy engine output for the <em>next</em> scheduled tick. Changes the badge, the floating action bar visibility, and the routes that fire. Pure UI override of the eval result — the rules themselves are untouched.</td>
+          </tr>
+          <tr>
+            <td class="k">Demo vendor</td>
+            <td><code>Notion</code> · <code>Stripe</code> · <code>Figma</code></td>
+            <td>Sets which seeded vendor is on the hot path — only its scheduled tick produces a live Nimble fetch; others reuse their seeded snapshots. UI swaps the hero card accordingly.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout ok" style="margin-top: 14px;">
+        <span class="ico">✓</span>
+        <div>
+          <h4>Tweaks are client-only</h4>
+          <p>Persisted to <code>localStorage</code> via the tweaks-panel starter component. No backend awareness — the API doesn't know tweaks exist. Severity override is sent as an opt-in header (<code>X-Demo-Force-Severity: P2</code>) on the run endpoint; if absent, the policy engine runs normally.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 OPEN -->
+    <section class="s" id="open">
+      <div class="s-head">
+        <div>
+          <div class="num">11</div>
+          <h2>Open questions.</h2>
+        </div>
+        <div class="status">
+          <span class="chip open"><span class="d"></span>Need your call</span>
+        </div>
+      </div>
+
+      <p class="lede">Five decisions I couldn't lock unilaterally. Each one is small but each one blocks a piece of work — fastest if you skim and reply with letters.</p>
+
+      <div class="decisions">
+        <div class="decision open-d">
+          <div class="id">OPEN <span class="num">11-A</span></div>
+          <div class="body">
+            <h3>Stripe webhook delivery on a hackathon laptop?</h3>
+            <p>Two paths. <strong>(a)</strong> Use <code>stripe listen --forward-to localhost</code> — clean, prod-shaped, requires the CLI authed before the demo. <strong>(b)</strong> Use ngrok / cloudflared tunnel + register the public URL in Stripe Dashboard — flakier but doesn't depend on the CLI. <strong>My pick: (a).</strong></p>
+            <span class="tag"><span class="chip open"><span class="d"></span>Open</span></span>
+          </div>
+        </div>
+
+        <div class="decision open-d">
+          <div class="id">OPEN <span class="num">11-B</span></div>
+          <div class="body">
+            <h3>Senso — do we have an account with publish API access?</h3>
+            <p>If <strong>yes</strong>, Senso publishes real public URLs and the "Open Evidence" button takes judges to a Senso-hosted page. If <strong>no</strong>, we host the brief at <code>/evidence/:id</code> on our own deploy and tell the story "this is what Senso publishes". Either works; affects ~30 min of integration vs. fallback work.</p>
+            <span class="tag"><span class="chip open"><span class="d"></span>Open</span></span>
+          </div>
+        </div>
+
+        <div class="decision open-d">
+          <div class="id">OPEN <span class="num">11-C</span></div>
+          <div class="body">
+            <h3>Nimble account &amp; key — confirmed working?</h3>
+            <p>Need a confirmed sandbox key + verified rate limit before the demo. If Nimble's quota is tight, we may need to cache the live Notion fetch from an hour before the demo as a fallback (the runbook describes this; safe to ignore if quota is fine).</p>
+            <span class="tag"><span class="chip open"><span class="d"></span>Open</span></span>
+          </div>
+        </div>
+
+        <div class="decision open-d">
+          <div class="id">OPEN <span class="num">11-D</span></div>
+          <div class="body">
+            <h3>Slack workspace — demo channel access for all judges?</h3>
+            <p>If we want judges to <em>see</em> the Slack message land, they need to be in the workspace, OR we screen-share the Slack window. <strong>My pick:</strong> screen-share — zero permissions friction. Confirm so I can drop the "invite judges" step from the runbook.</p>
+            <span class="tag"><span class="chip open"><span class="d"></span>Open</span></span>
+          </div>
+        </div>
+
+        <div class="decision open-d">
+          <div class="id">OPEN <span class="num">11-E</span></div>
+          <div class="body">
+            <h3>The "before" Notion snapshot — where do we source it?</h3>
+            <p>Three options. <strong>(a)</strong> Hand-write a plausible "before" version that differs from current in retention + price. <strong>(b)</strong> Pull a real Wayback snapshot from 6 months ago. <strong>(c)</strong> Pull notion.so/terms <em>now</em> and synthesise a "before" that flips two clauses. <strong>My pick: (a)</strong> — fully controllable, no Wayback dependency, defensible because we own the seed.</p>
+            <span class="tag"><span class="chip open"><span class="d"></span>Open</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 TEAM -->
+    <section class="s" id="team">
+      <div class="s-head">
+        <div>
+          <div class="num">12</div>
+          <h2>Team split &amp; <em>timebox</em>.</h2>
+        </div>
+        <div class="status">
+          <span class="chip decided"><span class="d"></span>3 devs · 5.5h</span>
+          <span class="chip role">parallel tracks</span>
+        </div>
+      </div>
+
+      <p class="lede">Three parallel tracks. <strong>Track A</strong> is the critical path (no demo without it). Tracks B and C run independently — neither blocks A. Mid-day sync at T+2:30 to integrate Slack + Senso.</p>
+
+      <div class="team">
+        <article class="dev a">
+          <div class="role">Track A · critical path</div>
+          <h3>Agents &amp; pipeline</h3>
+          <p class="owns">Owns the AgentRunner — Nimble + Gemini + ClickHouse + Senso. The live demo path lives or dies here.</p>
+          <ul>
+            <li>Wire Nimble client · single <code>fetch(url)</code> with cache-by-hash</li>
+            <li>Wire Gemini · structured-output with <code>ChangeReport</code> zod schema</li>
+            <li>Implement <code>AgentRunner.run(vendorId)</code> · 7-stage pipeline</li>
+            <li>Wire ClickHouse client · 5 tables + insert helpers</li>
+            <li>Seed loader (<code>vendors.json</code>, <code>policies.yaml</code>, snapshots)</li>
+            <li>Policy engine · 6 predicate forms · 3 seeded rules</li>
+            <li>Senso publish · ChangeReport + Bundle</li>
+            <li>Always-on scheduler · per-vendor tick at <code>SCAN_INTERVAL</code> (6h prod, 60s demo)</li>
+            <li>Admin backfill endpoint <code>POST /v1/admin/vendors/:id/scan</code> (auth-gated, not in product UI)</li>
+            <li>Agent trace persistence (<code>agent_traces</code> table)</li>
+          </ul>
+          <div class="depblock"><b>Depends on:</b> Nimble key · Gemini key · ClickHouse Cloud URL · Senso API key</div>
+        </article>
+
+        <article class="dev b">
+          <div class="role">Track B · parallel</div>
+          <h3>API &amp; routing</h3>
+          <p class="owns">Owns the REST API surface and the routing fan-out. Slack webhook live; Jira/Calendar/Email typed-but-mocked.</p>
+          <ul>
+            <li>Hono/Express app skeleton · zod-validated routes</li>
+            <li>Endpoints: <code>GET /vendors</code> · <code>GET /changes</code> · <code>GET /changes/:id</code> · <code>GET /portfolio/stats</code> · <code>POST /changes/:id/acknowledge</code> · <code>POST /vendors</code> · <code>POST /bundles</code></li>
+            <li>SSE channel for run-progress events (UI subscribes)</li>
+            <li>Slack Block Kit message renderer + webhook fire</li>
+            <li>Action persistence for Jira/Calendar/Email (typed payloads, no external call)</li>
+            <li>Health endpoint + Datadog-shaped trace export (logs to stdout, not network)</li>
+          </ul>
+          <div class="depblock"><b>Depends on:</b> Slack webhook URL · ClickHouse client from Track A · seed data shape from Track A</div>
+        </article>
+
+        <article class="dev c">
+          <div class="role">Track C · parallel</div>
+          <h3>Stripe, Bundle, Onboard</h3>
+          <p class="owns">Owns the three new screens that aren't agent-dependent: Stripe modal, Evidence Bundle print, Add Vendor flow. Plus seeded data for the public Senso brief.</p>
+          <ul>
+            <li>Stripe Elements modal · payment-intent flow · success state</li>
+            <li><code>POST /webhooks/stripe</code> · flip <code>org.compliancePack</code> flag</li>
+            <li>Evidence Bundle screen · letter-paper print CSS · <code>GET /bundles/:id</code></li>
+            <li>Senso brief template (HTML; renders from a <code>ChangeReport</code> JSON)</li>
+            <li>Add Vendor screen · 4-field form + <code>POST /vendors</code></li>
+            <li>Wire the existing Portfolio + ChangeReport screens to live API endpoints</li>
+          </ul>
+          <div class="depblock"><b>Depends on:</b> Stripe test keys · API endpoints from Track B · ChangeReport JSON shape (locked above)</div>
+        </article>
+      </div>
+
+      <h3 style="font-family: var(--font-display); font-weight: 500; font-size: 22px; margin: 40px 0 14px; color: var(--text-strong); letter-spacing: -0.018em;">Timebox · 5.5 hours · what happens when</h3>
+
+      <div class="gantt">
+        <div class="gantt-grid">
+          <div class="h first">Track</div>
+          <div class="h">T+0</div><div class="h">+0.5</div><div class="h">+1</div><div class="h">+1.5</div><div class="h">+2</div><div class="h">+2.5</div><div class="h">+3</div><div class="h">+3.5</div><div class="h">+4</div><div class="h">+4.5</div><div class="h">+5</div>
+
+          <div class="l">A · Pipeline scaffolding</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar bondi" style="grid-column: 1 / span 3;"></div></div>
+
+          <div class="l">A · Gemini + policy + Senso</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar grape" style="grid-column: 3 / span 5;"></div></div>
+
+          <div class="l">A · Live demo run wiring</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar straw" style="grid-column: 8 / span 3;"></div></div>
+
+          <div class="l">B · API + SSE</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar aqua" style="grid-column: 1 / span 4;"></div></div>
+
+          <div class="l">B · Slack live + Jira mock</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar tang" style="grid-column: 5 / span 3;"></div></div>
+
+          <div class="l">B · Wire UI → API</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar aqua" style="grid-column: 8 / span 3;"></div></div>
+
+          <div class="l">C · Stripe modal</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar lime" style="grid-column: 1 / span 3;"></div></div>
+
+          <div class="l">C · Evidence Bundle</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar lime" style="grid-column: 4 / span 3;"></div></div>
+
+          <div class="l">C · Senso brief + Onboard</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar lime" style="grid-column: 7 / span 2;"></div></div>
+
+          <div class="l">All · Integration + dry-run</div>
+          <div class="gantt-track" style="grid-column: 2 / -1;"><div class="bar ghost" style="grid-column: 9 / span 3;"></div></div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-top: 18px;">
+        <div class="callout">
+          <span class="ico" style="color: var(--bondi)">●</span>
+          <div>
+            <h4>Mid-day sync · T+2:30</h4>
+            <p>15-minute integration checkpoint. Track A has Gemini returning structured output, Track B has Slack firing, Track C has the Stripe modal opening. We connect the wires end-to-end and identify the one thing most likely to break by T+5.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <span class="ico" style="color: var(--tangerine)">●</span>
+          <div>
+            <h4>Hard stop · T+4:30 · dry-run</h4>
+            <p>One hour of integration + three end-to-end demo dry-runs. Anything not working by T+4:30 falls back to its seeded path (the runbook calls out which fallbacks are pre-approved). No new features after this clock.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT'S NEXT -->
+    <section class="s" style="margin-bottom: 0;">
+      <div class="s-head">
+        <div>
+          <div class="num">↳ NEXT</div>
+          <h2>Once this is signed.</h2>
+        </div>
+      </div>
+
+      <p class="lede">When you've read this and either accepted the open questions or pushed back, I'll build in this order:</p>
+
+      <ol style="font-size: 14.5px; line-height: 1.8; color: var(--text-2); padding-left: 24px; max-width: 70ch;">
+        <li><strong style="color: var(--text);">Senso brief screen</strong> · the public evidence page that "OPEN EVIDENCE" opens. Aurora-themed reader layout.</li>
+        <li><strong style="color: var(--text);">Stripe upgrade modal</strong> · the monetization beat. Elements-shaped form inside an Aurora card.</li>
+        <li><strong style="color: var(--text);">Evidence Bundle print view</strong> · letter-paper, Cmd-P → PDF, auditor-ready chronology.</li>
+        <li><strong style="color: var(--text);">Add Vendor flow</strong> · simplified onboarding (4 fields → first run).</li>
+        <li><strong style="color: var(--text);">handoff/API.html</strong> · every endpoint, every payload, every status code.</li>
+        <li><strong style="color: var(--text);">handoff/data-model.html</strong> · full TypeScript interfaces + ClickHouse DDL.</li>
+        <li><strong style="color: var(--text);">handoff/runbook.html</strong> · on-stage order of operations, fallback paths, env vars, demo script.</li>
+      </ol>
+    </section>
+
+  </main>
+
+  <!-- RIGHT RAIL -->
+  <aside class="rail">
+    <div class="card">
+      <h4>Status legend</h4>
+      <div class="legend-row"><span class="swatch" style="background: var(--lime); box-shadow: 0 0 8px var(--lime-glow);"></span><span class="lbl">Decided</span><span class="what">final</span></div>
+      <div class="legend-row"><span class="swatch" style="background: var(--bondi); box-shadow: 0 0 8px var(--bondi-glow);"></span><span class="lbl">Live</span><span class="what">real call</span></div>
+      <div class="legend-row"><span class="swatch" style="background: var(--tangerine);"></span><span class="lbl">Mock</span><span class="what">typed</span></div>
+      <div class="legend-row"><span class="swatch" style="background: var(--strawberry); box-shadow: 0 0 8px var(--strawberry-glow);"></span><span class="lbl">Open</span><span class="what">your call</span></div>
+      <div class="legend-row"><span class="swatch" style="background: var(--muted);"></span><span class="lbl">Deferred</span><span class="what">vision</span></div>
+    </div>
+    <div class="card">
+      <h4>By the numbers</h4>
+      <div class="row"><span class="k">Sections</span><span class="v">12</span></div>
+      <div class="row"><span class="k">Decisions</span><span class="v">14 closed</span></div>
+      <div class="row"><span class="k">Open</span><span class="v" style="color: var(--strawberry)">5</span></div>
+      <div class="row"><span class="k">Providers live</span><span class="v">4</span></div>
+      <div class="row"><span class="k">Providers mocked</span><span class="v">4</span></div>
+      <div class="row"><span class="k">Vendors seeded</span><span class="v">8</span></div>
+      <div class="row"><span class="k">Policies seeded</span><span class="v">3</span></div>
+      <div class="row"><span class="k">Endpoints</span><span class="v">11</span></div>
+    </div>
+    <div class="card">
+      <h4>Once signed</h4>
+      <div class="row"><span class="k">Next deliverable</span><span class="v" style="color: var(--aqua)">Senso brief</span></div>
+      <div class="row"><span class="k">Then</span><span class="v">Stripe · Bundle · Onboard</span></div>
+      <div class="row"><span class="k">Then</span><span class="v">3 handoff docs</span></div>
+    </div>
+  </aside>
+
+</div>
+
+<footer>
+  <div class="six"><span class="a"></span><span class="b"></span><span class="t"></span><span class="g"></span><span class="s"></span><span class="l"></span></div>
+  <div class="meta">REDLINE · PRODUCT DECISIONS · <b>v0.3</b> · 2026-05-23 · LOCK BEFORE CODE</div>
+</footer>
+
+<script>
+  // TOC active highlight
+  const tocLinks = document.querySelectorAll('#toc a');
+  const sections = document.querySelectorAll('section.s');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+  sections.forEach(s => io.observe(s));
+</script>
+
+</body>
+</html>
