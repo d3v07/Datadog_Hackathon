@@ -1,0 +1,52 @@
+[
+  {
+    "id": "usr_priya",
+    "orgId": "org_acme",
+    "name": "Priya Natarajan",
+    "email": "priya@acme.dev",
+    "role": "procurement",
+    "avatarLetter": "P",
+    "slackUserId": "U010PRIYA"
+  },
+  {
+    "id": "usr_marcus",
+    "orgId": "org_acme",
+    "name": "Marcus Chen",
+    "email": "marcus@acme.dev",
+    "role": "security",
+    "avatarLetter": "M",
+    "slackUserId": "U010MARCUS"
+  },
+  {
+    "id": "usr_lin",
+    "orgId": "org_acme",
+    "name": "Lin Park",
+    "email": "lin@acme.dev",
+    "role": "legal",
+    "avatarLetter": "L"
+  },
+  {
+    "id": "usr_jordan",
+    "orgId": "org_acme",
+    "name": "Jordan Wells",
+    "email": "jordan@acme.dev",
+    "role": "procurement",
+    "avatarLetter": "J"
+  },
+  {
+    "id": "usr_ada",
+    "orgId": "org_acme",
+    "name": "Ada Owens",
+    "email": "ada@acme.dev",
+    "role": "security",
+    "avatarLetter": "A"
+  },
+  {
+    "id": "usr_devon",
+    "orgId": "org_acme",
+    "name": "Devon Rao",
+    "email": "devon@acme.dev",
+    "role": "owner",
+    "avatarLetter": "D"
+  }
+]
