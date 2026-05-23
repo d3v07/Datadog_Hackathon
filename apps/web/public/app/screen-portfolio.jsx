@@ -92,6 +92,10 @@ function ScreenPortfolio({ state, dispatch }) {
         when="FRIDAY · MAY 22 2026 · 14:42 EST"
         right={
           <>
+            <button className="onb-cta-pill" onClick={() => dispatch({ type: "goto", screen: "onboarding" })}>
+              <span className="onb-cta-plus">+</span>
+              ONBOARD VENDOR
+            </button>
             <div className="scan-pill"><span className="dot" />8 SCANNING NOW</div>
             <div className={"scan-pill" + (notionState === "P1" ? " alert" : "")}>
               {notionState === "P1" ? "3 P1 ACTIVE" : "2 P1 ACTIVE · 1 ROUTED"}

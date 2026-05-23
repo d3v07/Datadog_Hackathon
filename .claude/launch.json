@@ -8,6 +8,13 @@
       "port": 3005,
       "env": { "PORT": "3005" },
       "autoPort": false
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@redline/web", "dev"],
+      "port": 4004,
+      "autoPort": false
     }
   ]
 }

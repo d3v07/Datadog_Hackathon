@@ -53,7 +53,8 @@ export default defineConfig({
     },
   ],
   server: {
-    port: 5173,
+    port: 4004,
+    strictPort: true,
     proxy: {
       "/v1": {
         target: "http://localhost:8787",
