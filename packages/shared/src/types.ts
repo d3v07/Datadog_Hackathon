@@ -24,6 +24,107 @@ export type RunStatus = "running" | "unchanged" | "changed" | "failed";
 export type RunTrigger = "scheduled" | "admin" | "first-scan";
 export type RunStageStatus = "started" | "completed" | "failed" | "skipped";
 
+// Issue #4 — evidence brief types.
+
+export type ChangeCategory =
+  | "data"
+  | "pricing"
+  | "subprocessor"
+  | "terms"
+  | "sla"
+  | "security";
+
+export type Materiality = "material" | "minor" | "cosmetic";
+
+export type ChangeState =
+  | "new"
+  | "acknowledged"
+  | "in-progress"
+  | "resolved"
+  | "snoozed";
+
+export type Resolution =
+  | "accepted"
+  | "renegotiated"
+  | "rejected"
+  | "no-action";
+
+export type RecommendationAction =
+  | "renegotiate"
+  | "escalate"
+  | "accept"
+  | "reject";
+
+export interface Citation {
+  url: string;
+  quote: string;
+  section?: string;
+  fetchedAt: Iso8601;
+  country?: string;
+}
+
+export interface Change {
+  id: string;
+  category: ChangeCategory;
+  summary: string;
+  before: string;
+  after: string;
+  materiality: Materiality;
+  dollarImpact?: {
+    annualUsd: number;
+    pctChange: number;
+  };
+  citations: Citation[];
+}
+
+export interface Recommendation {
+  action: RecommendationAction;
+  copy: string;
+}
+
+export interface ChangeReport {
+  id: string;
+  orgId: string;
+  vendorId: string;
+  runId: string;
+  detectedAt: Iso8601;
+  severity: Severity;
+  state: ChangeState;
+  acknowledgedAt?: Iso8601;
+  snoozedUntil?: Iso8601;
+  resolvedAt?: Iso8601;
+  resolution?: Resolution;
+  policyFiredId: string;
+  policyAlsoMatched: string[];
+  changes: Change[];
+  recommendation: Recommendation;
+  sensoUrl?: string;
+  ownerId: string;
+}
+
+// Denormalised view used by the public evidence brief page. The /evidence/:id
+// route returns this so the page renders without needing extra lookups.
+
+export interface EvidenceBriefResponse {
+  changeReport: ChangeReport;
+  vendor: {
+    id: string;
+    name: string;
+    category: string;
+  };
+  policyFired: {
+    id: string;
+    name: string;
+  };
+  policyAlsoMatched: { id: string; name: string }[];
+  actionSummary: {
+    kind: "slack" | "jira" | "email" | "calendar" | "draft" | "payment";
+    target: string;
+    status: "queued" | "delivered" | "failed" | "acknowledged";
+    firedAt: Iso8601;
+  }[];
+}
+
 export interface Org {
   id: string;
   name: string;

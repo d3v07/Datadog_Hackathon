@@ -8,6 +8,7 @@ import { vendorsRoute } from "./routes/vendors.js";
 import { streamRoute } from "./routes/stream.js";
 import { billingRoute } from "./routes/billing.js";
 import { stripeWebhookRoute } from "./routes/webhooks-stripe.js";
+import { evidenceRoute } from "./routes/evidence.js";
 
 export function buildApp(): Hono {
   const app = new Hono();
@@ -30,6 +31,7 @@ export function buildApp(): Hono {
   app.route("/v1/stream", streamRoute);
   app.route("/v1/billing", billingRoute);
   app.route("/webhooks/stripe", stripeWebhookRoute);
+  app.route("/v1/evidence", evidenceRoute);
 
   app.notFound((c) =>
     c.json(

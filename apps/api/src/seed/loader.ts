@@ -1,7 +1,9 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { Org, User, Vendor } from "@redline/shared";
+import type { ChangeReport, Org, User, Vendor } from "@redline/shared";
 import { vendorStore } from "../db/vendor-store.js";
+import { changeReportStore } from "../db/change-reports.js";
+import { policyStore, type SeededPolicy } from "../db/policy-store.js";
 
 // Locate seed/ relative to repo root. apps/api is two levels deep.
 function seedDir(): string {
@@ -30,6 +32,10 @@ export function loadSeeds(opts?: { seedDir?: string }): void {
   const users = readJson<User[]>(resolve(dir, "users.json"));
   const vendors = readJson<Vendor[]>(resolve(dir, "vendors.json"));
   const tokens = readJson<Record<string, string>>(resolve(dir, "tokens.json"));
+  const policies = readJson<SeededPolicy[]>(resolve(dir, "policies.json"));
+  const changeReports = readJson<ChangeReport[]>(
+    resolve(dir, "change-reports.json"),
+  );
 
   caches.orgs.clear();
   caches.users.clear();
@@ -42,6 +48,8 @@ export function loadSeeds(opts?: { seedDir?: string }): void {
   }
 
   vendorStore.load(vendors);
+  policyStore.load(policies);
+  changeReportStore.load(changeReports);
 }
 
 export function getOrg(id: string): Org | undefined {
