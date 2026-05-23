@@ -1,0 +1,181 @@
+/* Public evidence brief styling — readable in browser, printable to PDF.
+   Intentionally has no app chrome (no header, no nav, no auth-only CSS). */
+
+.brief {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 48px 28px 80px;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+  color: #1a1d23;
+  background: #ffffff;
+  line-height: 1.55;
+}
+
+.brief__header {
+  border-bottom: 1px solid #e3e6ea;
+  padding-bottom: 18px;
+  margin-bottom: 28px;
+}
+.brief__eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #6b7280;
+}
+.brief__title {
+  margin: 6px 0 4px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.brief__meta {
+  font-size: 13px;
+  color: #6b7280;
+}
+.brief__meta strong {
+  color: #1a1d23;
+  font-weight: 500;
+}
+
+.brief__severity {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+.brief__severity--P1 { background: #fee2e2; color: #991b1b; }
+.brief__severity--P2 { background: #ffedd5; color: #9a3412; }
+.brief__severity--P3 { background: #dcfce7; color: #166534; }
+
+.brief__section {
+  margin: 32px 0;
+}
+.brief__section h2 {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #6b7280;
+  margin: 0 0 12px;
+}
+
+.brief__policy {
+  background: #f4f6fa;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+.brief__policy strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.brief__policy-also {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.change {
+  margin-bottom: 24px;
+  padding: 18px 20px;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+}
+.change__category {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+.change__summary {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.change__diff {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+.change__diff > div {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #f4f6fa;
+}
+.change__before { border-left: 3px solid #f59e0b; }
+.change__after  { border-left: 3px solid #16a34a; }
+.change__diff em { color: #6b7280; font-style: normal; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+
+.change__impact {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+.change__impact strong { color: #1a1d23; }
+
+.citation {
+  border-left: 3px solid #1a1d23;
+  padding: 8px 14px;
+  margin: 8px 0;
+  background: #fbfbfc;
+  font-size: 13px;
+}
+.citation__quote {
+  font-style: italic;
+  margin: 0 0 6px;
+}
+.citation__meta {
+  font-size: 11px;
+  color: #6b7280;
+}
+.citation__meta a { color: #2563eb; text-decoration: none; }
+.citation__meta a:hover { text-decoration: underline; }
+
+.actions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.actions li {
+  padding: 8px 0;
+  border-bottom: 1px solid #e3e6ea;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.actions li:last-child { border-bottom: none; }
+.actions__empty { color: #6b7280; font-size: 13px; font-style: italic; }
+
+.brief__footer {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid #e3e6ea;
+  font-size: 11px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.brief--not-found {
+  text-align: center;
+  padding-top: 96px;
+}
+.brief--not-found h1 { font-size: 22px; margin-bottom: 8px; }
+.brief--not-found p { color: #6b7280; }
+
+@media print {
+  body { background: #ffffff; }
+  .brief { padding: 24px 16px; max-width: none; }
+  .brief__header { page-break-after: avoid; }
+  .change { page-break-inside: avoid; }
+  .citation { page-break-inside: avoid; }
+  .actions li { page-break-inside: avoid; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: 10px; color: #6b7280; }
+}

@@ -1,5 +1,6 @@
 import type {
   ApiErrorEnvelope,
+  EvidenceBriefResponse,
   VendorCreateBody,
   VendorCreateResponse,
 } from "@redline/shared";
@@ -24,10 +25,12 @@ export class ApiError extends Error {
 
 async function request<T>(
   path: string,
-  init: RequestInit = {},
+  init: RequestInit & { skipAuth?: boolean } = {},
 ): Promise<T> {
   const headers = new Headers(init.headers);
-  headers.set("Authorization", `Bearer ${DEMO_BEARER_TOKEN}`);
+  if (!init.skipAuth) {
+    headers.set("Authorization", `Bearer ${DEMO_BEARER_TOKEN}`);
+  }
   if (init.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
@@ -100,4 +103,14 @@ export function createPaymentIntent(sku: string): Promise<PaymentIntentResponse>
 // Runbook F5 — dev-only fallback path. Server returns 404 in production.
 export function simulateSuccess(): Promise<{ ok: true; paymentIntentId: string }> {
   return request("/v1/billing/simulate-success", { method: "POST" });
+}
+
+// Issue #4 — public evidence brief. No bearer (the brief is public per
+// handoff/API §07 F4). The user-facing URL is /evidence/:id (SPA route);
+// the JSON endpoint lives under /v1/evidence so the dev proxy can route it
+// without conflicting with the SPA's history fallback.
+export function getEvidence(id: string): Promise<EvidenceBriefResponse> {
+  return request<EvidenceBriefResponse>(`/v1/evidence/${encodeURIComponent(id)}`, {
+    skipAuth: true,
+  });
 }

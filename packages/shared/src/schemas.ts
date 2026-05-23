@@ -90,3 +90,109 @@ export const RunCompletedEventSchema = z.object({
   durationMs: z.number().nonnegative(),
   changeReportId: z.string().optional(),
 });
+
+// Issue #4 — ChangeReport + evidence brief.
+
+export const SeveritySchema = z.enum(["P1", "P2", "P3"]);
+
+export const ChangeCategorySchema = z.enum([
+  "data",
+  "pricing",
+  "subprocessor",
+  "terms",
+  "sla",
+  "security",
+]);
+
+export const MaterialitySchema = z.enum(["material", "minor", "cosmetic"]);
+
+export const ChangeStateSchema = z.enum([
+  "new",
+  "acknowledged",
+  "in-progress",
+  "resolved",
+  "snoozed",
+]);
+
+export const ResolutionSchema = z.enum([
+  "accepted",
+  "renegotiated",
+  "rejected",
+  "no-action",
+]);
+
+export const CitationSchema = z.object({
+  url: z.string().url(),
+  quote: z.string().min(1),
+  section: z.string().optional(),
+  fetchedAt: Iso8601Schema,
+  country: z.string().optional(),
+});
+
+export const ChangeSchema = z.object({
+  id: z.string(),
+  category: ChangeCategorySchema,
+  summary: z.string().max(280),
+  before: z.string(),
+  after: z.string(),
+  materiality: MaterialitySchema,
+  dollarImpact: z
+    .object({
+      annualUsd: z.number(),
+      pctChange: z.number(),
+    })
+    .optional(),
+  // Handoff §03: "Each Change has ≥1 Citation. No citation, no claim."
+  citations: z.array(CitationSchema).min(1, "every change needs ≥1 citation"),
+});
+
+export const RecommendationSchema = z.object({
+  action: z.enum(["renegotiate", "escalate", "accept", "reject"]),
+  copy: z.string(),
+});
+
+export const ChangeReportSchema = z.object({
+  id: z.string(),
+  orgId: z.string(),
+  vendorId: z.string(),
+  runId: z.string(),
+  detectedAt: Iso8601Schema,
+  severity: SeveritySchema,
+  state: ChangeStateSchema,
+  acknowledgedAt: Iso8601Schema.optional(),
+  snoozedUntil: Iso8601Schema.optional(),
+  resolvedAt: Iso8601Schema.optional(),
+  resolution: ResolutionSchema.optional(),
+  policyFiredId: z.string(),
+  policyAlsoMatched: z.array(z.string()).default([]),
+  changes: z.array(ChangeSchema).min(1, "ChangeReport needs ≥1 change"),
+  recommendation: RecommendationSchema,
+  sensoUrl: z.string().url().optional(),
+  ownerId: z.string(),
+});
+
+export const EvidenceBriefResponseSchema = z.object({
+  changeReport: ChangeReportSchema,
+  vendor: z.object({
+    id: z.string(),
+    name: z.string(),
+    category: z.string(),
+  }),
+  policyFired: z.object({ id: z.string(), name: z.string() }),
+  policyAlsoMatched: z.array(z.object({ id: z.string(), name: z.string() })),
+  actionSummary: z.array(
+    z.object({
+      kind: z.enum([
+        "slack",
+        "jira",
+        "email",
+        "calendar",
+        "draft",
+        "payment",
+      ]),
+      target: z.string(),
+      status: z.enum(["queued", "delivered", "failed", "acknowledged"]),
+      firedAt: Iso8601Schema,
+    }),
+  ),
+});

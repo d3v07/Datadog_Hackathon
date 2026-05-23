@@ -16,7 +16,9 @@ const PUBLIC_PATHS: readonly string[] = [
   // /v1/stream uses its own ?token= query param flow because EventSource has
   // no header support; handled inside the route, bypassed here.
   "/v1/stream",
-  "/evidence/",
+  // Public evidence brief fallback (handoff/API §07 F4) — locally hosted
+  // Senso-shaped page; intentionally unauthenticated.
+  "/v1/evidence/",
 ];
 
 function isPublic(path: string): boolean {

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "chg_seed_notion",
+    "orgId": "org_acme",
+    "vendorId": "vnd_notion",
+    "runId": "run_seed_notion",
+    "detectedAt": "2026-05-22T18:42:18Z",
+    "severity": "P1",
+    "state": "new",
+    "policyFiredId": "pol_data_retention_pii_shrink",
+    "policyAlsoMatched": ["pol_price_hike_near_renewal"],
+    "changes": [
+      {
+        "id": "d1",
+        "category": "data",
+        "summary": "User-content retention reduced from 90 to 30 days",
+        "before": "User content is retained for ninety (90) days after account deletion.",
+        "after": "User content is retained for thirty (30) days after account deletion.",
+        "materiality": "material",
+        "citations": [
+          {
+            "url": "https://notion.so/terms",
+            "quote": "User content is retained for thirty (30) days after account deletion.",
+            "section": "§7.2 — Data Retention",
+            "fetchedAt": "2026-05-22T18:42:11Z"
+          }
+        ]
+      },
+      {
+        "id": "d2",
+        "category": "pricing",
+        "summary": "Team plan per-seat rises from $16 to $19 (+18.75%)",
+        "before": "$16 per user / month",
+        "after": "$19 per user / month",
+        "materiality": "material",
+        "dollarImpact": { "annualUsd": 28400, "pctChange": 18.75 },
+        "citations": [
+          {
+            "url": "https://notion.so/pricing",
+            "quote": "Team plan: $19 per user / month, billed annually.",
+            "section": "Pricing · Team plan",
+            "fetchedAt": "2026-05-22T18:42:13Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Open renewal conversation; cite §7.2 retention shortfall as material change."
+    },
+    "sensoUrl": "https://senso.com/r/notion-2026-05-22-retention",
+    "ownerId": "usr_priya"
+  },
+  {
+    "id": "chg_seed_stripe_subprocessor",
+    "orgId": "org_acme",
+    "vendorId": "vnd_stripe",
+    "runId": "run_seed_stripe",
+    "detectedAt": "2026-05-15T13:08:02Z",
+    "severity": "P1",
+    "state": "acknowledged",
+    "acknowledgedAt": "2026-05-15T16:21:00Z",
+    "policyFiredId": "pol_subprocessor_added_restricted",
+    "policyAlsoMatched": [],
+    "changes": [
+      {
+        "id": "d1",
+        "category": "subprocessor",
+        "summary": "New sub-processor added: TextRecognize Ltd (India)",
+        "before": "Sub-processors list does not include TextRecognize Ltd.",
+        "after": "Sub-processors list now includes TextRecognize Ltd, processing OCR text for KYC document validation.",
+        "materiality": "material",
+        "citations": [
+          {
+            "url": "https://stripe.com/legal/subprocessors",
+            "quote": "TextRecognize Ltd — India — OCR text extraction for identity document validation.",
+            "section": "Active sub-processors",
+            "fetchedAt": "2026-05-15T13:07:42Z",
+            "country": "IN"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "escalate",
+      "copy": "Notify Privacy and DPO; assess transfer mechanism for non-adequate jurisdiction."
+    },
+    "ownerId": "usr_lin"
+  }
+]
