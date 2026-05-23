@@ -40,8 +40,8 @@ loadRepoDotenv();
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  PORT: z.coerce.number().int().positive().default(8787),
-  BASE_URL: z.string().url().default("http://localhost:8787"),
+  PORT: z.coerce.number().int().positive().default(3005),
+  BASE_URL: z.string().url().default("http://localhost:3005"),
   CLICKHOUSE_URL: z.string().url(),
   CLICKHOUSE_USER: z.string().min(1),
   CLICKHOUSE_PASSWORD: z.string().min(1),

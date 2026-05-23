@@ -1,89 +1,69 @@
 // screen-portfolio.jsx — Portfolio screen
+// Reads every vendor from window.VENDOR_DATA. Every card is clickable —
+// clicking jumps the change screen to that vendor's CR. Notion stays the
+// hero flow (P1 → ROUTED via state.notion); other vendors carry their
+// own pre-baked state.
 
 function ScreenPortfolio({ state, dispatch }) {
   const notionState = state.notion; // "P1" | "ROUTED"
+  const DATA = window.VENDOR_DATA || {};
+  const ORDER = window.VENDOR_ORDER || Object.keys(DATA);
 
-  // The Notion card is the focus of the flow — clicking opens ChangeReport.
-  const vendors = [
-    {
-      key: "notion",
-      letter: "N", name: "Notion", meta: "DOCS · TIER 1",
-      sev: notionState === "P1" ? "p1" : "routed",
-      sevLabel: notionState === "P1" ? "P1" : "ROUTED",
-      lastChange: notionState === "P1"
-        ? { label: "17m ago · DATA · PRICING", cls: "crit" }
-        : { label: "now · ROUTED TO LEGAL", cls: "live" },
-      renews: { label: "42 DAYS", cls: "warn" },
-      annual: "$184,200",
-      chips: ["pii", "source"],
-      owner: { cls: "b", initials: "PN" },
+  // Build portfolio cards from VENDOR_DATA. Notion's display swaps on routed.
+  const vendors = ORDER.map((k) => {
+    const v = DATA[k];
+    if (!v) return null;
+    const isNotion = k === "notion";
+    const routed = isNotion && notionState === "ROUTED";
+    return {
+      key: k,
+      letter: v.letter,
+      name: v.name,
+      meta: v.meta,
+      sev: routed ? "routed" : v.sev,
+      sevLabel: routed ? "ROUTED" : v.sevLabel,
+      lastChange: routed
+        ? { label: "now · ROUTED TO LEGAL", cls: "live" }
+        : v.lastChange,
+      renews: { label: v.renewsLabel, cls: v.renewsCls },
+      annual: v.annual,
+      chips: v.dataClasses,
+      owner: v.owner,
+    };
+  }).filter(Boolean);
+
+  // Activity feed — pull from every vendor that has an `activity` entry.
+  // The routed "just now" row sits on top of Notion's normal row when state.notion === ROUTED.
+  const baseActivity = ORDER
+    .map((k) => DATA[k])
+    .filter((v) => v && v.activity)
+    .map((v) => ({
+      ...v.activity,
+      v: v.name,
+      key: v.key,
       clickable: true,
-    },
-    {
-      letter: "D", name: "Datadog", meta: "OBSERVABILITY · TIER 1",
-      sev: "p1", sevLabel: "P1",
-      lastChange: { label: "2h ago · SUB-PROC", cls: "crit" },
-      renews: { label: "11 DAYS", cls: "warn" },
-      annual: "$420,000",
-      chips: ["pii", "phi"],
-      owner: { cls: "a", initials: "RK" },
-    },
-    {
-      letter: "S", name: "Stripe", meta: "PAYMENTS · TIER 1",
-      sev: "p2", sevLabel: "P2",
-      lastChange: { label: "6h ago · TERMS" },
-      renews: { label: "8 MONTHS" },
-      annual: "$2.4M",
-      chips: ["pii", "payments"],
-      owner: { cls: "c", initials: "MA" },
-    },
-    {
-      letter: "A", name: "AWS", meta: "INFRA · TIER 1",
-      sev: "p2", sevLabel: "P2",
-      lastChange: { label: "1d ago · PRICING" },
-      renews: { label: "3 MONTHS" },
-      annual: "$1.8M",
-      chips: ["pii", "source"],
-      owner: { cls: "a", initials: "RK" },
-    },
-    {
-      letter: "L", name: "Linear", meta: "PROJECT · TIER 2",
-      sev: "healthy", sevLabel: "OK",
-      lastChange: { label: "14 days · no diff" },
-      renews: { label: "5 MONTHS" },
-      annual: "$48,000",
-      chips: ["pii"],
-      owner: { cls: "d", initials: "JT" },
-    },
-    {
-      letter: "F", name: "Figma", meta: "DESIGN · TIER 2",
-      sev: "healthy", sevLabel: "OK",
-      lastChange: { label: "22 days · no diff" },
-      renews: { label: "7 MONTHS" },
-      annual: "$96,000",
-      chips: ["pii"],
-      owner: { cls: "d", initials: "JT" },
-    },
-  ];
+    }));
 
-  const activity = notionState === "P1"
+  // Slack as a P3 footer row — passive entry only (no full CR view).
+  baseActivity.push({
+    sev: "p3", v: "Slack", w: "1d",
+    title: "SOC2 Type II refreshed · 2026 report",
+    meta: "SECURITY", impact: "CLEARED", impactCls: "out",
+    clickable: false,
+  });
+
+  const activity = notionState === "ROUTED"
     ? [
-        { sev: "p1", v: "Notion", w: "17m", title: "Data retention shrinks 90→30d, per-seat +18%", meta: "DATA · PRICING", impact: "+$28.4k/yr", impactCls: "in", clickable: true },
-        { sev: "p1", v: "Datadog", w: "2h", title: "Sub-processor added · Tencent Cloud · CN", meta: "SUB-PROC · JURISDICTION", impact: "+30d NOTICE", impactCls: "" },
-        { sev: "p2", v: "Stripe", w: "6h", title: "Liability cap reduced from $1M to $500k", meta: "TERMS · LIABILITY", impact: "LEGAL REVIEW", impactCls: "" },
-        { sev: "p2", v: "AWS", w: "1d", title: "EC2 g6.xlarge +8% in us-east-1", meta: "PRICING", impact: "+$14.2k/yr", impactCls: "in" },
-        { sev: "p3", v: "Slack", w: "1d", title: "SOC2 Type II refreshed · 2026 report", meta: "SECURITY", impact: "CLEARED", impactCls: "out" },
+        { sev: "routed", v: "Notion", w: "just now",
+          title: "ROUTED to Priya N. · Bundle RL·4839 generated",
+          meta: "ESCALATED · LEGAL", impact: "WITNESSED", impactCls: "out",
+          key: "notion", clickable: true, gotoBundle: true },
+        ...baseActivity,
       ]
-    : [
-        { sev: "routed", v: "Notion", w: "just now", title: "ROUTED to Priya N. · Bundle RL·4839 generated", meta: "ESCALATED · LEGAL", impact: "WITNESSED", impactCls: "out", clickable: true, gotoBundle: true },
-        { sev: "p1", v: "Notion", w: "17m", title: "Data retention shrinks 90→30d, per-seat +18%", meta: "DATA · PRICING", impact: "+$28.4k/yr", impactCls: "in", clickable: true },
-        { sev: "p1", v: "Datadog", w: "2h", title: "Sub-processor added · Tencent Cloud · CN", meta: "SUB-PROC · JURISDICTION", impact: "+30d NOTICE", impactCls: "" },
-        { sev: "p2", v: "Stripe", w: "6h", title: "Liability cap reduced from $1M to $500k", meta: "TERMS · LIABILITY", impact: "LEGAL REVIEW", impactCls: "" },
-        { sev: "p3", v: "Slack", w: "1d", title: "SOC2 Type II refreshed · 2026 report", meta: "SECURITY", impact: "CLEARED", impactCls: "out" },
-      ];
+    : baseActivity;
 
-  const openNotionCR = () => dispatch({ type: "goto", screen: "change" });
-  const openBundle = () => dispatch({ type: "goto", screen: "evidence" });
+  const openVendor = (key) => dispatch({ type: "open-vendor", vendor: key });
+  const openBundle = (key) => dispatch({ type: "open-vendor-bundle", vendor: key });
 
   return (
     <main className="main">
@@ -110,12 +90,12 @@ function ScreenPortfolio({ state, dispatch }) {
             <span className="sec-action">VIEW ALL 27 →</span>
           </div>
           <div className="vendors">
-            {vendors.map((v, i) => (
+            {vendors.map((v) => (
               <div
                 className={"vendor " + v.sev}
-                key={i}
-                onClick={v.key === "notion" ? openNotionCR : undefined}
-                style={v.key === "notion" ? { cursor: "pointer" } : { cursor: "default" }}
+                key={v.key}
+                onClick={() => openVendor(v.key)}
+                style={{ cursor: "pointer" }}
               >
                 <div className="vendor-head">
                   <div className="vendor-id">
@@ -157,7 +137,9 @@ function ScreenPortfolio({ state, dispatch }) {
             <div
               className="activity-item"
               key={i}
-              onClick={a.clickable ? (a.gotoBundle ? openBundle : openNotionCR) : undefined}
+              onClick={a.clickable
+                ? (a.gotoBundle ? () => openBundle(a.key) : () => openVendor(a.key))
+                : undefined}
               style={a.clickable ? { cursor: "pointer" } : undefined}
             >
               <div className="activity-row">

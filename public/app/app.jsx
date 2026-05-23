@@ -9,6 +9,7 @@ function App() {
     notion: "P1",            // "P1" | "ROUTED"
     routeTime: null,
     evidenceCount: 432,
+    activeVendor: "notion",  // which vendor the change/evidence screens render
   });
 
   // ── dispatcher ───────────────────────────────────────
@@ -17,6 +18,22 @@ function App() {
       case "goto":
         setState((s) => ({ ...s, screen: action.screen }));
         // scroll the main column to top on screen change
+        setTimeout(() => {
+          const m = document.querySelector(".app-shell .main");
+          if (m) m.scrollTo(0, 0);
+        }, 0);
+        return;
+      case "open-vendor":
+        // jump to that vendor's change report
+        setState((s) => ({ ...s, activeVendor: action.vendor, screen: "change" }));
+        setTimeout(() => {
+          const m = document.querySelector(".app-shell .main");
+          if (m) m.scrollTo(0, 0);
+        }, 0);
+        return;
+      case "open-vendor-bundle":
+        // jump to that vendor's evidence bundle (must have one)
+        setState((s) => ({ ...s, activeVendor: action.vendor, screen: "evidence" }));
         setTimeout(() => {
           const m = document.querySelector(".app-shell .main");
           if (m) m.scrollTo(0, 0);
@@ -41,6 +58,7 @@ function App() {
           routeTime: "14:59:18 EST",
           evidenceCount: 433,
           screen: "evidence",
+          activeVendor: "notion",
         }));
         setTimeout(() => {
           const m = document.querySelector(".app-shell .main");
@@ -55,6 +73,7 @@ function App() {
           notion: "P1",
           routeTime: null,
           evidenceCount: 432,
+          activeVendor: "notion",
         });
         return;
       default:
@@ -63,15 +82,22 @@ function App() {
   }
 
   // ── browser tabs ─────────────────────────────────────
+  const activeRec = (window.VENDOR_DATA || {})[state.activeVendor] || {};
+  const vendorSlug = (activeRec.name || "vendor").toLowerCase();
+  const bundleSlug = ((activeRec.cr && activeRec.cr.bundleId) || "").replace("·", "-");
   const url = state.screen === "portfolio"
     ? "app.unsyphn.com/portfolio"
     : state.screen === "change"
-    ? "app.unsyphn.com/notion/RL-4839"
-    : "app.unsyphn.com/bundle/RL-4839";
+    ? `app.unsyphn.com/${vendorSlug}/${bundleSlug || "cr"}`
+    : `app.unsyphn.com/bundle/${bundleSlug || "cr"}`;
+
+  const secondTabTitle = state.screen === "portfolio"
+    ? "Notion · ToS"
+    : `${activeRec.name || "Vendor"} · ${state.screen === "evidence" ? "Bundle" : "Change"}`;
 
   const tabs = [
     { title: "Unsyphn · Portfolio" },
-    { title: "Notion · ToS" },
+    { title: secondTabTitle },
     { title: "DPA · Acme ⟷ Notion" },
   ];
 
@@ -89,7 +115,7 @@ function App() {
           {state.screen === "evidence"  && <ScreenEvidence state={state} dispatch={dispatch} />}
 
           {state.escalateOpen && <EscalateModal state={state} dispatch={dispatch} />}
-          {state.routing      && <RoutingTransition dispatch={dispatch} />}
+          {state.routing      && <RoutingTransition dispatch={dispatch} vendorKey={state.activeVendor} />}
         </div>
       </ChromeWindow>
 

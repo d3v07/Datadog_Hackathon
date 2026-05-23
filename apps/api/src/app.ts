@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { createAuthMiddleware, type SeedToken } from "./auth.js";
 import { InMemoryChangeReportRepository, type ChangeReportRepository } from "./db/changeReports.js";
 import { errorResponse } from "./errors.js";
@@ -8,6 +9,7 @@ import { newRequestId } from "./lib/ids.js";
 import { logger } from "./logger.js";
 import { billingRoute } from "./routes/billing.js";
 import { createChangesRouter } from "./routes/changes.js";
+import { dashboardRoute } from "./routes/dashboard.js";
 import { evidenceRoute } from "./routes/evidence.js";
 import { createStreamRouter } from "./routes/stream.js";
 import { vendorsRoute } from "./routes/vendors.js";
@@ -43,11 +45,13 @@ export function createApp(deps: AppDeps = {}): Hono {
   app.use("/v1/*", createAuthMiddleware(deps.seedData?.tokens));
   app.route("/v1/vendors", vendorsRoute);
   app.route("/v1/billing", billingRoute);
+  app.route("/v1/dashboard", dashboardRoute);
   app.route("/v1/changes", createChangesRouter({ reports, events, ...(deps.now ? { now: deps.now } : {}) }));
   app.route(
     "/v1/stream",
     createStreamRouter({ events, ...(deps.heartbeatIntervalMs === undefined ? {} : { heartbeatIntervalMs: deps.heartbeatIntervalMs }) }),
   );
+  app.use("/*", serveStatic({ root: "../../public" }));
   app.notFound((c) => errorResponse(c, 404, "not-found", "Route not found"));
   app.onError((err, c) => {
     const requestId = c.get("requestId");

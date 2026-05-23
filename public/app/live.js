@@ -21,9 +21,9 @@
     return el && el.content ? el.content : fallback;
   }
 
-  var API_BASE = metaValue("redline-api-base", "http://localhost:8787");
+  var API_BASE = metaValue("redline-api-base", "");
   var BEARER = metaValue("redline-bearer", "demo_token_acme_corp_2026");
-  var SUMMARY_URL = API_BASE.replace(/\/+$/, "") + "/v1/dashboard/summary";
+  var SUMMARY_URL = (API_BASE || (typeof window !== "undefined" && window.location.origin) || "").replace(/\/+$/, "") + "/v1/dashboard/summary";
 
   // Format helpers — keep numbers terse so they fit the existing tile size.
   function compactUsd(value) {

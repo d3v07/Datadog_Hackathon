@@ -6,7 +6,7 @@ import { logger } from "./logger.js";
 import { createSeedChangeReport } from "./seed/factories.js";
 import type { ChangeReport, User, Vendor } from "@redline/shared";
 
-const port = Number(process.env.PORT ?? 8787);
+const port = Number(process.env.PORT ?? 3005);
 export const DEV_SEED_CHANGE_ID = "chg_seed_notion_yesterday";
 
 export { createApp } from "./app.js";
