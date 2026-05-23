@@ -1,0 +1,12 @@
+[
+  {
+    "id": "org_acme",
+    "name": "Acme Corp",
+    "seatCount": 142,
+    "createdAt": "2026-05-23T00:00:00Z",
+    "entitlements": {
+      "compliancePack": false,
+      "auditorPortal": false
+    }
+  }
+]

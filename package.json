@@ -1,0 +1,36 @@
+{
+  "name": "redline-datadog-hackathon",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.26.2",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev:api": "pnpm --filter @redline/api dev",
+    "dev:web": "pnpm --filter @redline/web dev",
+    "dev": "pnpm -r --parallel --stream dev",
+    "build": "pnpm --filter @redline/shared build && pnpm --filter @redline/api build && pnpm --filter @redline/web build",
+    "typecheck": "pnpm --filter @redline/shared typecheck && pnpm --filter @redline/api typecheck && pnpm --filter @redline/web typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "pnpm --filter @redline/api db:migrate"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^24.10.2",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "jsdom": "^25.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "stripe": "^17.4.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
+  }
+}

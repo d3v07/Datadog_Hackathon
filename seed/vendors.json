@@ -1,0 +1,50 @@
+[
+  {
+    "id": "vnd_notion",
+    "orgId": "org_acme",
+    "name": "Notion",
+    "category": "productivity",
+    "tier": 1,
+    "posture": "risk",
+    "dataClasses": ["pii", "content"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://notion.so",
+      "terms": "https://notion.so/terms",
+      "pricing": "https://notion.so/pricing",
+      "dpa": "https://notion.so/dpa",
+      "subProcessors": "https://notion.so/subprocessors",
+      "security": "https://notion.so/security",
+      "sla": "https://notion.so/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-07-04",
+      "annualSpendUsd": 158000,
+      "seatCount": 1420
+    }
+  },
+  {
+    "id": "vnd_stripe",
+    "orgId": "org_acme",
+    "name": "Stripe",
+    "category": "payments",
+    "tier": 1,
+    "posture": "watch",
+    "dataClasses": ["financial", "pii"],
+    "ownerId": "usr_lin",
+    "urls": {
+      "homepage": "https://stripe.com",
+      "terms": "https://stripe.com/legal",
+      "pricing": "https://stripe.com/pricing",
+      "dpa": "https://stripe.com/legal/dpa",
+      "subProcessors": "https://stripe.com/legal/subprocessors",
+      "security": "https://stripe.com/security",
+      "sla": "https://stripe.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-07-18",
+      "annualSpendUsd": 84000,
+      "seatCount": 20
+    }
+  }
+]
