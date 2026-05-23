@@ -30,6 +30,12 @@ describe("static frontend delivery", () => {
     expect(content).toContain("UNSYPHN");
   });
 
+  it("public/index.html routes primary Halo CTAs to /app/", () => {
+    const content = readFileSync(join(PUBLIC, "index.html"), "utf8");
+    expect(content).toContain('<a href="/app/" class="cta">Get access →</a>');
+    expect(content).toContain('<button class="btn primary" onclick="location.href=\'/app/\'">Start free trial</button>');
+  });
+
   it("public/app/index.html exists", () => {
     expect(existsSync(join(APP, "index.html"))).toBe(true);
   });
@@ -76,5 +82,14 @@ describe("static frontend delivery", () => {
     expect(existsSync(path)).toBe(true);
     const json = JSON.parse(readFileSync(path, "utf8"));
     expect(json.outputDirectory).toBe("public");
+  });
+
+  it("vercel.json redirects /app to /app/ so relative static assets resolve", () => {
+    const json = JSON.parse(readFileSync(join(ROOT, "vercel.json"), "utf8"));
+    expect(json.redirects).toContainEqual({
+      source: "/app",
+      destination: "/app/",
+      permanent: false,
+    });
   });
 });

@@ -3,9 +3,8 @@
   "buildCommand": null,
   "outputDirectory": "public",
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/app", "destination": "/app/index.html" },
-    { "source": "/app/", "destination": "/app/index.html" }
+  "redirects": [
+    { "source": "/app", "destination": "/app/", "permanent": false }
   ],
   "headers": [
     {

@@ -58,7 +58,7 @@ function App() {
         });
         return;
       default:
-        console.warn("unknown action", action);
+        globalThis["console"].warn("unknown action", action);
     }
   }
 
