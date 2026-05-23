@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { fileURLToPath } from "node:url";
-import { resolve, dirname } from "node:path";
+import { dirname, resolve, relative } from "node:path";
 import { createAuthMiddleware, type SeedToken } from "./auth.js";
 import { InMemoryChangeReportRepository, type ChangeReportRepository } from "./db/changeReports.js";
 import { errorResponse } from "./errors.js";
@@ -18,8 +18,14 @@ import { vendorsRoute } from "./routes/vendors.js";
 import { stripeWebhookRoute } from "./routes/webhooks-stripe.js";
 import { createEventBroker, type EventBroker } from "./stream/broker.js";
 
-// Resolve public/ relative to this source file: apps/api/src/app.ts -> ../../public
-const publicDir = resolve(dirname(fileURLToPath(import.meta.url)), "../../public");
+// serveStatic resolves `root` against process.cwd(). Compute the public/
+// directory as a cwd-relative string so the API serves the static frontend
+// no matter where the process is launched from (apps/api or repo root).
+const PUBLIC_DIR_ABS = resolve(dirname(fileURLToPath(import.meta.url)), "../../../public");
+const PUBLIC_DIR_REL = (() => {
+  const rel = relative(process.cwd(), PUBLIC_DIR_ABS);
+  return rel === "" ? "." : rel;
+})();
 
 export interface AppDeps {
   reports?: ChangeReportRepository;
@@ -56,7 +62,15 @@ export function createApp(deps: AppDeps = {}): Hono {
     "/v1/stream",
     createStreamRouter({ events, ...(deps.heartbeatIntervalMs === undefined ? {} : { heartbeatIntervalMs: deps.heartbeatIntervalMs }) }),
   );
-  app.use("/*", serveStatic({ root: publicDir }));
+
+  // Static frontend — serves /public/* from the repo so the API can host the
+  // landing page and demo UI on the same origin. A request to "/" resolves to
+  // /public/index.html; "/app/" to /public/app/index.html. Mounted AFTER all
+  // API routes so /v1, /health, /webhooks etc. still match first.
+  app.use("/*", serveStatic({ root: PUBLIC_DIR_REL }));
+  app.use("/", serveStatic({ root: PUBLIC_DIR_REL, path: "index.html" }));
+  app.use("/app/", serveStatic({ root: PUBLIC_DIR_REL, path: "app/index.html" }));
+
   app.notFound((c) => errorResponse(c, 404, "not-found", "Route not found"));
   app.onError((err, c) => {
     const requestId = c.get("requestId");

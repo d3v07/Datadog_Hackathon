@@ -32,7 +32,8 @@ function loadRepoDotenv(): void {
       }
       if (process.env[key] === undefined) process.env[key] = val;
     }
-    return;
+    // continue — merge values from every dotenv file we find so .env and
+    // .env.local can complement each other (no single-file lock-in).
   }
 }
 

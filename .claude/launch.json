@@ -2,11 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "static",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["--yes", "serve", "public", "--no-clipboard"],
-      "port": 3000,
-      "autoPort": true
+      "name": "production",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@redline/api", "dev"],
+      "port": 3005,
+      "env": { "PORT": "3005" },
+      "autoPort": false
     }
   ]
 }
