@@ -5,6 +5,7 @@ import { createApp } from "../../apps/api/src/app";
 import { createActionRepository } from "../../apps/api/src/db/actions";
 import { InMemoryChangeReportRepository } from "../../apps/api/src/db/changeReports";
 import { createSeedChangeReport, createSeedToken } from "../../apps/api/src/seed/factories";
+import { createServerApp, DEV_SEED_CHANGE_ID } from "../../apps/api/src/server";
 import { createEventBroker } from "../../apps/api/src/stream/broker";
 import { createUsers, createVendor, NOW, ORG_ID } from "./support/fixtures";
 
@@ -12,6 +13,25 @@ const TOKEN = "demo_token_acme_corp_2026";
 const USER_ID = "usr_priya";
 
 describe("integrated API event flow", () => {
+  it("can start the dev server app with a seeded change report", async () => {
+    const app = createServerApp(["node", "server", "--seed"]);
+
+    const response = await app.request(`/v1/changes/${DEV_SEED_CHANGE_ID}/acknowledge`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${TOKEN}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ note: "Seed check" }),
+    });
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      id: DEV_SEED_CHANGE_ID,
+      state: "acknowledged",
+    });
+  });
+
   it("uses one SSE history for lifecycle and routed-action events", async () => {
     const change = createSeedChangeReport({
       id: "chg_integrated_notion" as ChangeReport["id"],
@@ -100,7 +120,6 @@ describe("integrated API event flow", () => {
           changeReportId: change.id,
           kind: "jira",
           status: "queued",
-          externalId: "SEC-1247",
         },
       });
     } finally {

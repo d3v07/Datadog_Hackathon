@@ -72,7 +72,6 @@ async function routeOne(input: RouteChangeReportInput, route: ParsedRoute): Prom
         target: route.target,
         payload: createJiraPayload(input, route.target),
         status: "queued",
-        externalId: `${route.target}-1247`,
       });
     case "email":
       return persistAndEmit(input, {
@@ -82,7 +81,6 @@ async function routeOne(input: RouteChangeReportInput, route: ParsedRoute): Prom
         target: route.target,
         payload: createEmailPayload(input, route.target),
         status: "queued",
-        externalId: `email_${input.changeReport.id}`,
       });
     case "calendar":
       return persistAndEmit(input, {
@@ -92,7 +90,6 @@ async function routeOne(input: RouteChangeReportInput, route: ParsedRoute): Prom
         target: route.target,
         payload: createCalendarPayload(input, route.target),
         status: "queued",
-        externalId: `cal_${input.changeReport.id}`,
       });
   }
 }
@@ -115,7 +112,7 @@ async function routeSlack(input: RouteChangeReportInput, rawTarget: string): Pro
     changeReport: input.changeReport,
     vendor: input.vendor,
     target: resolution.target,
-    baseUrl: input.baseUrl ?? process.env.REDLINE_BASE_URL ?? "http://localhost:8787",
+    baseUrl: resolveBaseUrl(input),
   });
   const slack = input.slack ?? createSlackProvider();
 
@@ -174,7 +171,7 @@ function createJiraPayload(input: RouteChangeReportInput, projectKey: string): J
     summary: `${input.changeReport.severity}: ${input.vendor.name} - ${headline}`,
     description: createPlainTextBody(input),
     priority: input.changeReport.severity,
-    labels: ["redline", "vendor-risk", input.vendor.name.toLowerCase().replace(/\s+/g, "-")],
+    labels: ["redline", "vendor-risk", jiraLabel(input.vendor.name)],
     assigneeUserId: input.vendor.ownerId,
   };
 }
@@ -188,7 +185,7 @@ function createEmailPayload(input: RouteChangeReportInput, to: string): EmailPay
     to,
     subject,
     text,
-    html: `<h1>${escapeHtml(subject)}</h1><p>${escapeHtml(headline)}</p><p>${escapeHtml(text)}</p>`,
+    html: createEmailHtml(input, subject, headline),
   };
 }
 
@@ -211,7 +208,7 @@ function createFailedSlackPayload(input: RouteChangeReportInput, target: string)
     changeReport: input.changeReport,
     vendor: input.vendor,
     target,
-    baseUrl: input.baseUrl ?? process.env.REDLINE_BASE_URL ?? "http://localhost:8787",
+    baseUrl: resolveBaseUrl(input),
   });
 }
 
@@ -223,6 +220,34 @@ function createPlainTextBody(input: RouteChangeReportInput): string {
   const policyName = input.changeReport.policyFired?.name ?? input.changeReport.policyFiredId;
 
   return `${input.vendor.name}: ${change}. Policy: ${policyName}.${citationText}`;
+}
+
+function createEmailHtml(input: RouteChangeReportInput, subject: string, headline: string): string {
+  const citation = input.changeReport.citations?.[0] ?? input.changeReport.changes[0]?.citations?.[0];
+  const citationUrl = citation?.sourceUrl ?? citation?.url;
+  const citationLabel = citation?.label ?? citation?.section ?? "Evidence";
+  const citationLink = citationUrl
+    ? `<p><a href="${escapeAttribute(citationUrl)}">${escapeHtml(citationLabel)}</a></p>`
+    : "";
+
+  return `<h1>${escapeHtml(subject)}</h1><p>${escapeHtml(headline)}</p><p>${escapeHtml(createPlainTextBody(input))}</p>${citationLink}`;
+}
+
+function jiraLabel(value: string): string {
+  const label = value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return label || "vendor";
+}
+
+function resolveBaseUrl(input: RouteChangeReportInput): string {
+  return input.baseUrl ?? process.env.REDLINE_BASE_URL ?? "http://localhost:8787";
 }
 
 function addMinutes(date: Date, minutes: number): Date {
@@ -246,4 +271,8 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function escapeAttribute(value: string): string {
+  return escapeHtml(value);
 }

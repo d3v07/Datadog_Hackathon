@@ -117,7 +117,6 @@ describe("Action routing", () => {
     expect(routed.map((action) => action.status)).toEqual(["queued", "queued", "queued"]);
     expect(routed[0]).toMatchObject({
       target: "SEC",
-      externalId: "SEC-1247",
       payload: {
         projectKey: "SEC",
         issueType: "Task",
@@ -126,17 +125,18 @@ describe("Action routing", () => {
         assigneeUserId: "usr_priya",
       },
     });
+    expect(routed[0]).not.toHaveProperty("externalId");
     expect(routed[1]).toMatchObject({
       target: "ciso@example.com",
-      externalId: "email_chg_notion_001",
       payload: {
         to: "ciso@example.com",
         subject: "P1 Redline alert: Notion",
+        html: expect.stringContaining('<a href="https://notion.so/terms">Nimble capture</a>'),
       },
     });
+    expect(routed[1]).not.toHaveProperty("externalId");
     expect(routed[2]).toMatchObject({
       target: "renewal-prep",
-      externalId: "cal_chg_notion_001",
       payload: {
         title: "Redline renewal-prep: Notion",
         startsAt: "2026-05-24T13:14:42.000Z",
@@ -144,28 +144,48 @@ describe("Action routing", () => {
         attendees: ["priya@example.com"],
       },
     });
+    expect(routed[2]).not.toHaveProperty("externalId");
     expect(events.listHistory(ORG_ID).map((event) => event.data)).toEqual([
       {
         actionId: "act_000001",
         changeReportId: "chg_notion_001",
         kind: "jira",
         status: "queued",
-        externalId: "SEC-1247",
       },
       {
         actionId: "act_000002",
         changeReportId: "chg_notion_001",
         kind: "email",
         status: "queued",
-        externalId: "email_chg_notion_001",
       },
       {
         actionId: "act_000003",
         changeReportId: "chg_notion_001",
         kind: "calendar",
         status: "queued",
-        externalId: "cal_chg_notion_001",
       },
     ]);
+  });
+
+  it("sanitizes non-ASCII vendor names before building Jira labels", async () => {
+    const actions = createActionRepository({ now: () => new Date(NOW) });
+    const events = createEventBroker({ now: () => new Date(NOW) });
+    const [routed] = await routeChangeReport({
+      changeReport: createChangeReport(),
+      vendor: { ...createVendor(), name: "Café 数据魔" },
+      users: createUsers(),
+      routes: ["jira:SEC"],
+      actions,
+      events,
+      baseUrl: "https://redline.example",
+      now: () => new Date(NOW),
+    });
+
+    expect(routed).toMatchObject({
+      kind: "jira",
+      payload: {
+        labels: ["redline", "vendor-risk", "cafe"],
+      },
+    });
   });
 });

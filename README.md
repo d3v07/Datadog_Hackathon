@@ -19,6 +19,7 @@ pnpm install
 pnpm test
 pnpm typecheck
 pnpm dev:api
+pnpm dev:api -- --seed
 ```
 
 The integrated API slice implements:
@@ -32,3 +33,5 @@ The integrated API slice implements:
 Use `Authorization: Bearer demo_token_acme_corp_2026` for local hackathon requests. EventSource clients can use the query token because they cannot send custom headers.
 
 The SSE stream is org-scoped, emits 15-second `:heartbeat` keepalives, uses stable event ids, and supports `Last-Event-ID` replay for retained in-memory events. Malformed replay cursors are treated as missing and do not replay history.
+
+`pnpm dev:api -- --seed` starts the API with `chg_seed_notion_yesterday` so lifecycle curl requests work immediately.

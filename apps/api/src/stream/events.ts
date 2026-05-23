@@ -50,7 +50,7 @@ export function validateStreamEvent<TName extends StreamEventName>(
 }
 
 export async function publishActionDelivered(events: EventPublisher | undefined, action: Action): Promise<void> {
-  if (!events || !action.changeReportId) {
+  if (!events) {
     return;
   }
 

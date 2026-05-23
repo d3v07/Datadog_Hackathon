@@ -176,7 +176,7 @@ export interface CalendarPayload {
 export interface BaseAction<TKind extends ActionKind, TPayload> {
   id: ActionId;
   orgId: OrgId;
-  changeReportId?: ChangeReportId;
+  changeReportId: ChangeReportId;
   kind: TKind;
   target: string;
   payload: TPayload;

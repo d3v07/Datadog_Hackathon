@@ -168,7 +168,7 @@ export const calendarPayloadSchema = z
 const baseActionSchema = {
   id: actionIdSchema,
   orgId: orgIdSchema,
-  changeReportId: changeReportIdSchema.optional(),
+  changeReportId: changeReportIdSchema,
   target: z.string().min(1),
   firedAt: iso8601Schema,
   status: actionStatusSchema,
