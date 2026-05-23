@@ -92,4 +92,19 @@ describe("static frontend delivery", () => {
       permanent: false,
     });
   });
+
+  it("vercel.json rewrites only /app/* deep links and never shadows /v1/*", () => {
+    const json = JSON.parse(readFileSync(join(ROOT, "vercel.json"), "utf8"));
+    expect(json.rewrites).toContainEqual({
+      source: "/app/:path*",
+      destination: "/app/",
+    });
+    expect(json.rewrites).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ source: "/(.*)" }),
+        expect.objectContaining({ source: "/:path*" }),
+        expect.objectContaining({ source: "/v1/:path*" }),
+      ]),
+    );
+  });
 });

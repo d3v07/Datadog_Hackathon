@@ -6,6 +6,9 @@
   "redirects": [
     { "source": "/app", "destination": "/app/", "permanent": false }
   ],
+  "rewrites": [
+    { "source": "/app/:path*", "destination": "/app/" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
