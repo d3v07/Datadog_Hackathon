@@ -21,7 +21,7 @@ export function compareEventIds(left: string, right: string): number {
     return leftSequence - rightSequence;
   }
 
-  return left.localeCompare(right);
+  return 0;
 }
 
 export function formatSseEvent(event: StoredStreamEvent): string {

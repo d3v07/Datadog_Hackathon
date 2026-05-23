@@ -31,7 +31,8 @@ export function createAuthMiddleware(tokens: SeedToken[] = [DEMO_TOKEN]): Middle
 
   return async (c, next) => {
     const bearerToken = c.req.header("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
-    const token = c.req.query("token") ?? bearerToken;
+    const queryToken = c.req.query("token");
+    const token = bearerToken ?? queryToken;
     const resolved = token ? tokenMap.get(token) : undefined;
 
     if (!resolved) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createApp } from "../../apps/api/src/app";
-import { createEventBroker } from "../../apps/api/src/stream/broker";
+import { EventBroker, createEventBroker } from "../../apps/api/src/stream/broker";
 import type { OrgId, StoredStreamEvent, StreamEventName, UserId } from "@redline/shared";
 
 const TOKEN = "demo_token_acme_corp_2026";
@@ -41,6 +41,41 @@ describe("/v1/stream", () => {
       expect(response.headers.get("content-type")).toContain("text/event-stream");
       expect(response.headers.get("cache-control")).toBe("no-cache");
       expect(response.headers.get("x-accel-buffering")).toBe("no");
+    } finally {
+      controller.abort();
+    }
+  });
+
+  it("prefers bearer auth over query auth when both are present", async () => {
+    const { app, events } = createHarness();
+    const controller = new AbortController();
+    const response = await app.request(`/v1/stream?token=${OTHER_TOKEN}`, {
+      headers: { authorization: `Bearer ${TOKEN}` },
+      signal: controller.signal,
+    });
+    const nextEvent = withTimeout(readSseEvent(response, "change.detected"), 500);
+
+    events.publish(OTHER_ORG_ID, "change.detected", {
+      changeReportId: "chg_other",
+      vendorId: "vnd_other",
+      severity: "P1",
+      headline: "Query-token org event",
+    });
+    events.publish(ORG_ID, "change.detected", {
+      changeReportId: "chg_acme",
+      vendorId: "vnd_notion",
+      severity: "P2",
+      headline: "Bearer-token org event",
+    });
+
+    try {
+      await expect(nextEvent).resolves.toMatchObject({
+        event: "change.detected",
+        data: {
+          changeReportId: "chg_acme",
+          headline: "Bearer-token org event",
+        },
+      });
     } finally {
       controller.abort();
     }
@@ -132,6 +167,92 @@ describe("/v1/stream", () => {
     }
   });
 
+  it("does not replay history for a malformed Last-Event-ID cursor", async () => {
+    const { app, events } = createHarness();
+    events.publish(ORG_ID, "change.detected", {
+      changeReportId: "chg_old",
+      vendorId: "vnd_notion",
+      severity: "P3",
+      headline: "Already delivered",
+    });
+
+    const controller = new AbortController();
+    const response = await app.request(`/v1/stream?token=${TOKEN}`, {
+      headers: { "last-event-id": "garbage" },
+      signal: controller.signal,
+    });
+    const nextEvent = withTimeout(readSseEvent(response, "change.detected"), 500);
+
+    events.publish(ORG_ID, "change.detected", {
+      changeReportId: "chg_new",
+      vendorId: "vnd_notion",
+      severity: "P2",
+      headline: "Live event",
+    });
+
+    try {
+      await expect(nextEvent).resolves.toMatchObject({
+        id: "evt_000002",
+        event: "change.detected",
+        data: {
+          changeReportId: "chg_new",
+          headline: "Live event",
+        },
+      });
+    } finally {
+      controller.abort();
+    }
+  });
+
+  it("does not drop live events published while replay is being prepared", async () => {
+    const events = new ReplayRaceBroker({
+      now: () => new Date("2026-05-23T13:14:42.000Z"),
+    });
+    const app = createApp({
+      events,
+      seedData: {
+        tokens: [{ token: TOKEN, orgId: ORG_ID, userId: "usr_priya" as UserId }],
+      },
+    });
+    const controller = new AbortController();
+    const response = await app.request(`/v1/stream?token=${TOKEN}`, {
+      signal: controller.signal,
+    });
+
+    try {
+      await expect(withTimeout(readSseEvent(response, "change.detected"), 500)).resolves.toMatchObject({
+        event: "change.detected",
+        data: {
+          changeReportId: "chg_race",
+          headline: "Published during replay",
+        },
+      });
+    } finally {
+      controller.abort();
+    }
+  });
+
+  it("ignores writes after the client aborts the stream", async () => {
+    const { app, events } = createHarness({ heartbeatIntervalMs: 5 });
+    const controller = new AbortController();
+    const response = await app.request(`/v1/stream?token=${TOKEN}`, {
+      signal: controller.signal,
+    });
+
+    expect(response.status).toBe(200);
+    controller.abort();
+
+    expect(() =>
+      events.publish(ORG_ID, "change.detected", {
+        changeReportId: "chg_after_abort",
+        vendorId: "vnd_notion",
+        severity: "P3",
+        headline: "After abort",
+      }),
+    ).not.toThrow();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  });
+
   it("accepts and serializes every documented event shape", async () => {
     const { events } = createHarness();
     const published: StoredStreamEvent[] = [
@@ -178,16 +299,32 @@ describe("/v1/stream", () => {
       "change.stateChanged",
       "org.entitlements.changed",
     ]);
-    expect(published.map((event) => event.id)).toEqual([
-      "evt_000001",
-      "evt_000002",
-      "evt_000003",
-      "evt_000004",
-      "evt_000005",
-      "evt_000006",
-    ]);
+    const ids = published.map((event) => event.id);
+    expect(ids.every((id) => /^evt_\d{6}$/.test(id))).toBe(true);
+    const firstSequence = Number(ids[0].slice("evt_".length));
+    expect(ids).toEqual(published.map((_, index) => `evt_${String(firstSequence + index).padStart(6, "0")}`));
   });
 });
+
+class ReplayRaceBroker extends EventBroker {
+  private replayTriggered = false;
+
+  override replayAfter(orgId: OrgId, lastEventId?: string | null): StoredStreamEvent[] {
+    const replayed = super.replayAfter(orgId, lastEventId);
+
+    if (!this.replayTriggered) {
+      this.replayTriggered = true;
+      this.publish(orgId, "change.detected", {
+        changeReportId: "chg_race",
+        vendorId: "vnd_notion",
+        severity: "P2",
+        headline: "Published during replay",
+      });
+    }
+
+    return replayed;
+  }
+}
 
 function createHarness(options: { heartbeatIntervalMs?: number } = {}) {
   const events = createEventBroker({
