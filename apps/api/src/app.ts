@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serveStatic } from "@hono/node-server/serve-static";
+import { fileURLToPath } from "node:url";
+import { resolve, dirname } from "node:path";
 import { createAuthMiddleware, type SeedToken } from "./auth.js";
 import { InMemoryChangeReportRepository, type ChangeReportRepository } from "./db/changeReports.js";
 import { errorResponse } from "./errors.js";
@@ -15,6 +17,9 @@ import { createStreamRouter } from "./routes/stream.js";
 import { vendorsRoute } from "./routes/vendors.js";
 import { stripeWebhookRoute } from "./routes/webhooks-stripe.js";
 import { createEventBroker, type EventBroker } from "./stream/broker.js";
+
+// Resolve public/ relative to this source file: apps/api/src/app.ts -> ../../public
+const publicDir = resolve(dirname(fileURLToPath(import.meta.url)), "../../public");
 
 export interface AppDeps {
   reports?: ChangeReportRepository;
@@ -51,7 +56,7 @@ export function createApp(deps: AppDeps = {}): Hono {
     "/v1/stream",
     createStreamRouter({ events, ...(deps.heartbeatIntervalMs === undefined ? {} : { heartbeatIntervalMs: deps.heartbeatIntervalMs }) }),
   );
-  app.use("/*", serveStatic({ root: "../../public" }));
+  app.use("/*", serveStatic({ root: publicDir }));
   app.notFound((c) => errorResponse(c, 404, "not-found", "Route not found"));
   app.onError((err, c) => {
     const requestId = c.get("requestId");
