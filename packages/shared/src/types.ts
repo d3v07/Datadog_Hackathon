@@ -117,10 +117,17 @@ export interface RunCompletedEvent {
   changeReportId?: string;
 }
 
+export interface EntitlementsChangedEvent {
+  compliancePack: boolean;
+  auditorPortal: boolean;
+  changedAt: Iso8601;
+}
+
 export type SseEvent =
   | { event: "scheduler.tick"; data: SchedulerTickEvent }
   | { event: "run.stage"; data: RunStageEvent }
-  | { event: "run.completed"; data: RunCompletedEvent };
+  | { event: "run.completed"; data: RunCompletedEvent }
+  | { event: "org.entitlements.changed"; data: EntitlementsChangedEvent };
 
 // API response shapes used by both server and client.
 

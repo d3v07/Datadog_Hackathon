@@ -51,8 +51,7 @@ async function request<T>(
   return json as T;
 }
 
-// Issue #2 — Add Vendor. #3 will add createPaymentIntent and getBillingProducts
-// below this export.
+// Issue #2 — Add Vendor.
 export function createVendor(
   body: VendorCreateBody,
 ): Promise<VendorCreateResponse> {
@@ -60,4 +59,45 @@ export function createVendor(
     method: "POST",
     body: JSON.stringify(body),
   });
+}
+
+// Issue #3 — Billing.
+
+export interface BillingProduct {
+  id: string;
+  name: string;
+  description: string;
+  priceUsdCents: number;
+  currency: string;
+  billing: "one-time" | "subscription";
+  features: string[];
+}
+
+export interface BillingProductsResponse {
+  data: BillingProduct[];
+  orgEntitlements: { compliancePack: boolean };
+}
+
+export interface PaymentIntentResponse {
+  paymentIntentId: string;
+  clientSecret: string;
+  amountUsdCents: number;
+  currency: string;
+  publishableKey: string;
+}
+
+export function getBillingProducts(): Promise<BillingProductsResponse> {
+  return request<BillingProductsResponse>("/v1/billing/products");
+}
+
+export function createPaymentIntent(sku: string): Promise<PaymentIntentResponse> {
+  return request<PaymentIntentResponse>("/v1/billing/payment-intents", {
+    method: "POST",
+    body: JSON.stringify({ sku }),
+  });
+}
+
+// Runbook F5 — dev-only fallback path. Server returns 404 in production.
+export function simulateSuccess(): Promise<{ ok: true; paymentIntentId: string }> {
+  return request("/v1/billing/simulate-success", { method: "POST" });
 }

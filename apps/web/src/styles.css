@@ -116,3 +116,44 @@ form select[aria-invalid="true"] { border-color: var(--err); }
 .kv { display: grid; grid-template-columns: 140px 1fr; gap: 4px 12px; font-size: 13px; }
 .kv dt { color: var(--muted); }
 .kv dd { margin: 0; word-break: break-all; }
+
+/* --- Stripe modal --- */
+.btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.app__upgrade { margin-left: auto; }
+.app__header { align-items: center; }
+
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 50;
+}
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  width: 100%; max-width: 480px;
+  padding: 24px;
+}
+.modal__header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.modal__title { margin: 0; font-size: 18px; font-weight: 600; }
+.modal__close {
+  appearance: none; border: none; background: transparent;
+  color: var(--muted); font-size: 24px; cursor: pointer; line-height: 1;
+}
+.modal__price { font-size: 28px; font-weight: 600; margin: 12px 0 8px; }
+.modal__hint { margin-top: 16px; font-size: 11px; }
+.modal__hint kbd {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+}
+.features { margin: 0 0 16px; padding-left: 20px; color: var(--muted); font-size: 13px; }
+.features li { margin: 4px 0; }

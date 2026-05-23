@@ -12,6 +12,8 @@
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@redline/shared": "workspace:*",
+    "@stripe/react-stripe-js": "^3.0.0",
+    "@stripe/stripe-js": "^4.10.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-hook-form": "^7.53.0",
