@@ -28,6 +28,7 @@ function RedlineApp(): JSX.Element {
   return (
     <main className="app">
       <header className="app__header">
+        <img src="/logo.svg" alt="" className="app__logo" />
         <span className="app__mark">Redline</span>
         <span className="app__crumb">Add Vendor</span>
         <button

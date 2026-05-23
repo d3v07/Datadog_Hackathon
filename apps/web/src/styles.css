@@ -28,6 +28,12 @@ body { margin: 0; background: var(--bg); color: var(--text); }
   gap: 16px;
   margin-bottom: 32px;
 }
+.app__logo {
+  width: 32px;
+  height: 32px;
+  display: block;
+  flex-shrink: 0;
+}
 .app__mark {
   font-weight: 600;
   letter-spacing: 0.5px;
