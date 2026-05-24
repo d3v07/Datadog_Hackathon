@@ -451,91 +451,6 @@ body[data-density="marks"]   .tile svg { display:block; }
   body{min-height:100vh}
 }
 
-/* ─────────────────────────────────────────────
-   TWEAKS PANEL
-   ───────────────────────────────────────────── */
-#tweaks{
-  position:fixed;right:22px;bottom:22px;z-index:100;
-  width: 252px;
-  background: rgba(20,20,28,0.88);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
-  color: #fff;
-  padding: 6px 4px 10px;
-  user-select: none;
-  font-family: var(--font-display);
-}
-#tweaks header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding: 10px 14px 4px;
-}
-#tweaks .ttl{
-  font-family: var(--font-mono);font-size:10px;letter-spacing:.16em;
-  text-transform:uppercase;color: rgba(255,255,255,.55);
-}
-#tweaks .close{
-  background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;
-  width:22px;height:22px;border-radius:6px;font-size:15px;line-height:1;
-  display:grid;place-items:center;
-}
-#tweaks .close:hover{background:rgba(255,255,255,.08);color:#fff}
-#tweaks section{padding: 6px 14px 4px}
-#tweaks h4{
-  font-family: var(--font-mono);font-size: 9.5px;letter-spacing: .16em;
-  text-transform: uppercase;color: rgba(255,255,255,.5);
-  margin: 8px 0 6px;font-weight: 500;
-}
-#tweaks .seg{
-  display:flex;gap: 3px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 9px;
-  padding: 3px;
-}
-#tweaks .seg button{
-  flex: 1;
-  font-family: var(--font-display);font-size: 12px;font-weight: 500;
-  padding: 7px 6px;
-  background: transparent;color: rgba(255,255,255,.62);
-  border: none;border-radius: 6px;cursor: pointer;
-  transition: background .14s, color .14s;
-}
-#tweaks .seg button:hover{color:#fff}
-#tweaks .seg button.on{
-  background: rgba(255,255,255,0.14);
-  color:#fff;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
-}
-#tweaks .mood-swatches{
-  display:flex;gap: 3px;
-  padding: 5px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 9px;
-}
-#tweaks .mood-swatches button{
-  flex:1;
-  background: transparent;border: 1px solid transparent;
-  border-radius: 6px;cursor: pointer;color: rgba(255,255,255,.62);
-  padding: 6px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:5px;
-  font-family: var(--font-display);font-size: 10.5px;font-weight: 500;
-}
-#tweaks .mood-swatches button.on{
-  background: rgba(255,255,255,0.10);
-  border-color: rgba(255,255,255,0.18);
-  color:#fff;
-}
-#tweaks .mood-swatches button:hover{color:#fff}
-#tweaks .swatch{
-  width: 100%; height: 18px;
-  border-radius: 4px;
-  border: 1px solid rgba(0,0,0,.4);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
-}
-
 @media (max-width:680px){
   .spacer .grid{grid-template-columns:1fr;gap:20px;}
 }
@@ -648,49 +563,6 @@ body[data-density="marks"]   .tile svg { display:block; }
   </div>
 </section>
 </main>
-
-<!-- ─────────────────────────────────────────────
-     TWEAKS PANEL
-     ───────────────────────────────────────────── -->
-<aside id="tweaks">
-  <header>
-    <span class="ttl">Tweaks</span>
-    <button class="close" type="button" aria-label="Close">×</button>
-  </header>
-  <section>
-    <h4>Mood</h4>
-    <div class="mood-swatches">
-      <button data-tw="mood" data-v="halo" type="button">
-        <span class="swatch" style="background:linear-gradient(90deg,#5BA0F0,#2BCAE8 20%,#B5DC55 40%,#FF9540 60%,#F46688 80%,#A097D8)"></span>
-        Halo
-      </button>
-      <button data-tw="mood" data-v="polar" type="button">
-        <span class="swatch" style="background:linear-gradient(90deg,#5BA0F0,#2BCAE8,#7FB8E6,#4FB8C9,#9FE6E4,#7E92E0)"></span>
-        Polar
-      </button>
-      <button data-tw="mood" data-v="dusk" type="button">
-        <span class="swatch" style="background:linear-gradient(90deg,#FFB07A,#FF9540,#F46688,#A097D8,#E85DA1,#FFCC66)"></span>
-        Dusk
-      </button>
-    </div>
-  </section>
-  <section>
-    <h4>Tempo</h4>
-    <div class="seg">
-      <button data-tw="tempo" data-v="calm"   type="button">Calm</button>
-      <button data-tw="tempo" data-v="tumble" type="button">Tumble</button>
-      <button data-tw="tempo" data-v="spin"   type="button">Spin</button>
-    </div>
-  </section>
-  <section>
-    <h4>Face Density</h4>
-    <div class="seg">
-      <button data-tw="density" data-v="plain"   type="button">Plain</button>
-      <button data-tw="density" data-v="marks"   type="button">Marks</button>
-      <button data-tw="density" data-v="letters" type="button">Letters</button>
-    </div>
-  </section>
-</aside>
 
 <!-- ─────────────────────────────────────────────
      TILES — original abstract app marks
@@ -864,7 +736,7 @@ body[data-density="marks"]   .tile svg { display:block; }
   computeSizing();
   window.addEventListener('resize', computeSizing);
 
-  // ─── tweaks panel state ───────────────────────────────────────
+  // ─── visual state (drives cube palette + tempo + density) ────
   const PALETTES = {
     halo: {'--aqua':'#5BA0F0','--bondi':'#2BCAE8','--tangerine':'#FF9540','--grape':'#A097D8','--strawberry':'#F46688','--lime':'#B5DC55'},
     polar:{'--aqua':'#5BA0F0','--bondi':'#2BCAE8','--tangerine':'#7FB8E6','--grape':'#7E92E0','--strawberry':'#4FB8C9','--lime':'#9FE6E4'},
@@ -887,37 +759,6 @@ body[data-density="marks"]   .tile svg { display:block; }
     document.body.dataset.density = tweaks.density;
   }
   applyTweaks();
-
-  function setTweak(k, v){
-    tweaks[k] = v;
-    applyTweaks();
-    try { window.parent.postMessage({type:'__edit_mode_set_keys', edits:{[k]:v}}, '*'); } catch(e){}
-    paintPanel();
-  }
-  function paintPanel(){
-    document.querySelectorAll('#tweaks [data-tw]').forEach(b => {
-      b.classList.toggle('on', b.dataset.v === tweaks[b.dataset.tw]);
-    });
-  }
-
-  const panel = document.getElementById('tweaks');
-  if(panel){
-    panel.querySelectorAll('[data-tw]').forEach(b => {
-      b.addEventListener('click', () => setTweak(b.dataset.tw, b.dataset.v));
-    });
-    const closeBtn = panel.querySelector('.close');
-    if(closeBtn) closeBtn.addEventListener('click', () => {
-      panel.hidden = true;
-      try { window.parent.postMessage({type:'__edit_mode_dismissed'}, '*'); } catch(e){}
-    });
-    paintPanel();
-  }
-  window.addEventListener('message', (e) => {
-    if(!e.data || typeof e.data !== 'object') return;
-    if(e.data.type === '__activate_edit_mode' && panel){ panel.hidden = false; }
-    if(e.data.type === '__deactivate_edit_mode' && panel){ panel.hidden = true; }
-  });
-  try { window.parent.postMessage({type:'__edit_mode_available'}, '*'); } catch(e){}
 
   // ─── scroll progress (0 = top of hero, 1 = bottom out of view) ─
   function scrollProgress(){
