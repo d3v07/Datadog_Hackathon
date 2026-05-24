@@ -119,14 +119,30 @@ export function StripeModal({ onClose }: StripeModalProps): JSX.Element {
       if (e.shiftKey && e.key === "Enter") {
         e.preventDefault();
         void runFallback();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [runFallback]);
+  }, [runFallback, onClose]);
+
+  const onBackdropClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (e.target === e.currentTarget) onClose();
+    },
+    [onClose],
+  );
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="stripe-modal-title">
+    <div
+      className="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="stripe-modal-title"
+      onClick={onBackdropClick}
+    >
       <div className="modal">
         <header className="modal__header">
           <h2 id="stripe-modal-title" className="modal__title">
