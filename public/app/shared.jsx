@@ -29,7 +29,7 @@ function Sidebar({ active, dispatch, state }) {
   return (
     <nav className="sidebar">
       <div className="brand-row">
-        <UnsyphnMark size={17} />
+        <UnsyphnMark size={24} />
       </div>
       {items.map((it) => {
         const sec = it.section !== lastSection ? (lastSection = it.section, it.section) : null;

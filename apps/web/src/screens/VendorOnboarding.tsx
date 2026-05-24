@@ -117,7 +117,7 @@ function TierCard({ tier, selected, onSelect }: TierCardProps): JSX.Element {
 
   const handleCtaClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.stopPropagation();
-    window.location.href = `/?tier=${tier.id}`;
+    window.location.href = `/dashboard?tier=${tier.id}`;
   };
 
   return (

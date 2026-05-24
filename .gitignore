@@ -9,3 +9,6 @@ coverage/
 !.env.example
 
 *.log
+
+# agent memory, not for commit
+.claude/agent-memory/

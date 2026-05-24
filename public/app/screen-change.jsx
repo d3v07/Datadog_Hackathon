@@ -8,8 +8,6 @@ function ScreenChange({ state, dispatch }) {
   const DATA = window.VENDOR_DATA || {};
   const vendor = DATA[state.activeVendor];
 
-  // Defensive: missing vendor → bounce back to portfolio. Shouldn't happen
-  // in normal navigation, only if someone deep-links a bad key.
   if (!vendor) {
     return (
       <main className="main">
@@ -23,7 +21,6 @@ function ScreenChange({ state, dispatch }) {
     );
   }
 
-  // Notion's mode is dynamic (escalation flow); other vendors carry their own.
   const isNotion = vendor.key === "notion";
   const mode = isNotion
     ? (state.notion === "ROUTED" ? "routed" : "open")
@@ -35,8 +32,6 @@ function ScreenChange({ state, dispatch }) {
 
   const cr = vendor.cr || {};
 
-  // Severity badge: routed for notion-routed, "ACK" for acknowledged,
-  // otherwise the vendor's sev.
   const sevBadgeCls = isRouted ? "routed" : isAck ? "ack" : isHealthy ? "healthy" : vendor.sev;
   const sevBadgeText = isRouted ? "✓ ROUTED · WITNESSED"
     : isAck ? "✓ ACKNOWLEDGED · WITNESSED"
@@ -61,8 +56,6 @@ function ScreenChange({ state, dispatch }) {
           </div>
           <div className="icon-btn-row">
             <button className="icon-btn" onClick={() => dispatch({ type: "goto", screen: "portfolio" })} title="Back">←</button>
-            <button className="icon-btn" title="Forward">→</button>
-            <button className="icon-btn" title="More">⋯</button>
           </div>
         </div>
 
@@ -110,7 +103,6 @@ function ScreenChange({ state, dispatch }) {
               )}
             </div>
 
-            {/* Impact strip — only when there's an impact to show */}
             {Array.isArray(cr.impacts) && cr.impacts.length > 0 && (
               <div className="impact-strip">
                 {cr.impacts.map((imp, i) => (
@@ -122,7 +114,6 @@ function ScreenChange({ state, dispatch }) {
               </div>
             )}
 
-            {/* Diff blocks — one block per material clause change */}
             {Array.isArray(cr.diffs) && cr.diffs.map((d, i) => (
               <div className="diff-block" key={i}>
                 <div className="diff-label">{d.label}</div>
@@ -149,7 +140,6 @@ function ScreenChange({ state, dispatch }) {
               </div>
             ))}
 
-            {/* Healthy mode — show scanned-surfaces panel instead of diffs */}
             {isHealthy && Array.isArray(cr.lastScannedSurfaces) && (
               <div className="diff-block">
                 <div className="diff-label">Monitored surfaces · all stable</div>
@@ -172,7 +162,6 @@ function ScreenChange({ state, dispatch }) {
               </div>
             )}
 
-            {/* Recommendation */}
             <div className="recommendation">
               <div className="reco-head">
                 {isRouted && cr.recoRouted ? cr.recoRouted.head
@@ -190,7 +179,6 @@ function ScreenChange({ state, dispatch }) {
           {/* Side panels */}
           <aside className="cr-side">
 
-            {/* Policy panel — skipped on healthy vendors */}
             {!isHealthy && cr.policy && (
               <div className="panel policy">
                 <div className="panel-head strawberry"><span className="dot" />{cr.policy.head}</div>
@@ -200,7 +188,6 @@ function ScreenChange({ state, dispatch }) {
               </div>
             )}
 
-            {/* Routing panel — skipped on healthy vendors */}
             {!isHealthy && Array.isArray(cr.actions) && cr.actions.length > 0 && (
               <div className="panel routing">
                 <div className="panel-head bondi">
@@ -222,7 +209,6 @@ function ScreenChange({ state, dispatch }) {
               </div>
             )}
 
-            {/* Evidence panel — links to bundle when one exists */}
             {vendor.bundle ? (
               <div
                 className="panel evidence"
@@ -342,26 +328,25 @@ function ScreenChange({ state, dispatch }) {
         ) : isNotion ? (
           <>
             <div className="actions-row">
-              <button className="btn btn-primary">✓ ACKNOWLEDGE</button>
+              <button className="btn btn-primary" onClick={() => dispatch({ type: "acknowledge" })}>✓ ACKNOWLEDGE</button>
               <button className="btn btn-escalate" onClick={() => dispatch({ type: "open-escalate" })}>↑ ESCALATE TO LEGAL</button>
-              <button className="btn btn-ghost">⏱ SNOOZE 48H</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "snooze" })}>⏱ SNOOZE 48H</button>
             </div>
             <div className="actions-row">
               <button className="btn btn-ghost" onClick={() => dispatch({ type: "open-escalate" })}>⤓ GENERATE EVIDENCE BUNDLE</button>
-              <button className="btn btn-ghost">⊙ OPEN RENEGO COPILOT</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "open-copilot" })}>⊙ OPEN RENEGO COPILOT</button>
             </div>
           </>
         ) : (
-          // Generic open state for non-Notion P2 vendors
           <>
             <div className="actions-row">
-              <button className="btn btn-primary">✓ ACKNOWLEDGE</button>
-              <button className="btn btn-ghost">⏱ SNOOZE 48H</button>
+              <button className="btn btn-primary" onClick={() => dispatch({ type: "acknowledge" })}>✓ ACKNOWLEDGE</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "snooze" })}>⏱ SNOOZE 48H</button>
               <button className="btn btn-ghost" onClick={() => dispatch({ type: "goto", screen: "portfolio" })}>← BACK</button>
             </div>
             <div className="actions-row">
-              <button className="btn btn-ghost">⤓ EXPORT DIFF</button>
-              <button className="btn btn-ghost">⊙ ASSIGN TO OWNER</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "export-diff" })}>⤓ EXPORT DIFF</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "assign" })}>⊙ ASSIGN TO OWNER</button>
             </div>
           </>
         )}

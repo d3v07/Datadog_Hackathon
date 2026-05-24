@@ -9,6 +9,7 @@ function App() {
     notion: "P1",            // "P1" | "ROUTED"
     routeTime: null,
     evidenceCount: 432,
+    activeVendor: "notion",  // which vendor the change/evidence screens render
     onboardingTier: "24h",
     onboardedToast: null,    // { name, tierLabel } | null
   });
@@ -18,7 +19,20 @@ function App() {
     switch (action.type) {
       case "goto":
         setState((s) => ({ ...s, screen: action.screen }));
-        // scroll the main column to top on screen change
+        setTimeout(() => {
+          const m = document.querySelector(".app-shell .main");
+          if (m) m.scrollTo(0, 0);
+        }, 0);
+        return;
+      case "open-vendor":
+        setState((s) => ({ ...s, activeVendor: action.vendor, screen: "change" }));
+        setTimeout(() => {
+          const m = document.querySelector(".app-shell .main");
+          if (m) m.scrollTo(0, 0);
+        }, 0);
+        return;
+      case "open-vendor-bundle":
+        setState((s) => ({ ...s, activeVendor: action.vendor, screen: "evidence" }));
         setTimeout(() => {
           const m = document.querySelector(".app-shell .main");
           if (m) m.scrollTo(0, 0);
@@ -31,11 +45,9 @@ function App() {
         setState((s) => ({ ...s, escalateOpen: false }));
         return;
       case "confirm-escalate":
-        // close modal, show routing transition
         setState((s) => ({ ...s, escalateOpen: false, routing: true }));
         return;
       case "finish-routing":
-        // mark notion routed, jump to evidence
         setState((s) => ({
           ...s,
           routing: false,
@@ -43,6 +55,7 @@ function App() {
           routeTime: "14:59:18 EST",
           evidenceCount: 433,
           screen: "evidence",
+          activeVendor: "notion",
         }));
         setTimeout(() => {
           const m = document.querySelector(".app-shell .main");
@@ -57,6 +70,7 @@ function App() {
           notion: "P1",
           routeTime: null,
           evidenceCount: 432,
+          activeVendor: "notion",
           onboardingTier: "24h",
           onboardedToast: null,
         });
@@ -73,13 +87,46 @@ function App() {
             firstScanRunId: action.firstScanRunId,
           },
         }));
-        setTimeout(() => {
-          setState((s) => ({ ...s, onboardedToast: null }));
-        }, 5500);
+        setTimeout(() => setState((s) => ({ ...s, onboardedToast: null })), 5500);
         setTimeout(() => {
           const m = document.querySelector(".app-shell .main");
           if (m) m.scrollTo(0, 0);
         }, 0);
+        return;
+      case "acknowledge":
+        setState((s) => ({ ...s, notion: "ACKNOWLEDGED" }));
+        return;
+      case "snooze":
+        setState((s) => ({ ...s, notion: "SNOOZED" }));
+        window.alert("Snoozed for 48h");
+        return;
+      case "open-copilot":
+        window.alert("Copilot coming soon");
+        return;
+      case "export-diff": {
+        const DATA = window.VENDOR_DATA || {};
+        const vendor = DATA[state.activeVendor] || {};
+        const body = JSON.stringify({ vendor: state.activeVendor, diffs: (vendor.cr || {}).diffs || [] }, null, 2);
+        const url = URL.createObjectURL(new Blob([body], { type: "application/json" }));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = (state.activeVendor || "vendor") + "-diff.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return;
+      }
+      case "assign":
+        window.alert("Owner assignment coming soon");
+        return;
+      case "download-bundle":
+        window.print();
+        return;
+      case "share-audit":
+        navigator.clipboard.writeText(location.href).then(function () {
+          window.alert("Audit link copied");
+        });
         return;
       default:
         globalThis["console"].warn("unknown action", action);
@@ -87,17 +134,26 @@ function App() {
   }
 
   // ── browser tabs ─────────────────────────────────────
+  const activeRec = (window.VENDOR_DATA || {})[state.activeVendor] || {};
+  const vendorSlug = (activeRec.name || "vendor").toLowerCase();
+  const bundleSlug = ((activeRec.cr && activeRec.cr.bundleId) || "").replace("·", "-");
   const url = state.screen === "portfolio"
     ? "app.unsyphn.com/portfolio"
     : state.screen === "change"
-    ? "app.unsyphn.com/notion/RL-4839"
+    ? `app.unsyphn.com/${vendorSlug}/${bundleSlug || "cr"}`
     : state.screen === "onboarding"
-    ? "app.unsyphn.com/vendors/new"
-    : "app.unsyphn.com/bundle/RL-4839";
+    ? "app.unsyphn.com/onboard"
+    : `app.unsyphn.com/bundle/${bundleSlug || "cr"}`;
+
+  const secondTabTitle = state.screen === "portfolio"
+    ? "Notion · ToS"
+    : state.screen === "onboarding"
+    ? "Onboard Vendor"
+    : `${activeRec.name || "Vendor"} · ${state.screen === "evidence" ? "Bundle" : "Change"}`;
 
   const tabs = [
     { title: "Unsyphn · Portfolio" },
-    { title: "Notion · ToS" },
+    { title: secondTabTitle },
     { title: "DPA · Acme ⟷ Notion" },
   ];
 
@@ -106,40 +162,19 @@ function App() {
       <ChromeWindow tabs={tabs} activeIndex={0} url={url} width={1440} height={900}>
         <div className="app-shell">
           <Sidebar
-            active={
-              state.screen === "evidence" ? "evidence"
-              : state.screen === "change" ? "changes"
-              : state.screen === "onboarding" ? "portfolio"
-              : "portfolio"
-            }
+            active={state.screen === "evidence" ? "evidence" : state.screen === "change" ? "changes" : "portfolio"}
             dispatch={dispatch}
             state={state}
           />
-          {state.screen === "portfolio"  && <ScreenPortfolio  state={state} dispatch={dispatch} />}
-          {state.screen === "change"     && <ScreenChange     state={state} dispatch={dispatch} />}
-          {state.screen === "evidence"   && <ScreenEvidence   state={state} dispatch={dispatch} />}
-          {state.screen === "onboarding" && <ScreenOnboarding state={state} dispatch={dispatch} />}
+          {state.screen === "portfolio"   && <ScreenPortfolio state={state} dispatch={dispatch} />}
+          {state.screen === "change"      && <ScreenChange state={state} dispatch={dispatch} />}
+          {state.screen === "evidence"    && <ScreenEvidence state={state} dispatch={dispatch} />}
+          {state.screen === "onboarding"  && <ScreenOnboarding state={state} dispatch={dispatch} />}
 
           {state.escalateOpen && <EscalateModal state={state} dispatch={dispatch} />}
-          {state.routing      && <RoutingTransition dispatch={dispatch} />}
+          {state.routing      && <RoutingTransition dispatch={dispatch} vendorKey={state.activeVendor} />}
         </div>
       </ChromeWindow>
-
-      {state.onboardedToast && (
-        <div className="onb-toast">
-          <div className="onb-toast-icon">✓</div>
-          <div>
-            <div className="onb-toast-title">
-              <strong>{state.onboardedToast.name}</strong> onboarded at <span className="onb-toast-sla">{state.onboardedToast.tierLabel}</span> SLA
-            </div>
-            <div className="onb-toast-sub">
-              {state.onboardedToast.firstScanRunId
-                ? <>First scan queued · run <code>{state.onboardedToast.firstScanRunId}</code></>
-                : <>First scan queued · routing to owner</>}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Reset flow pill — anchor outside the chrome */}
       <button

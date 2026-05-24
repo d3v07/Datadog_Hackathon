@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -27,7 +27,11 @@ interface SubmissionState {
   error?: { code: string; message: string };
 }
 
-export function Onboard(): JSX.Element {
+interface OnboardProps {
+  prefillTier?: 1 | 2 | 3;
+}
+
+export function Onboard({ prefillTier }: OnboardProps = {}): JSX.Element {
   const [submission, setSubmission] = useState<SubmissionState>({
     status: "idle",
   });
@@ -43,12 +47,18 @@ export function Onboard(): JSX.Element {
       name: "",
       homepageUrl: "",
       ownerId: "",
-      tier: 2,
+      tier: prefillTier ?? 2,
       dataClasses: [],
     },
   });
 
   const firstScan = useFirstScan(submission.created?.firstScanRunId);
+
+  useEffect(() => {
+    if (submission.status !== "error") return;
+    const id = setTimeout(() => setSubmission((s) => ({ ...s, status: "idle", error: undefined })), 6000);
+    return () => clearTimeout(id);
+  }, [submission.status]);
 
   const onSubmit = async (data: VendorCreateInput): Promise<void> => {
     setSubmission({ status: "submitting" });
@@ -84,7 +94,7 @@ export function Onboard(): JSX.Element {
     <form className="card" onSubmit={handleSubmit(onSubmit)} noValidate>
       <h1 className="card__title">Add a vendor</h1>
       <p className="card__sub">
-        Redline will discover the monitored URLs and queue an immediate first scan.
+        Unsyphn will discover the monitored URLs and queue an immediate first scan.
       </p>
 
       {submission.status === "error" && submission.error && (
@@ -94,11 +104,14 @@ export function Onboard(): JSX.Element {
       )}
 
       <div className="field">
-        <label htmlFor="vendor-name">Vendor name</label>
+        <label htmlFor="vendor-name" className="field__label field__label--required">
+          Vendor name
+        </label>
         <input
           id="vendor-name"
           type="text"
           autoComplete="off"
+          aria-required="true"
           aria-invalid={Boolean(errors.name)}
           {...register("name")}
         />
@@ -106,12 +119,15 @@ export function Onboard(): JSX.Element {
       </div>
 
       <div className="field">
-        <label htmlFor="vendor-homepage">Homepage URL</label>
+        <label htmlFor="vendor-homepage" className="field__label field__label--required">
+          Homepage URL
+        </label>
         <input
           id="vendor-homepage"
           type="url"
           placeholder="https://stripe.com"
           autoComplete="off"
+          aria-required="true"
           aria-invalid={Boolean(errors.homepageUrl)}
           {...register("homepageUrl")}
         />
@@ -121,9 +137,12 @@ export function Onboard(): JSX.Element {
       </div>
 
       <div className="field">
-        <label htmlFor="vendor-owner">Owner</label>
+        <label htmlFor="vendor-owner" className="field__label field__label--required">
+          Owner
+        </label>
         <select
           id="vendor-owner"
+          aria-required="true"
           aria-invalid={Boolean(errors.ownerId)}
           {...register("ownerId")}
         >

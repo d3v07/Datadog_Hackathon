@@ -5,7 +5,6 @@ function ScreenEvidence({ state, dispatch }) {
   const DATA = window.VENDOR_DATA || {};
   const vendor = DATA[state.activeVendor];
 
-  // No bundle: bounce to the vendor's change screen.
   if (!vendor || !vendor.bundle) {
     return (
       <main className="main">
@@ -37,8 +36,6 @@ function ScreenEvidence({ state, dispatch }) {
           </div>
           <div className="icon-btn-row">
             <button className="icon-btn" onClick={() => dispatch({ type: "goto", screen: "change" })} title="Back">←</button>
-            <button className="icon-btn" title="Forward">→</button>
-            <button className="icon-btn" title="More">⋯</button>
           </div>
         </div>
 
@@ -77,7 +74,6 @@ function ScreenEvidence({ state, dispatch }) {
               </div>
             </div>
 
-            {/* Section 1 — Diff */}
             <div className="bundle-section">
               <h3><span className="num">1</span>Clause diffs</h3>
               <div className="body">
@@ -99,7 +95,6 @@ function ScreenEvidence({ state, dispatch }) {
               </div>
             </div>
 
-            {/* Section 2 — Policy */}
             <div className="bundle-section">
               <h3><span className="num">2</span>Policy fired</h3>
               <div className="body">
@@ -107,7 +102,6 @@ function ScreenEvidence({ state, dispatch }) {
               </div>
             </div>
 
-            {/* Section 3 — Routing trail */}
             <div className="bundle-section">
               <h3><span className="num">3</span>Routing trail</h3>
               <div className="routing-trail">
@@ -121,7 +115,6 @@ function ScreenEvidence({ state, dispatch }) {
               </div>
             </div>
 
-            {/* Section 4 — Citations */}
             <div className="bundle-section">
               <h3><span className="num">4</span>Citations · grounded</h3>
               <div className="cite-list">
@@ -135,7 +128,6 @@ function ScreenEvidence({ state, dispatch }) {
               </div>
             </div>
 
-            {/* Sign-off */}
             <div className="signoff">
               <div className="left">
                 — Witnessed by <b>agent-redline-v1.4</b><br/>
@@ -167,9 +159,9 @@ function ScreenEvidence({ state, dispatch }) {
                 <div>IMMUTABLE · ✓</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 12 }}>
-                <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>⤓ Download PDF</button>
-                <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }}>✉ Share with audit</button>
-                <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }}>⊙ Copy share link</button>
+                <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={() => dispatch({ type: "download-bundle" })}>⤓ Download PDF</button>
+                <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }} onClick={() => dispatch({ type: "share-audit" })}>✉ Share with audit</button>
+                <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }} onClick={() => dispatch({ type: "share-audit" })}>⊙ Copy share link</button>
               </div>
             </div>
 
@@ -194,8 +186,8 @@ function ScreenEvidence({ state, dispatch }) {
       {/* Action bar */}
       <div className="actions-bar">
         <div className="actions-row">
-          <button className="btn btn-primary">⤓ DOWNLOAD BUNDLE (PDF)</button>
-          <button className="btn btn-bondi">✉ SHARE WITH AUDIT</button>
+          <button className="btn btn-primary" onClick={() => dispatch({ type: "download-bundle" })}>⤓ DOWNLOAD BUNDLE (PDF)</button>
+          <button className="btn btn-bondi" onClick={() => dispatch({ type: "share-audit" })}>✉ SHARE WITH AUDIT</button>
           <button className="btn btn-ghost" onClick={() => dispatch({ type: "goto", screen: "change" })}>← BACK TO REPORT</button>
         </div>
         <div className="actions-row">

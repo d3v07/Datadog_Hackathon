@@ -29,12 +29,9 @@ body { margin: 0; background: var(--bg); color: var(--text); }
   margin-bottom: 32px;
 }
 .app__mark {
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  background: linear-gradient(90deg, #ec4899, #f59e0b, #22c55e, #38bdf8, #8b5cf6);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  display: block;
+  height: 28px;
+  width: auto;
 }
 .app__crumb { color: var(--muted); }
 
@@ -299,3 +296,15 @@ form select[aria-invalid="true"] { border-color: var(--err); }
   margin-top: auto;
   font-family: inherit;
 }
+
+/* app-mode: hide Halo chrome when React app routes are active */
+body.app-mode .aurora,
+body.app-mode .grain,
+body.app-mode .nav,
+body.app-mode > main:not(.app),
+body.app-mode footer,
+body.app-mode .hero,
+body.app-mode .features,
+body.app-mode .cta-section { display: none !important; }
+
+.field__label--required::after { content: " *"; color: var(--accent); }
