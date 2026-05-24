@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/png" sizes="32x32" href="/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="192x192" href="/logo-192.png">
+<meta property="og:title" content="Unsyphn — Always-on agent for vendor risk">
+<meta property="og:description" content="An autonomous agent that watches your vendors' terms, pricing, DPA, and security pages every 60 seconds. Routes material changes to Slack, Jira, Email, and Calendar.">
+<meta property="og:image" content="/logo-192.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <title>UNSYPHN — One vault for every subscription.</title>
 <style>
 /* ─────────────────────────────────────────────
@@ -78,12 +87,7 @@ body{
 }
 .nav .brand{display:flex;align-items:center;gap:10px}
 .nav .brand .mark{
-  width:18px;height:18px;border-radius:50%;
-  background:
-    conic-gradient(from 140deg,
-      var(--aqua), var(--bondi), var(--lime),
-      var(--tangerine), var(--strawberry), var(--grape), var(--aqua));
-  box-shadow:0 0 14px rgba(160,151,216,.55), inset 0 0 6px rgba(0,0,0,.5);
+  display:block;width:22px;height:16px;object-fit:contain;
 }
 .nav ul{list-style:none;display:flex;gap:28px}
 .nav a{color:inherit;text-decoration:none;opacity:.7;transition:opacity .2s}
@@ -438,7 +442,7 @@ body[data-density="marks"]   .tile svg { display:block; }
   .fl-4{right:0;bottom:6%}
   .floater{font-size:10px;padding:6px 9px}
   .floater .num{font-size:14px}
-  .nav ul{display:none}
+  .nav ul{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;}
 }
 
 /* reduced motion */
@@ -531,6 +535,46 @@ body[data-density="marks"]   .tile svg { display:block; }
   border: 1px solid rgba(0,0,0,.4);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
 }
+
+@media (max-width:680px){
+  .spacer .grid{grid-template-columns:1fr;gap:20px;}
+}
+
+/* ─────────────────────────────────────────────
+   FOOTER
+   ───────────────────────────────────────────── */
+.footer{
+  position:relative;z-index:2;
+  border-top:1px solid var(--glass-border);
+  padding:48px 32px 28px;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;
+  color:rgba(237,237,242,.5);
+}
+.footer .footer-inner{max-width:920px;margin:0 auto;}
+.footer .footer-top{
+  display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:32px;margin-bottom:40px;
+}
+@media (max-width:680px){
+  .footer .footer-top{grid-template-columns:1fr 1fr;gap:24px;}
+}
+.footer .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.footer .footer-brand img{width:22px;height:16px;object-fit:contain;}
+.footer .footer-brand span{font-family:var(--font-display);font-size:13px;font-weight:600;color:#fff;letter-spacing:0;text-transform:none;}
+.footer .footer-tagline{font-size:10.5px;line-height:1.6;color:rgba(237,237,242,.4);max-width:22ch;}
+.footer h5{
+  font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(237,237,242,.35);margin-bottom:12px;font-weight:500;
+}
+.footer nav a{
+  display:block;color:rgba(237,237,242,.5);text-decoration:none;
+  margin-bottom:8px;transition:color .15s;font-size:11px;
+}
+.footer nav a:hover{color:rgba(237,237,242,.9);}
+.footer .footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
+  padding-top:20px;border-top:1px solid var(--glass-border);
+  font-size:10px;letter-spacing:.08em;color:rgba(237,237,242,.3);
+}
 </style>
 </head>
 <body style="font-family: Poppins">
@@ -539,16 +583,14 @@ body[data-density="marks"]   .tile svg { display:block; }
 <div class="grain"></div>
 
 <nav class="nav">
-  <div class="brand"><span class="mark"></span><span>UNSYPHN / Subscription OS</span></div>
+  <div class="brand"><img class="mark" src="/logo.png" alt="Unsyphn" width="22" height="16"><span>UNSYPHN / Subscription OS</span></div>
   <ul>
-    <li><a href="#">Product</a></li>
-    <li><a href="#">Vault</a></li>
-    <li><a href="#">Pricing</a></li>
-    <li><a href="#">Changelog</a></li>
+    <li><a href="#product">Product</a></li>
   </ul>
   <a href="/app/" class="cta">Get access →</a>
 </nav>
 
+<main>
 <section class="hero" id="hero">
 
   <span class="eyebrow"><span class="dot"></span>v4.2 · The Subscription OS</span>
@@ -581,7 +623,7 @@ body[data-density="marks"]   .tile svg { display:block; }
     <p class="sub">UNSYPHN pulls every SaaS seat, invoice, and renewal your company runs into a single <em>liquid</em> vault — so finance, IT, and ops finally see the same picture.</p>
     <div class="cta-row">
       <button class="btn primary" onclick="location.href='/app/'">Start free trial</button>
-      <button class="btn">Book a walkthrough <span class="kbd">⌘ K</span></button>
+      <button class="btn" onclick="location.href='mailto:hello@unsyphn.com?subject=Book%20a%20walkthrough'">Book a walkthrough <span class="kbd">⌘ K</span></button>
     </div>
     <div class="rainbow"><i></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
@@ -594,7 +636,7 @@ body[data-density="marks"]   .tile svg { display:block; }
   <span>NEW JERSEY · NYC</span>
 </div>
 
-<section class="spacer">
+<section class="spacer" id="product">
   <div class="panel">
     <h2>One vault. <em>Every</em> renewal.</h2>
     <p>UNSYPHN watches the credit card, the SSO logs, and the inbox — then quietly assembles the picture nobody on your team has time to. Cancel duplicate seats with a swipe. Pause renewals with a keypress. Forecast next quarter in a glance.</p>
@@ -605,6 +647,7 @@ body[data-density="marks"]   .tile svg { display:block; }
     </div>
   </div>
 </section>
+</main>
 
 <!-- ─────────────────────────────────────────────
      TWEAKS PANEL
@@ -935,5 +978,49 @@ body[data-density="marks"]   .tile svg { display:block; }
 })();
 </script>
 
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">
+          <img src="/logo.png" alt="Unsyphn" width="22" height="16">
+          <span>UNSYPHN</span>
+        </div>
+        <p class="footer-tagline">One vault for every subscription. Built for the modern ops team.</p>
+      </div>
+      <div>
+        <h5>Product</h5>
+        <nav aria-label="Product links">
+          <a href="#product">Overview</a>
+          <a href="/app/">Vault</a>
+          <a href="/app/">Get access</a>
+        </nav>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <nav aria-label="Company links">
+          <a href="mailto:hello@unsyphn.com">Contact</a>
+          <a href="mailto:privacy@unsyphn.com">Privacy</a>
+          <a href="mailto:legal@unsyphn.com">Terms</a>
+        </nav>
+      </div>
+      <div>
+        <h5>Resources</h5>
+        <nav aria-label="Resource links">
+          <a href="/app/">Demo</a>
+          <a href="https://github.com/d3v07/Datadog_Hackathon" rel="noopener">Source</a>
+          <a href="mailto:hello@unsyphn.com?subject=Documentation">Docs</a>
+        </nav>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Unsyphn · All rights reserved</span>
+      <span>Built for the Datadog hackathon</span>
+    </div>
+  </div>
+</footer>
+
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

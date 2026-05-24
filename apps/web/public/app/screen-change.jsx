@@ -1,7 +1,45 @@
-// screen-change.jsx — Notion ChangeReport detail
+// screen-change.jsx — ChangeReport detail screen.
+// Reads window.VENDOR_DATA[state.activeVendor]. Notion is the interactive
+// hero flow (P1 → ROUTED via state.notion); other vendors are pre-baked
+// in one of: open (P1/P2 unrouted), acknowledged (P1 already routed),
+// healthy (no recent diff).
 
 function ScreenChange({ state, dispatch }) {
-  const isRouted = state.notion === "ROUTED";
+  const DATA = window.VENDOR_DATA || {};
+  const vendor = DATA[state.activeVendor];
+
+  if (!vendor) {
+    return (
+      <main className="main">
+        <div style={{ padding: 40, color: "var(--text-2)" }}>
+          Vendor not found.{" "}
+          <a href="#" onClick={(e) => { e.preventDefault(); dispatch({ type: "goto", screen: "portfolio" }); }}>
+            ← Back to portfolio
+          </a>
+        </div>
+      </main>
+    );
+  }
+
+  const isNotion = vendor.key === "notion";
+  const mode = isNotion
+    ? (state.notion === "ROUTED" ? "routed" : "open")
+    : (vendor.mode || "open");
+  const isRouted = mode === "routed";
+  const isAck = mode === "acknowledged";
+  const isHealthy = mode === "healthy";
+  const isWitnessed = isRouted || isAck;
+
+  const cr = vendor.cr || {};
+
+  const sevBadgeCls = isRouted ? "routed" : isAck ? "ack" : isHealthy ? "healthy" : vendor.sev;
+  const sevBadgeText = isRouted ? "✓ ROUTED · WITNESSED"
+    : isAck ? "✓ ACKNOWLEDGED · WITNESSED"
+    : isHealthy ? "✓ HEALTHY"
+    : `⚠ ${vendor.sevLabel} · ${vendor.sevLabel === "P1" ? "CRITICAL" : vendor.sevLabel === "P2" ? "REVIEW" : "NOTE"}`;
+
+  const ownerName = vendor.owner.name;
+  const crumbCurrent = cr.bundleId ? `CR · ${cr.bundleId}` : "CR · scan";
 
   return (
     <main className="main">
@@ -12,32 +50,30 @@ function ScreenChange({ state, dispatch }) {
           <div className="crumbs">
             <span className="seg" onClick={() => dispatch({ type: "goto", screen: "portfolio" })}>Portfolio</span>
             <span className="sep">›</span>
-            <span className="seg">Notion</span>
+            <span className="seg">{vendor.name}</span>
             <span className="sep">›</span>
-            <span className="current">CR · RL·4839</span>
+            <span className="current">{crumbCurrent}</span>
           </div>
           <div className="icon-btn-row">
             <button className="icon-btn" onClick={() => dispatch({ type: "goto", screen: "portfolio" })} title="Back">←</button>
-            <button className="icon-btn" title="Forward">→</button>
-            <button className="icon-btn" title="More">⋯</button>
           </div>
         </div>
 
         {/* Vendor strip */}
-        <div className={"vendor-strip" + (isRouted ? " routed" : "")}>
-          <div className="vendor-logo-lg">N</div>
+        <div className={"vendor-strip" + (isWitnessed ? " routed" : "")}>
+          <div className="vendor-logo-lg">{vendor.letter}</div>
           <div className="vendor-id-block">
-            <div className="vendor-name-lg">Notion</div>
+            <div className="vendor-name-lg">{vendor.name}</div>
             <div className="vendor-meta-row">
-              <span>DOCS · COLLAB</span>
-              <span>TIER 1</span>
-              <span>OWNER · <strong>Priya Natarajan</strong></span>
-              <span>ANNUAL · <strong>$184,200</strong></span>
-              <span>SEATS · <strong>847</strong></span>
+              <span>{vendor.category}</span>
+              <span>TIER {vendor.tier}</span>
+              <span>OWNER · <strong>{ownerName}</strong></span>
+              <span>ANNUAL · <strong>{vendor.annual}</strong></span>
+              {vendor.seats > 0 && <span>SEATS · <strong>{vendor.seats}</strong></span>}
             </div>
           </div>
           <div className="vendor-renew">
-            <div className="num">42<small>d</small></div>
+            <div className="num">{vendor.renewsInDays}<small>d</small></div>
             <div className="lbl">Until renewal</div>
           </div>
         </div>
@@ -47,119 +83,95 @@ function ScreenChange({ state, dispatch }) {
           {/* Report card */}
           <div className="report">
             <div className="report-head">
-              {isRouted
-                ? <div className="sev-badge routed">✓ ROUTED · WITNESSED</div>
-                : <div className="sev-badge p1">⚠ P1 · CRITICAL</div>}
-              <div className="cat-chip data">DATA</div>
-              <div className="cat-chip pricing">PRICING</div>
+              <div className={"sev-badge " + sevBadgeCls}>{sevBadgeText}</div>
+              {(cr.categories || []).map((c) => (
+                <div className={"cat-chip " + c.toLowerCase().replace(/[^a-z]/g, "")} key={c}>{c}</div>
+              ))}
             </div>
             <h1 className={"report-title" + (isRouted ? " routed" : "")}>
-              {isRouted
-                ? <>Routed to Legal. Negotiation packet <em>witnessed</em> and signed.</>
-                : <>Data retention <em>shrinks</em> from 90 to 30 days. Per-seat pricing rises 18%.</>}
+              {isRouted && cr.titleRouted ? cr.titleRouted : cr.titleOpen}
             </h1>
             <div className="report-detected">
-              {isRouted
-                ? <>ROUTED · <strong>2026-05-22 · 14:59 EST</strong> · <strong>just now</strong> · BY · agent-redline-v1.4 · GROUNDED · ✓ 4 citations · BUNDLE · <strong>RL·4839</strong></>
-                : <>DETECTED · <strong>2026-05-22 · 14:42:18 EST</strong> · <strong>17 minutes ago</strong> · BY · agent-redline-v1.4 · GROUNDED · ✓ 4 citations validated</>}
+              {isRouted ? (
+                <>ROUTED · <strong>{cr.routedAt}</strong> · <strong>{cr.routedWhen}</strong> · BY · {cr.agent} · GROUNDED · ✓ {cr.citationCount} citations · BUNDLE · <strong>{cr.bundleId}</strong></>
+              ) : isAck ? (
+                <>ACKNOWLEDGED · <strong>{cr.acknowledgedAt}</strong> · <strong>{cr.acknowledgedWhen}</strong> · BY · {cr.agent} · GROUNDED · ✓ {cr.citationCount} citations · BUNDLE · <strong>{cr.bundleId}</strong></>
+              ) : isHealthy ? (
+                <>LAST SCAN · <strong>{cr.detectedAt}</strong> · <strong>{cr.detectedWhen}</strong> · BY · {cr.agent} · NO DIFF DETECTED</>
+              ) : (
+                <>DETECTED · <strong>{cr.detectedAt}</strong> · <strong>{cr.detectedWhen}</strong> · BY · {cr.agent} · GROUNDED · ✓ {cr.citationCount} citations validated</>
+              )}
             </div>
 
-            {/* Impact strip */}
-            <div className="impact-strip">
-              <div className="impact-cell dollar">
-                <div className="lbl">$ Impact · annual</div>
-                <div className="val">+$28,400</div>
+            {Array.isArray(cr.impacts) && cr.impacts.length > 0 && (
+              <div className="impact-strip">
+                {cr.impacts.map((imp, i) => (
+                  <div className={"impact-cell " + imp.cls} key={i}>
+                    <div className="lbl">{imp.lbl}</div>
+                    <div className="val">{imp.val}</div>
+                  </div>
+                ))}
               </div>
-              <div className="impact-cell delta">
-                <div className="lbl">Per-seat change</div>
-                <div className="val">+18% / 30d</div>
-              </div>
-              <div className="impact-cell compl">
-                <div className="lbl">Compliance</div>
-                <div className="val">GDPR · Art 5(1)e</div>
-              </div>
-            </div>
+            )}
 
-            {/* Diff 1 — Retention */}
-            <div className="diff-block">
-              <div className="diff-label">Change · §4.2 Data Retention</div>
-              <div className="diff-pair">
-                <div className="clause before">
-                  <div className="clause-head">
-                    <span className="clause-lbl">− BEFORE</span>
-                    <span className="clause-when">SNAPSHOT · MAR 18 2026</span>
+            {Array.isArray(cr.diffs) && cr.diffs.map((d, i) => (
+              <div className="diff-block" key={i}>
+                <div className="diff-label">{d.label}</div>
+                <div className="diff-pair">
+                  <div className="clause before">
+                    <div className="clause-head">
+                      <span className="clause-lbl">− BEFORE</span>
+                      <span className="clause-when">{d.before.when}</span>
+                    </div>
+                    <p className="clause-text">{d.before.text}</p>
+                    <div className="clause-source">{d.before.source}</div>
                   </div>
-                  <p className="clause-text">
-                    "Workspace owners may request export and deletion of all user content at any time.
-                    Notion will retain backup copies for <strong>ninety (90) days</strong> following deletion,
-                    after which content is permanently erased from all systems."
-                  </p>
-                  <div className="clause-source">SOURCE · notion.so/terms#4.2 · FETCHED 2026-03-18 09:14 UTC · HASH a3f9…d21c</div>
-                </div>
-                <div className="clause after">
-                  <div className="clause-head">
-                    <span className="clause-lbl">+ AFTER</span>
-                    <span className="clause-when">SNAPSHOT · MAY 22 2026</span>
+                  <div className="clause after">
+                    <div className="clause-head">
+                      <span className="clause-lbl">+ AFTER</span>
+                      <span className="clause-when">{d.after.when}</span>
+                    </div>
+                    <p className="clause-text">{d.after.text}</p>
+                    <div className="clause-source">
+                      SOURCE · <a href="#" onClick={(e) => e.preventDefault()}>{d.after.sourceLink}</a>{d.after.sourceMeta}
+                    </div>
                   </div>
-                  <p className="clause-text">
-                    "Workspace owners may request export and deletion of all user content at any time.
-                    Notion will retain backup copies for <strong>thirty (30) days</strong> following deletion,
-                    after which content is permanently erased from all systems."
-                  </p>
-                  <div className="clause-source">SOURCE · <a href="#" onClick={(e)=>e.preventDefault()}>notion.so/terms#4.2</a> · FETCHED 2026-05-22 14:42 UTC · HASH 8b2e…f94a</div>
                 </div>
               </div>
-            </div>
+            ))}
 
-            {/* Diff 2 — Pricing */}
-            <div className="diff-block">
-              <div className="diff-label">Change · §7.1 Plus Plan Pricing</div>
-              <div className="diff-pair">
-                <div className="clause before">
+            {isHealthy && Array.isArray(cr.lastScannedSurfaces) && (
+              <div className="diff-block">
+                <div className="diff-label">Monitored surfaces · all stable</div>
+                <div className="clause after" style={{ width: "100%" }}>
                   <div className="clause-head">
-                    <span className="clause-lbl">− BEFORE</span>
-                    <span className="clause-when">SNAPSHOT · MAR 18 2026</span>
+                    <span className="clause-lbl">✓ STABLE</span>
+                    <span className="clause-when">LAST 14d</span>
                   </div>
-                  <p className="clause-text">
-                    "Plus plan: <strong>$10 per member per month</strong>, billed annually.
-                    Includes unlimited blocks, file uploads up to 5 GB, and 30-day version history."
-                  </p>
-                  <div className="clause-source">SOURCE · notion.so/pricing · FETCHED 2026-03-18 09:14 UTC</div>
-                </div>
-                <div className="clause after">
-                  <div className="clause-head">
-                    <span className="clause-lbl">+ AFTER</span>
-                    <span className="clause-when">SNAPSHOT · MAY 22 2026</span>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-2)", lineHeight: 1.9 }}>
+                    {cr.lastScannedSurfaces.map((s, i) => (
+                      <div key={i} style={{ display: "flex", gap: 16 }}>
+                        <span style={{ color: "var(--lime)" }}>✓</span>
+                        <span style={{ flex: 1 }}>{s.url}</span>
+                        <span style={{ opacity: 0.6 }}>{s.when}</span>
+                        <span style={{ color: "var(--text-2)" }}>{s.hash}</span>
+                      </div>
+                    ))}
                   </div>
-                  <p className="clause-text">
-                    "Plus plan: <strong>$11.80 per member per month</strong>, billed annually.
-                    Includes unlimited blocks, file uploads up to 5 GB, and 30-day version history."
-                  </p>
-                  <div className="clause-source">SOURCE · <a href="#" onClick={(e)=>e.preventDefault()}>notion.so/pricing</a> · FETCHED 2026-05-22 14:42 UTC</div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Recommendation */}
             <div className="recommendation">
-              <div className="reco-head">{isRouted ? "Outcome · Routed" : "Recommendation"}</div>
+              <div className="reco-head">
+                {isRouted && cr.recoRouted ? cr.recoRouted.head
+                  : isAck && cr.recoRouted ? cr.recoRouted.head
+                  : cr.recoOpen && cr.recoOpen.head}
+              </div>
               <p className="reco-text">
-                {isRouted ? (
-                  <>
-                    Routed to <strong>Priya Natarajan</strong> (Legal) and <strong>Marcus Chen</strong> (Procurement). The
-                    renegotiation packet has been <em>generated</em> and witnessed — see Bundle RL·4839.
-                    4 actions dispatched: Slack DM, Jira PROC-2104, calendar invite for Jun 24, draft email
-                    with three negotiation positions. Deadline: 2026-05-29.
-                  </>
-                ) : (
-                  <>
-                    Renewal is in <strong>42 days</strong>. The compounded retention shrinkage and price
-                    increase are <em>both negotiable</em> at this stage. Generate the renegotiation packet
-                    to push back on retention to 60d as a minimum (industry standard), and lock pricing at
-                    the prior $10/seat for the renewal term. Estimated leverage: <strong>$28,400/yr saved</strong> on
-                    price alone; retention recovery maps to <strong>SOC2 CC6.5</strong> and <strong>GDPR Art 5(1)e</strong>.
-                  </>
-                )}
+                {isRouted && cr.recoRouted ? cr.recoRouted.text
+                  : isAck && cr.recoRouted ? cr.recoRouted.text
+                  : cr.recoOpen && cr.recoOpen.text}
               </p>
             </div>
           </div>
@@ -167,81 +179,111 @@ function ScreenChange({ state, dispatch }) {
           {/* Side panels */}
           <aside className="cr-side">
 
-            <div className="panel policy">
-              <div className="panel-head strawberry"><span className="dot" />Policy fired</div>
-              <div className="policy-name">Price ↑ &gt;10% within 90d of renewal → P1 to Procurement</div>
-              <pre className="policy-yaml">
-{`# severity-rules.yaml`}
-{"\n"}<span className="y-key">when:</span>{"\n  "}change.category: <span className="y-str">"pricing"</span>{"\n  "}change.dollarImpact.pct: <span className="y-str">">10"</span>{"\n  "}vendor.renewsAt: <span className="y-str">"within 90d"</span>{"\n"}<span className="y-key">then:</span>{"\n  "}severity: <span className="y-str">P1</span>{"\n  "}route:{"\n    - "}<span className="y-str">slack:@priya</span>{"\n    - "}<span className="y-str">jira:PROC</span>{"\n    - "}<span className="y-str">copilot:renegotiate</span>
-              </pre>
-              <div className="policy-meta">AUTHOR · Maya A. · GRC LEAD · v4 · 2026-04-12</div>
-            </div>
+            {!isHealthy && cr.policy && (
+              <div className="panel policy">
+                <div className="panel-head strawberry"><span className="dot" />{cr.policy.head}</div>
+                <div className="policy-name">{cr.policy.name}</div>
+                {(window.POLICY_YAML || {})[cr.policy.yamlKey] || null}
+                <div className="policy-meta">{cr.policy.meta}</div>
+              </div>
+            )}
 
-            <div className="panel routing">
-              <div className="panel-head bondi"><span className="dot" />Routed · {isRouted ? "4 actions sent" : "4 actions queued"}</div>
-              <div className="action-item">
-                <div className="action-icon slack">SL</div>
-                <div className="action-detail">
-                  <div className="action-target">DM · @priya</div>
-                  <div className="action-when">{isRouted ? "14:59:02 · delivered" : "queued · awaits escalation"}</div>
+            {!isHealthy && Array.isArray(cr.actions) && cr.actions.length > 0 && (
+              <div className="panel routing">
+                <div className="panel-head bondi">
+                  <span className="dot" />
+                  Routed · {isWitnessed ? `${cr.actions.length} actions sent` : `${cr.actions.length} actions queued`}
                 </div>
-                <span className={"action-status" + (isRouted ? "" : " pending")}>{isRouted ? "SENT" : "QUEUED"}</span>
+                {cr.actions.map((a, i) => (
+                  <div className="action-item" key={i}>
+                    <div className={"action-icon " + a.type}>{a.type.toUpperCase().slice(0, 2)}</div>
+                    <div className="action-detail">
+                      <div className="action-target">{a.target}</div>
+                      <div className="action-when">{isWitnessed ? a.sent : a.queued}</div>
+                    </div>
+                    <span className={"action-status" + (isWitnessed ? "" : " pending")}>
+                      {isWitnessed ? "SENT" : "QUEUED"}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="action-item">
-                <div className="action-icon jira">JR</div>
-                <div className="action-detail">
-                  <div className="action-target">PROC-2104</div>
-                  <div className="action-when">{isRouted ? "14:59:03 · assigned" : "queued"}</div>
-                </div>
-                <span className={"action-status" + (isRouted ? "" : " pending")}>{isRouted ? "SENT" : "QUEUED"}</span>
-              </div>
-              <div className="action-item">
-                <div className="action-icon cal">CA</div>
-                <div className="action-detail">
-                  <div className="action-target">Renewal call · Jun 24</div>
-                  <div className="action-when">{isRouted ? "14:59:04 · 4 invitees" : "queued"}</div>
-                </div>
-                <span className={"action-status" + (isRouted ? "" : " pending")}>{isRouted ? "SENT" : "QUEUED"}</span>
-              </div>
-              <div className="action-item">
-                <div className="action-icon email">EM</div>
-                <div className="action-detail">
-                  <div className="action-target">Renego draft · ready</div>
-                  <div className="action-when">{isRouted ? "14:59:05 · 3 versions" : "queued"}</div>
-                </div>
-                <span className={"action-status" + (isRouted ? "" : " pending")}>{isRouted ? "SENT" : "QUEUED"}</span>
-              </div>
-            </div>
+            )}
 
-            <div className="panel evidence" onClick={() => isRouted && dispatch({ type: "goto", screen: "evidence" })} style={{ cursor: isRouted ? "pointer" : "default" }}>
-              <div className="panel-head grape"><span className="dot" />Evidence · {isRouted ? "Bundle RL·4839" : "Senso"}</div>
-              <div className="ev-preview">
-                <div className="ev-page-lines dark" />
-                <div className="ev-page-lines" />
-                <div className="ev-page-lines med" />
-                <div className="ev-page-lines short" />
-                <div className="ev-snippet">
-                  <div className="line" />
-                  <div className="line" />
-                  <div className="line short" />
+            {vendor.bundle ? (
+              <div
+                className="panel evidence"
+                onClick={() => dispatch({ type: "open-vendor-bundle", vendor: vendor.key })}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="panel-head grape"><span className="dot" />Evidence · Bundle {vendor.bundle.id}</div>
+                <div className="ev-preview">
+                  <div className="ev-page-lines dark" />
+                  <div className="ev-page-lines" />
+                  <div className="ev-page-lines med" />
+                  <div className="ev-page-lines short" />
+                  <div className="ev-snippet">
+                    <div className="line" />
+                    <div className="line" />
+                    <div className="line short" />
+                  </div>
+                  <div className="ev-page-lines" />
+                  <div className="ev-page-lines med" />
+                  <div className="ev-page-lines short" />
                 </div>
-                <div className="ev-page-lines" />
-                <div className="ev-page-lines med" />
-                <div className="ev-page-lines short" />
-              </div>
-              <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 500, position: "relative" }}>
-                {isRouted ? "Bundle RL·4839 · Witnessed" : "CR-2026-0517 · Draft"}
-              </div>
-              <div className="citation-row">
-                <span className="cit-dot" />
-                <span>4/4 CITATIONS · LIVE · IMMUTABLE</span>
-              </div>
-              {isRouted && (
+                <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 500, position: "relative" }}>
+                  Bundle {vendor.bundle.id} · Witnessed
+                </div>
+                <div className="citation-row">
+                  <span className="cit-dot" />
+                  <span>{cr.citationCount}/{cr.citationCount} CITATIONS · LIVE · IMMUTABLE</span>
+                </div>
                 <div style={{ marginTop: 10, fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.10em", color: "var(--lime)", textTransform: "uppercase" }}>
                   ▸ OPEN BUNDLE
                 </div>
-              )}
-            </div>
+              </div>
+            ) : isNotion ? (
+              <div className="panel evidence">
+                <div className="panel-head grape"><span className="dot" />Evidence · Senso</div>
+                <div className="ev-preview">
+                  <div className="ev-page-lines dark" />
+                  <div className="ev-page-lines" />
+                  <div className="ev-page-lines med" />
+                  <div className="ev-page-lines short" />
+                  <div className="ev-snippet">
+                    <div className="line" />
+                    <div className="line" />
+                    <div className="line short" />
+                  </div>
+                  <div className="ev-page-lines" />
+                  <div className="ev-page-lines med" />
+                  <div className="ev-page-lines short" />
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 500, position: "relative" }}>
+                  CR-2026-0517 · Draft
+                </div>
+                <div className="citation-row">
+                  <span className="cit-dot" />
+                  <span>{cr.citationCount}/{cr.citationCount} CITATIONS · LIVE · IMMUTABLE</span>
+                </div>
+              </div>
+            ) : isHealthy ? (
+              <div className="panel evidence">
+                <div className="panel-head lime"><span className="dot" />Posture · stable</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-2)", lineHeight: 1.8, letterSpacing: "0.04em" }}>
+                  <div>SURFACES · <b style={{ color: "var(--text)" }}>{cr.lastScannedSurfaces?.length || 0}</b></div>
+                  <div>DIFF · <span style={{ color: "var(--lime)" }}>NONE</span></div>
+                  <div>RISK · <span style={{ color: "var(--lime)" }}>LOW</span></div>
+                  <div>NEXT SCAN · {cr.detectedAt}</div>
+                </div>
+              </div>
+            ) : (
+              <div className="panel evidence">
+                <div className="panel-head grape"><span className="dot" />Evidence · pending review</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-2)", lineHeight: 1.7 }}>
+                  Bundle generated on acknowledgement. {cr.citationCount} citations queued.
+                </div>
+              </div>
+            )}
 
           </aside>
         </div>
@@ -253,7 +295,7 @@ function ScreenChange({ state, dispatch }) {
         {isRouted ? (
           <>
             <div className="actions-row">
-              <button className="btn btn-bondi" onClick={() => dispatch({ type: "goto", screen: "evidence" })}>⊙ OPEN EVIDENCE BUNDLE</button>
+              <button className="btn btn-bondi" onClick={() => dispatch({ type: "open-vendor-bundle", vendor: vendor.key })}>⊙ OPEN EVIDENCE BUNDLE</button>
               <button className="btn btn-ghost" onClick={() => dispatch({ type: "goto", screen: "portfolio" })}>← BACK TO PORTFOLIO</button>
             </div>
             <div className="actions-row">
@@ -262,16 +304,49 @@ function ScreenChange({ state, dispatch }) {
               </span>
             </div>
           </>
-        ) : (
+        ) : isAck ? (
           <>
             <div className="actions-row">
-              <button className="btn btn-primary">✓ ACKNOWLEDGE</button>
+              <button className="btn btn-bondi" onClick={() => dispatch({ type: "open-vendor-bundle", vendor: vendor.key })}>⊙ OPEN EVIDENCE BUNDLE</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "goto", screen: "portfolio" })}>← BACK TO PORTFOLIO</button>
+            </div>
+            <div className="actions-row">
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", color: "var(--lime)", textTransform: "uppercase" }}>
+                ✓ ACKNOWLEDGED · {cr.acknowledgedAt}
+              </span>
+            </div>
+          </>
+        ) : isHealthy ? (
+          <>
+            <div className="actions-row">
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "goto", screen: "portfolio" })}>← BACK TO PORTFOLIO</button>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", color: "var(--lime)", textTransform: "uppercase" }}>
+                ✓ POSTURE STABLE · next scan in 6h
+              </span>
+            </div>
+          </>
+        ) : isNotion ? (
+          <>
+            <div className="actions-row">
+              <button className="btn btn-primary" onClick={() => dispatch({ type: "acknowledge" })}>✓ ACKNOWLEDGE</button>
               <button className="btn btn-escalate" onClick={() => dispatch({ type: "open-escalate" })}>↑ ESCALATE TO LEGAL</button>
-              <button className="btn btn-ghost">⏱ SNOOZE 48H</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "snooze" })}>⏱ SNOOZE 48H</button>
             </div>
             <div className="actions-row">
               <button className="btn btn-ghost" onClick={() => dispatch({ type: "open-escalate" })}>⤓ GENERATE EVIDENCE BUNDLE</button>
-              <button className="btn btn-ghost">⊙ OPEN RENEGO COPILOT</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "open-copilot" })}>⊙ OPEN RENEGO COPILOT</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="actions-row">
+              <button className="btn btn-primary" onClick={() => dispatch({ type: "acknowledge" })}>✓ ACKNOWLEDGE</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "snooze" })}>⏱ SNOOZE 48H</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "goto", screen: "portfolio" })}>← BACK</button>
+            </div>
+            <div className="actions-row">
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "export-diff" })}>⤓ EXPORT DIFF</button>
+              <button className="btn btn-ghost" onClick={() => dispatch({ type: "assign" })}>⊙ ASSIGN TO OWNER</button>
             </div>
           </>
         )}
