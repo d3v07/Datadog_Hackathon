@@ -13,7 +13,7 @@
       "name": "web",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@redline/web", "dev"],
-      "port": 4004,
+      "port": 4321,
       "autoPort": false
     }
   ]

@@ -4,6 +4,7 @@ import { createApp } from "./app.js";
 import { InMemoryChangeReportRepository } from "./db/changeReports.js";
 import { logger } from "./logger.js";
 import { createSeedChangeReport } from "./seed/factories.js";
+import { getSeededChangeReports } from "./seed/loader.js";
 import type { ChangeReport, User, Vendor } from "@redline/shared";
 
 const port = Number(process.env.PORT ?? 3005);
@@ -57,8 +58,9 @@ export function createServerApp(argv = process.argv) {
 }
 
 export function buildApp(deps?: { seedChangeReports?: ChangeReport[] }) {
-  if (deps?.seedChangeReports && deps.seedChangeReports.length > 0) {
-    return createApp({ reports: new InMemoryChangeReportRepository(deps.seedChangeReports) });
+  const seedReports = deps?.seedChangeReports ?? getSeededChangeReports();
+  if (seedReports.length > 0) {
+    return createApp({ reports: new InMemoryChangeReportRepository(seedReports) });
   }
   return createApp();
 }

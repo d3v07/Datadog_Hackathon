@@ -1,0 +1,70 @@
+:root {
+  /* Surfaces — Slate's cool blacks */
+  --bg:            #0A0B0F;
+  --surface:       #13151B;
+  --surface-2:     #1B1E27;
+  --surface-3:     #232734;
+
+  /* Borders — hairlines, 0.5px capable */
+  --border:        #262934;
+  --border-strong: #3A3E4D;
+  --hairline:      rgba(255,255,255,0.06);
+
+  /* Text — Seven's discipline applied to a dark base */
+  --muted:         #5A5E6E;
+  --text-2:        #A0A4B5;
+  --text:          #EEF0F6;
+  --text-strong:   #FFFFFF;
+
+  /* Accent — Slate's periwinkle, action only */
+  --accent:        #7C8CFA;
+  --accent-hover:  #93A0FC;
+  --accent-soft:   rgba(124,140,250,0.10);
+  --accent-ring:   rgba(124,140,250,0.35);
+
+  /* Semantic — traffic-light, role-bound */
+  --success:       #3FCF8E;   /* "passing", "fresh", "P3" */
+  --warning:       #F5C44A;   /* "expiring", "P2" */
+  --danger:        #F47174;   /* "P1", "breach", "destructive" */
+
+  /* Type — Seven's Helvetica Neue, NOT Geist */
+  --font-display: "Helvetica Neue", "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  --font-text:    "Helvetica Neue", "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  --font-mono:    "SF Mono", "Geist Mono", ui-monospace, monospace;
+
+  /* Scale — Slate's tight scale */
+  --text-xs:   0.75rem;
+  --text-sm:   0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg:   1.0625rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.625rem;
+  --text-3xl:  2.25rem;
+  --text-4xl:  3rem;
+
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px;
+  --space-4: 16px; --space-5: 20px; --space-6: 28px;
+  --space-7: 40px; --space-8: 56px; --space-9: 80px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 999px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 100ms;
+  --dur-base: 180ms;
+  --dur-slow: 300ms;
+
+  --ring-focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent-ring);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  font-weight: 300;        /* Seven's secret — Light default */
+  -webkit-font-smoothing: antialiased;
+}

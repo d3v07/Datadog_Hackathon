@@ -35,7 +35,7 @@ Wave 5  Polish + review   ───1 build + 1 reviewer───►  GATE: AA cl
 | `apps/api/src/routes/changes.ts` | B | 1 |
 | `public/app/**/*` (delete all) | C | 1 |
 | `apps/web/public/app/**/*` (delete all) | C | 1 |
-| Global "Unsyphn" → "Redline" (grep -ril) | C | 1 |
+| Global "Redline" → "Redline" (grep -ril) | C | 1 |
 | `apps/web/src/App.tsx` | D | 2 |
 | `apps/web/index.html` | D | 2 |
 | `apps/web/src/main.tsx` | D | 2 |
@@ -94,13 +94,13 @@ self-contained brief.
 
 #### Agent C — Static demo delete + brand rename
 - **Type:** `general-purpose`
-- **Owns:** `public/app/**/*`, `apps/web/public/app/**/*`, all "Unsyphn" occurrences
+- **Owns:** `public/app/**/*`, `apps/web/public/app/**/*`, all "Redline" occurrences
 - **Brief:**
   > Two mechanical sweeps. (1) Delete `public/app/` and `apps/web/public/app/`
   > directories entirely — audit confirmed non-load-bearing. (2) Global rename
-  > "Unsyphn" → "Redline" across `apps/`, `public/`, `packages/`. Use case-aware
-  > replacement (Unsyphn / UNSYPHN / unsyphn → Redline / REDLINE / redline).
-  > Skip `node_modules`, `dist`, `.git`. Verify: `grep -ril "unsyphn"` returns
+  > "Redline" → "Redline" across `apps/`, `public/`, `packages/`. Use case-aware
+  > replacement (Redline / REDLINE / redline → Redline / REDLINE / redline).
+  > Skip `node_modules`, `dist`, `.git`. Verify: `grep -ril "redline"` returns
   > zero. Do NOT change any logo asset references yet (logo stays as
   > `unsyphlogo.png` until Wave 2 swaps it).
 - **Risk:** Medium (broad search-replace; verify with grep before declaring done).
@@ -109,7 +109,7 @@ self-contained brief.
 ```bash
 pnpm typecheck                       # must be 0 errors
 pnpm test                            # 98+ tests pass (B added lifecycle coverage)
-grep -ril "unsyphn" apps/ public/ packages/  # must be empty
+grep -ril "redline" apps/ public/ packages/  # must be empty
 test ! -d public/app                 # must not exist
 test ! -d apps/web/public/app        # must not exist
 test -f apps/web/src/styles/tokens.css
@@ -261,7 +261,7 @@ pnpm typecheck && pnpm test && pnpm build
 
 **Wave 5 GATE (release):**
 - `pnpm typecheck && pnpm test && pnpm build` all green
-- `grep -ril "unsyphn"` empty
+- `grep -ril "redline"` empty
 - axe AA clean on every route
 - 3-min demo script runs end-to-end without dead ends
 - `code-reviewer` returns no CRITICAL findings
@@ -330,7 +330,7 @@ The build is done when, in a single `pnpm dev` session:
 9. `⌘K` opens palette anywhere in `/app/*`.
 10. Role dropdown updates `?role=` and back/forward preserves it.
 11. `pnpm typecheck && pnpm test && pnpm build` green.
-12. No "Unsyphn" string anywhere.
+12. No "Redline" string anywhere.
 13. axe AA clean on every route.
 14. `code-reviewer` agent returns no CRITICAL.
 

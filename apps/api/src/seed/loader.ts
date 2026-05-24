@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { ChangeReport, Org, User, Vendor } from "@redline/shared";
 import { vendorStore } from "../db/vendor-store.js";
-import { changeReportStore } from "../db/change-reports.js";
 import { policyStore, type SeededPolicy } from "../db/policy-store.js";
 
 // Locate seed/ relative to repo root. apps/api is two levels deep.
@@ -52,7 +51,6 @@ export function loadSeeds(opts?: { seedDir?: string }): void {
 
   vendorStore.load(vendors);
   policyStore.load(policies);
-  changeReportStore.load(changeReports);
 }
 
 // Exposes the seeded change reports so callers (e.g. index.ts boot) can

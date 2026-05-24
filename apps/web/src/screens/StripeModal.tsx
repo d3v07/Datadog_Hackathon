@@ -33,6 +33,131 @@ interface StripeModalProps {
   onClose: () => void;
 }
 
+// Inline styles using CSS tokens — modal CSS was removed with old styles.css.
+const S = {
+  backdrop: {
+    position: "fixed" as const,
+    inset: 0,
+    background: "rgba(0,0,0,0.6)",
+    backdropFilter: "blur(2px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000,
+    padding: "var(--space-5)",
+  },
+  modal: {
+    background: "var(--surface)",
+    border: "1px solid var(--border)",
+    borderRadius: "var(--radius-lg)",
+    padding: "var(--space-6)",
+    maxWidth: 440,
+    width: "100%",
+    position: "relative" as const,
+    boxShadow: "0 24px 60px rgba(0,0,0,0.4)",
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: "var(--space-5)",
+    gap: "var(--space-3)",
+  },
+  title: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-xl)",
+    fontWeight: 200,
+    letterSpacing: "-0.02em",
+    color: "var(--text-strong)",
+    margin: 0,
+  },
+  closeBtn: {
+    background: "none",
+    border: "1px solid var(--border)",
+    borderRadius: "var(--radius-sm)",
+    color: "var(--text-2)",
+    cursor: "pointer",
+    fontSize: "18px",
+    lineHeight: 1,
+    padding: "2px 8px 4px",
+    flexShrink: 0,
+  },
+  price: {
+    fontSize: "var(--text-2xl)",
+    fontWeight: 200,
+    color: "var(--text-strong)",
+    margin: "0 0 var(--space-4)",
+    letterSpacing: "-0.02em",
+  },
+  priceUnit: {
+    fontSize: "var(--text-base)",
+    color: "var(--muted)",
+    fontWeight: 300,
+    marginLeft: "var(--space-2)",
+  },
+  features: {
+    listStyle: "none",
+    padding: 0,
+    margin: "0 0 var(--space-5)",
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "var(--space-2)",
+  },
+  featureItem: {
+    fontSize: "var(--text-sm)",
+    color: "var(--text-2)",
+    paddingLeft: "var(--space-4)",
+    position: "relative" as const,
+  },
+  featureDot: {
+    position: "absolute" as const,
+    left: 0,
+    color: "var(--success)",
+    fontWeight: 700,
+  },
+  btnPrimary: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: 40,
+    padding: "0 var(--space-4)",
+    background: "var(--accent)",
+    color: "var(--bg)",
+    border: "1px solid var(--accent)",
+    borderRadius: "var(--radius-md)",
+    fontFamily: "var(--font-text)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 400,
+    cursor: "pointer",
+    transition: "background 100ms",
+  },
+  muted: {
+    fontSize: "var(--text-xs)",
+    color: "var(--muted)",
+    margin: "var(--space-3) 0 0",
+    textAlign: "center" as const,
+  },
+  alertOk: {
+    background: "rgba(63,207,142,0.10)",
+    border: "1px solid rgba(63,207,142,0.25)",
+    borderRadius: "var(--radius-md)",
+    padding: "var(--space-4)",
+    color: "var(--success)",
+    fontSize: "var(--text-sm)",
+    marginBottom: "var(--space-4)",
+  },
+  alertErr: {
+    background: "rgba(244,113,116,0.10)",
+    border: "1px solid rgba(244,113,116,0.25)",
+    borderRadius: "var(--radius-md)",
+    padding: "var(--space-4)",
+    color: "var(--danger)",
+    fontSize: "var(--text-sm)",
+    marginBottom: "var(--space-4)",
+  },
+} as const;
+
 export function StripeModal({ onClose }: StripeModalProps): JSX.Element {
   const [status, setStatus] = useState<ModalStatus>("loading-product");
   const [product, setProduct] = useState<BillingProduct | undefined>();
@@ -114,6 +239,7 @@ export function StripeModal({ onClose }: StripeModalProps): JSX.Element {
     }
   }, []);
 
+  // ESC and Shift+Enter work in ALL states including already-entitled / success.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.shiftKey && e.key === "Enter") {
@@ -128,6 +254,7 @@ export function StripeModal({ onClose }: StripeModalProps): JSX.Element {
     return () => window.removeEventListener("keydown", handler);
   }, [runFallback, onClose]);
 
+  // Backdrop click always closes.
   const onBackdropClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (e.target === e.currentTarget) onClose();
@@ -137,49 +264,60 @@ export function StripeModal({ onClose }: StripeModalProps): JSX.Element {
 
   return (
     <div
-      className="modal-backdrop"
+      style={S.backdrop}
       role="dialog"
       aria-modal="true"
       aria-labelledby="stripe-modal-title"
       onClick={onBackdropClick}
     >
-      <div className="modal">
-        <header className="modal__header">
-          <h2 id="stripe-modal-title" className="modal__title">
+      <div style={S.modal}>
+        <header style={S.header}>
+          <h2 id="stripe-modal-title" style={S.title}>
             {product?.name ?? "Compliance Pack"}
           </h2>
-          <button className="modal__close" type="button" onClick={onClose} aria-label="Close">
+          {/* UX-1 fix: × calls onClose in all states including already-entitled */}
+          <button style={S.closeBtn} type="button" onClick={onClose} aria-label="Close">
             ×
           </button>
         </header>
 
-        {status === "loading-product" && <p className="muted">Loading product…</p>}
+        {status === "loading-product" && (
+          <p style={S.muted}>Loading product…</p>
+        )}
 
         {alreadyEntitled && (
-          <div className="alert alert--ok" role="status">
+          <div style={S.alertOk} role="status">
             This org already has the Compliance Pack.
           </div>
         )}
 
         {product && status === "ready-to-pay" && !alreadyEntitled && (
           <>
-            <p className="modal__price">
-              ${(product.priceUsdCents / 100).toLocaleString()}{" "}
-              <span className="muted">one-time</span>
+            <p style={S.price}>
+              ${(product.priceUsdCents / 100).toLocaleString()}
+              <span style={S.priceUnit}>one-time</span>
             </p>
-            <ul className="features">
+            <ul style={S.features}>
               {product.features.map((f) => (
-                <li key={f}>{f}</li>
+                <li key={f} style={S.featureItem}>
+                  <span style={S.featureDot} aria-hidden="true">·</span>
+                  {f}
+                </li>
               ))}
             </ul>
-            <button className="btn" type="button" onClick={beginPayment} data-testid="begin-payment">
+            <button
+              style={S.btnPrimary}
+              type="button"
+              onClick={() => void beginPayment()}
+              data-testid="begin-payment"
+            >
               Upgrade · ${(product.priceUsdCents / 100).toLocaleString()}
             </button>
           </>
         )}
 
         {status === "creating-intent" && (
-          <p className="muted">Creating payment intent…</p>
+          <p style={S.muted}>Creating payment intent…</p>
         )}
 
         {(status === "elements-ready" || status === "processing") && intent && stripePromise && (
@@ -199,8 +337,8 @@ export function StripeModal({ onClose }: StripeModalProps): JSX.Element {
           </Elements>
         )}
 
-        {status === "success" && (
-          <div className="alert alert--ok" role="status">
+        {status === "success" && !alreadyEntitled && (
+          <div style={S.alertOk} role="status">
             <strong>Compliance Pack unlocked.</strong> Evidence bundles, auditor
             portal, and Vanta/Drata push are now available.
           </div>
@@ -208,16 +346,21 @@ export function StripeModal({ onClose }: StripeModalProps): JSX.Element {
 
         {status === "failure" && (
           <>
-            <div className="alert alert--err" role="alert">
+            <div style={S.alertErr} role="alert">
               {errorMessage ?? "Payment failed"}
             </div>
-            <button className="btn" type="button" onClick={beginPayment} data-testid="retry">
+            <button
+              style={S.btnPrimary}
+              type="button"
+              onClick={() => void beginPayment()}
+              data-testid="retry"
+            >
               Retry
             </button>
           </>
         )}
 
-        <p className="muted modal__hint">
+        <p style={S.muted}>
           On-stage fallback: press <kbd>Shift</kbd> + <kbd>Enter</kbd> to simulate success.
         </p>
       </div>
@@ -251,8 +394,7 @@ function PaymentForm({ intent, onProcessing, onError, disabled }: PaymentFormPro
     if (error) {
       onError(error.message ?? "Payment failed");
     }
-    // On success, we don't flip UI here — we wait for the SSE org.entitlements.changed
-    // event from the webhook to confirm server-side state.
+    // On success, wait for SSE org.entitlements.changed to confirm server-side state.
   }
 
   return (
@@ -265,10 +407,9 @@ function PaymentForm({ intent, onProcessing, onError, disabled }: PaymentFormPro
       <PaymentElement />
       <button
         type="submit"
-        className="btn"
+        style={{ ...S.btnPrimary, marginTop: 16, opacity: !stripe || disabled ? 0.45 : 1, cursor: !stripe || disabled ? "not-allowed" : "pointer" }}
         disabled={!stripe || disabled}
         data-testid="confirm-payment"
-        style={{ marginTop: 16 }}
       >
         {disabled ? "Processing…" : "Pay"}
       </button>

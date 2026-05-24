@@ -81,3 +81,19 @@ describe("GET /evidence/:id", () => {
     );
   });
 });
+
+describe("GET /evidence/:id/bundle.html", () => {
+  it("bundle.html endpoint returns inline-styled HTML", async () => {
+    const resp = await buildApp().request("/v1/evidence/chg_seed_notion/bundle.html");
+    expect(resp.status).toBe(200);
+    expect(resp.headers.get("content-type")).toContain("text/html");
+    const html = await resp.text();
+    expect(html).toContain("REDLINE EVIDENCE BUNDLE");
+    expect(html).toContain("Notion");
+  });
+
+  it("bundle.html returns 404 for unknown id", async () => {
+    const resp = await buildApp().request("/v1/evidence/chg_does_not_exist/bundle.html");
+    expect(resp.status).toBe(404);
+  });
+});

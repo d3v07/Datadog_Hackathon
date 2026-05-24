@@ -40,10 +40,10 @@ describe("seed boot path hydrates ChangeReportRepository", () => {
   });
 
   it("returns 404 when seed reports are NOT hydrated (regression guard)", async () => {
-    // Build WITHOUT seeding the canonical repo — this is the pre-fix behaviour
-    // and must always be a 404, not a 500. Confirms the boot wiring is the
-    // only thing standing between the seed data and the lifecycle routes.
-    const app = buildApp(); // no seedChangeReports → empty repo
+    // Empty repo must 404 (not 500). buildApp() now auto-hydrates from
+    // getSeededChangeReports(), so we pass an explicit empty array to
+    // simulate the pre-hydration path.
+    const app = buildApp({ seedChangeReports: [] });
 
     const res = await app.request(`/v1/changes/${SEED_CHANGE_ID}/acknowledge`, {
       method: "POST",

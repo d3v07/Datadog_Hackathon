@@ -1,8 +1,8 @@
-# Unsyphn
+# Redline
 
 > **An always-on agent that watches your vendors so you don't have to.**
 
-Unsyphn is an autonomous agent for vendor risk. It fetches every SaaS vendor's terms, pricing, DPA, sub-processors, security page, and SLA every 60 seconds; diffs each version with Gemini 2.5 Pro structured-output; fires policy rules; routes findings to Slack, Jira, Email, and Calendar; and publishes a public evidence brief through Senso. There is no Run button. The dashboard never polls — every state change rides a single org-scoped Server-Sent Events channel. When an operator buys the Compliance Pack, Stripe's webhook flips org entitlements live and the UI auto-updates over the same event bus.
+Redline is an autonomous agent for vendor risk. It fetches every SaaS vendor's terms, pricing, DPA, sub-processors, security page, and SLA every 60 seconds; diffs each version with Gemini 2.5 Pro structured-output; fires policy rules; routes findings to Slack, Jira, Email, and Calendar; and publishes a public evidence brief through Senso. There is no Run button. The dashboard never polls — every state change rides a single org-scoped Server-Sent Events channel. When an operator buys the Compliance Pack, Stripe's webhook flips org entitlements live and the UI auto-updates over the same event bus.
 
 Submission for the **Datadog hackathon**. Tracks A + B + C are integrated on `main`. The full product specification lives in [`handoff/`](handoff/) and should be read in this order: [Product Decisions](handoff/Product%20Decisions.html) → [API](handoff/API.html) → [Data Model](handoff/Data%20Model.html) → [Runbook](handoff/Runbook.html).
 
@@ -46,11 +46,11 @@ Enterprise SaaS contracts drift constantly. A vendor edits its DPA, adds a new s
 
 The status quo answer to "who watches the vendor's terms page?" is "someone on the team will notice." Nobody notices. The vendor's email goes to a shared inbox. The PDF is buried in a Drive folder. The price line item gets approved because the AP clerk doesn't know it changed.
 
-The market is real and underserved. Every mid-market and enterprise org has between 100 and 1,000 vendors and no good way to monitor them. The existing tools — Vendr, Zylo, Productiv — are spend-management products. They tell you what you're paying for, not what's changed under you. Unsyphn lives in the gap.
+The market is real and underserved. Every mid-market and enterprise org has between 100 and 1,000 vendors and no good way to monitor them. The existing tools — Vendr, Zylo, Productiv — are spend-management products. They tell you what you're paying for, not what's changed under you. Redline lives in the gap.
 
 ## 2. The solution
 
-Stop relying on humans to notice. Run an always-on agent against the public surfaces of every vendor, diff every version against the last snapshot, classify the change with an LLM, fire policies, and route the result into the channels people actually read. By the time renewal comes around, the legal team already has a unsyphn, the security team already has an evidence brief, and procurement already has a renegotiation talking point.
+Stop relying on humans to notice. Run an always-on agent against the public surfaces of every vendor, diff every version against the last snapshot, classify the change with an LLM, fire policies, and route the result into the channels people actually read. By the time renewal comes around, the legal team already has a redline, the security team already has an evidence brief, and procurement already has a renegotiation talking point.
 
 In one screenshot, here's the loop end-to-end:
 
@@ -82,7 +82,7 @@ One scheduler. One event bus. One shared contract package. The agent's outputs, 
 
 ## 3. Sponsor tools used
 
-The hackathon asks for at least three sponsor tools. **Unsyphn wires six**, each doing real work in the autonomous loop. Every integration has a typed provider in `apps/api/src/providers/` and a documented fallback in the Runbook for the case where the provider is unavailable on demo day.
+The hackathon asks for at least three sponsor tools. **Redline wires six**, each doing real work in the autonomous loop. Every integration has a typed provider in `apps/api/src/providers/` and a documented fallback in the Runbook for the case where the provider is unavailable on demo day.
 
 | # | Sponsor | Role in the loop | Code location | Fallback |
 |---|---|---|---|---|
@@ -90,7 +90,7 @@ The hackathon asks for at least three sponsor tools. **Unsyphn wires six**, each
 | 2 | **Gemini 2.5 Pro** | Structured-output diff reasoner. Takes `(before, after, policyHints)` → `{severity, classification, materiality, dollarImpact?, citations[]}` validated through Zod before reaching app logic. | `apps/api/src/providers/` + agent `reason` stage | In-house heuristic classifier |
 | 3 | **ClickHouse Cloud** | Append-only warehouse for `Snapshots`, `ChangeReports`, `Actions`, `RunStages`, `OrgEntitlements`. `ReplacingMergeTree` semantics. | `apps/api/src/db/client.ts`, `db/migrate.ts` | In-memory stores with the same interface |
 | 4 | **Senso** | Public evidence-brief publishing. Each material ChangeReport produces a hosted brief URL surfaced in Slack and the dashboard. | `apps/api/src/providers/` + agent `publish` stage | Local route `GET /v1/evidence/:id` rendered by `SensoBrief.tsx` |
-| 5 | **Slack** | Live Block Kit alert posted to `#unsyphn-demo` for every routed change. Vendor, severity, dollar impact, policy fired, citation snippet + URL, "Open in Unsyphn" / "View evidence" action buttons. | `apps/api/src/providers/slack.ts`, `agent/router.ts` | Payload still persists on the `Action` row if delivery fails |
+| 5 | **Slack** | Live Block Kit alert posted to `#redline-demo` for every routed change. Vendor, severity, dollar impact, policy fired, citation snippet + URL, "Open in Redline" / "View evidence" action buttons. | `apps/api/src/providers/slack.ts`, `agent/router.ts` | Payload still persists on the `Action` row if delivery fails |
 | 6 | **Stripe** | Compliance Pack one-time purchase. Server-side PaymentIntent, Elements card form, signature-verified webhook, entitlement flip, `org.entitlements.changed` event over SSE so the UI auto-updates. | `apps/api/src/providers/stripe.ts`, `routes/billing.ts`, `routes/webhooks-stripe.ts`, `apps/web/src/screens/StripeModal.tsx` | Dev-only `POST /v1/billing/simulate-success` (returns 404 in prod) |
 
 **Tools 1, 2, 3, 4, 5** are the autonomous-agent half (fetch → reason → store → publish → notify). **Tool 6** is the agent-payment-rail half — the agent reacts to the webhook event without a human pressing refresh.
@@ -103,7 +103,7 @@ The hackathon asks for at least three sponsor tools. **Unsyphn wires six**, each
 
 > *Does the solution have the potential to solve a meaningful problem or demonstrate real-world value?*
 
-Unsyphn targets a real, underserved problem with a real buyer: procurement, legal, and GRC teams responsible for vendor risk in mid-market and enterprise organizations. The market gap is documented above in §1. The product is framed as an **agent loop** rather than yet another dashboard — the differentiator that lets us catch material change **before renewal day** rather than file a report after the fact. The product spec, severity matrix, three seeded policies (PII retention shrink, price hike near renewal, sub-processor added in non-adequate jurisdiction), and demo seed are all locked in [`handoff/Product Decisions.html`](handoff/Product%20Decisions.html) before any code was shipped.
+Redline targets a real, underserved problem with a real buyer: procurement, legal, and GRC teams responsible for vendor risk in mid-market and enterprise organizations. The market gap is documented above in §1. The product is framed as an **agent loop** rather than yet another dashboard — the differentiator that lets us catch material change **before renewal day** rather than file a report after the fact. The product spec, severity matrix, three seeded policies (PII retention shrink, price hike near renewal, sub-processor added in non-adequate jurisdiction), and demo seed are all locked in [`handoff/Product Decisions.html`](handoff/Product%20Decisions.html) before any code was shipped.
 
 ### Technical Implementation — 20%
 
@@ -112,7 +112,7 @@ Unsyphn targets a real, underserved problem with a real buyer: procurement, lega
 | Signal | Evidence |
 |---|---|
 | Test coverage | **84 tests across 16 files, all passing** (`pnpm test`) |
-| Type safety | Zod schemas shared between API and web through `@unsyphn/shared`; **branded TS IDs** so cross-org leaks fail at compile time |
+| Type safety | Zod schemas shared between API and web through `@redline/shared`; **branded TS IDs** so cross-org leaks fail at compile time |
 | Logging | Structured pino with request-scoped `{requestId, orgId, operation}`; **zero `console.*` in production paths** |
 | Storage | Append-only with version history (`ReplacingMergeTree` semantics) — same interface in ClickHouse and in-memory dev store |
 | Event bus | In-memory broker with `Last-Event-ID` replay, 500-event retention, per-event Zod validation at the boundary |
@@ -193,7 +193,7 @@ flowchart TB
     Mem --> Pipe
 ```
 
-One scheduler, one event bus, one typed contract package (`@unsyphn/shared`) shared between API and web. The SSE stream is the spinal cord — every component that needs to know about state change subscribes to it instead of polling.
+One scheduler, one event bus, one typed contract package (`@redline/shared`) shared between API and web. The SSE stream is the spinal cord — every component that needs to know about state change subscribes to it instead of polling.
 
 ---
 
@@ -262,7 +262,7 @@ The stages are independent. A failed Slack delivery does not stop the Senso publ
 
 ## 7. Autonomy
 
-Every loop in Unsyphn runs without a human prompt except one. The scheduler ticks on `setInterval`, queues a scan job per vendor, and the pipeline runs through fetch → diff → reason → classify → route → publish → emit without input. Each Action is persisted, delivered, and confirmed automatically — Slack posts go up, Senso briefs publish, and an `action.delivered` event fans out to every connected client. The Stripe webhook is the same shape: `payment_intent.succeeded` arrives, the signature is verified, org entitlements flip, and an `org.entitlements.changed` event rides the SSE channel to the UI, which flips its Compliance Pack badge without a reload or a poll.
+Every loop in Redline runs without a human prompt except one. The scheduler ticks on `setInterval`, queues a scan job per vendor, and the pipeline runs through fetch → diff → reason → classify → route → publish → emit without input. Each Action is persisted, delivered, and confirmed automatically — Slack posts go up, Senso briefs publish, and an `action.delivered` event fans out to every connected client. The Stripe webhook is the same shape: `payment_intent.succeeded` arrives, the signature is verified, org entitlements flip, and an `org.entitlements.changed` event rides the SSE channel to the UI, which flips its Compliance Pack badge without a reload or a poll.
 
 The one human-in-the-loop step is the ChangeReport lifecycle. The agent's job is to get every material change in front of the right operator with full context (vendor, citation, policy fired, dollar impact, recommended action) and then let the operator decide whether to renegotiate, accept, reject, or snooze for later. Auto-resolving a P1 is the kind of "helpfulness" that breaks GRC trust on the first false positive, so we don't.
 
@@ -289,7 +289,7 @@ sequenceDiagram
     autonumber
     participant U as Operator
     participant W as StripeModal (web)
-    participant API as Unsyphn API
+    participant API as Redline API
     participant SX as Stripe
     participant H as Webhook handler
     participant Bus as Event Broker
@@ -313,7 +313,7 @@ sequenceDiagram
 
 The web client is subscribed to the same `/v1/stream` channel the agent fans events out on, so the entitlement flip arrives via push, not poll.
 
-**On the agent-payment-rails note in the prompt** (x402 / MPP / CDP / agentic.market): Unsyphn ships v1 with Stripe because it's the rail every team actually deploys today, and because the webhook + entitlement flow demonstrates the property those newer rails are after — the agent reacting to a payment event without a human in the loop. The architecture (typed Actions, event-bus-driven entitlements) is already shaped for a v2 x402 pass on the agent's own outputs (Senso briefs, evidence bundles, exported audit packs).
+**On the agent-payment-rails note in the prompt** (x402 / MPP / CDP / agentic.market): Redline ships v1 with Stripe because it's the rail every team actually deploys today, and because the webhook + entitlement flow demonstrates the property those newer rails are after — the agent reacting to a payment event without a human in the loop. The architecture (typed Actions, event-bus-driven entitlements) is already shaped for a v2 x402 pass on the agent's own outputs (Senso briefs, evidence bundles, exported audit packs).
 
 ---
 
@@ -323,11 +323,11 @@ The script is timed second-by-second to fit the 3-minute slot and prove the loop
 
 | Time | Action | What the judges see |
 |---:|---|---|
-| **T+0:00** | Open `http://localhost:5173` | Halo landing renders with animated 3D cube. Narration: "Unsyphn is an always-on agent for vendor risk." |
+| **T+0:00** | Open `http://localhost:5173` | Halo landing renders with animated 3D cube. Narration: "Redline is an always-on agent for vendor risk." |
 | **T+0:15** | Click **Get access** → `/sign-in` → **Continue with demo workspace** | Lands on `/app`. Dashboard HUD shows 2 vendors · $242,000 annual run rate · ~$7,100 saved · 1 open change. |
 | **T+0:30** | Point at the live indicator | "No Run button — the scheduler ticks every 60s. Watch the SSE feed." A `scheduler.tick` event lands. |
 | **T+0:45** | (autonomous) | `run.stage` events stream through fetch → diff → reason → classify → route. `change.detected` fires for Notion: *"Team plan price rises $16 → $19 (+18.75%) within 60d of renewal."* |
-| **T+1:15** | Switch to Slack `#unsyphn-demo` | Block Kit alert is already posted: severity, vendor, dollar impact, citation snippet, "Open in Unsyphn" / "View evidence" buttons. |
+| **T+1:15** | Switch to Slack `#redline-demo` | Block Kit alert is already posted: severity, vendor, dollar impact, citation snippet, "Open in Redline" / "View evidence" buttons. |
 | **T+1:30** | Click **View evidence** | Public Senso brief renders at `/evidence/chg_seed_notion` with citations linking to `notion.so/pricing`. |
 | **T+1:45** | Back to `/app`. Click **Acknowledge** on the change card | `change.stateChanged` event fires, card animates to acknowledged state. Demonstrates lifecycle state machine. |
 | **T+2:00** | Click **Upgrade to Compliance Pack** → enter test card `4242 4242 4242 4242` → pay | Stripe modal mounts Elements. Real PaymentIntent created and confirmed. |
@@ -341,14 +341,14 @@ The script is timed second-by-second to fit the 3-minute slot and prove the loop
 
 ### Landing → Sign in → Dashboard
 
-Three routes coexist in a tiny pathname router in [`apps/web/src/App.tsx`](apps/web/src/App.tsx). The session lives in `localStorage` under `unsyphn:bearer`, and `hasSession()` from [`apps/web/src/lib/session.ts`](apps/web/src/lib/session.ts) is the gate. A custom `unsyphn:session` window event fires on sign-in so the App re-renders without a reload.
+Three routes coexist in a tiny pathname router in [`apps/web/src/App.tsx`](apps/web/src/App.tsx). The session lives in `localStorage` under `redline:bearer`, and `hasSession()` from [`apps/web/src/lib/session.ts`](apps/web/src/lib/session.ts) is the gate. A custom `redline:session` window event fires on sign-in so the App re-renders without a reload.
 
 ```mermaid
 flowchart LR
     Anon[Anonymous visitor] --> Landing[/HaloLanding · /]
     Landing -->|Get access| SignIn[/SignIn · /sign-in/]
-    SignIn -->|Continue with demo| Session[localStorage<br/>unsyphn:bearer]
-    Session --> App[/UnsyphnApp · /app<br/>Dashboard + Onboard/]
+    SignIn -->|Continue with demo| Session[localStorage<br/>redline:bearer]
+    Session --> App[/RedlineApp · /app<br/>Dashboard + Onboard/]
     Anon -->|/evidence/:id| Brief[/SensoBrief — public/]
     App -.click brief.-> Brief
 ```
@@ -533,7 +533,7 @@ graph LR
     Tests --> Shared
 ```
 
-A contract change in `@unsyphn/shared` rebuilds the universe with one `pnpm typecheck`.
+A contract change in `@redline/shared` rebuilds the universe with one `pnpm typecheck`.
 
 ---
 
@@ -568,7 +568,7 @@ Fourteen variables documented in [`.env.example`](.env.example). Required for th
 | `CLICKHOUSE_URL` / `_USER` / `_PASSWORD` | Snapshot + ChangeReport + Action writes | API boot fails |
 | `NIMBLE_API_KEY` | Live vendor page fetches | Falls back to seeded snapshots |
 | `GEMINI_API_KEY` | Structured diff classification | Falls back to heuristic classifier |
-| `SLACK_WEBHOOK_URL` | Posting to `#unsyphn-demo` | Action persisted, never delivered |
+| `SLACK_WEBHOOK_URL` | Posting to `#redline-demo` | Action persisted, never delivered |
 | `STRIPE_SECRET_KEY` / `_PUBLISHABLE_KEY` / `_WEBHOOK_SECRET` | Compliance Pack purchase | `/v1/billing/*` returns 503 |
 | `BASE_URL` | Embedded in outgoing Slack links | Defaults to `http://localhost:8787` |
 
@@ -616,7 +616,7 @@ curl -N "http://localhost:8787/v1/stream?token=$TOKEN"
 ```sh
 pnpm test                              # vitest run — 84/84 across 16 files
 pnpm test:watch                        # watch mode
-pnpm --filter @unsyphn/api typecheck   # one workspace
+pnpm --filter @redline/api typecheck   # one workspace
 ```
 
 The test layout splits cleanly. `tests/api/` covers request and response shape, store invariants, broker behavior, lifecycle transitions, SSE ordering and replay, Slack rendering, Stripe webhook signature verification, vendor discovery, agent routing, billing flows, and the integration test that proves lifecycle events and action events share one SSE history. `tests/web/` covers HaloLanding, SignIn, Onboard, StripeModal, and SensoBrief — scoped to jsdom via `environmentMatchGlobs` in [`vitest.config.ts`](vitest.config.ts). `tests/setup.ts` seeds env vars so `env()` passes in test, registers `@testing-library/jest-dom`, and runs `cleanup()` after each test. `tests/helpers/` holds in-memory stores so route tests never need to touch ClickHouse.

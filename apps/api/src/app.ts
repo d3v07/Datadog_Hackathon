@@ -12,7 +12,7 @@ import { logger } from "./logger.js";
 import { billingRoute } from "./routes/billing.js";
 import { createChangesRouter } from "./routes/changes.js";
 import { dashboardRoute } from "./routes/dashboard.js";
-import { evidenceRoute } from "./routes/evidence.js";
+import { createEvidenceRouter } from "./routes/evidence.js";
 import { createStreamRouter } from "./routes/stream.js";
 import { vendorsRoute } from "./routes/vendors.js";
 import { stripeWebhookRoute } from "./routes/webhooks-stripe.js";
@@ -52,7 +52,7 @@ export function createApp(deps: AppDeps = {}): Hono {
 
   app.get("/health", (c) => c.json({ ok: true }));
   app.route("/webhooks/stripe", stripeWebhookRoute);
-  app.route("/v1/evidence", evidenceRoute);
+  app.route("/v1/evidence", createEvidenceRouter(reports));
   app.use("/v1/*", createAuthMiddleware(deps.seedData?.tokens));
   app.route("/v1/vendors", vendorsRoute);
   app.route("/v1/billing", billingRoute);

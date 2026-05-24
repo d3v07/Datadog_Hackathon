@@ -12,7 +12,7 @@ Style is a deliberate hybrid: **Slate** layout + **Seven** typography.
 ## 0. Constraints I'm honoring
 
 1. **Build on the existing monorepo** — `apps/web`, `apps/api`, `packages/shared`. Don't fork.
-2. **One brand**: "Redline" (drop the legacy "Unsyphn" string everywhere).
+2. **One brand**: "Redline" (drop the legacy "Redline" string everywhere).
 3. **Hero flow first** — Portfolio → Change → Routing → Evidence → Transact → Bundle. Everything else is staged.
 4. **Real where it matters, faked where it doesn't** — one real change run, one real Senso URL, one real Stripe checkout. The rest is seeded.
 5. **No marketing chrome on the app surface** — landing page lives at `/`; product lives at `/app`.
@@ -181,7 +181,7 @@ From PDF §12 "Demo dressing" + my taste pass:
 These are the *changes I'm making* on `saasb2b` — not a rewrite.
 
 ### 5.1 Brand & shell
-- [ ] Rip "Unsyphn" everywhere → "Redline" (text + nav marks + favicon alt + page titles).
+- [ ] Rip "Redline" everywhere → "Redline" (text + nav marks + favicon alt + page titles).
 - [ ] Replace `unsyphlogo.png` references with a new `/logo.png` (mark + wordmark). Keep all favicon sizes.
 - [ ] Rewrite `apps/web/src/styles.css` against the new tokens in §1.1.
 - [ ] One global font load (`Helvetica Neue` system → `Inter` web fallback) — delete the existing Inter `<link>` if Helvetica Neue is local.
@@ -250,7 +250,7 @@ Each screen passes when:
 - `pnpm dev` → both servers up in one command (already wired).
 - A11y: keyboard reaches every interactive element; focus rings visible; landmarks present; contrast ≥ 4.5:1 on the dark theme (periwinkle on `#0A0B0F` = 8.1:1, text on bg = 14.2:1 — both pass AA).
 - No `console.log` in shipped code (Stop hook enforces).
-- No "Unsyphn" / "Redline" string mixing — `grep -rin "unsyphn" apps/` returns zero.
+- No "Redline" / "Redline" string mixing — `grep -rin "redline" apps/` returns zero.
 
 ---
 

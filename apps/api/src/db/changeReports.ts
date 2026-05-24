@@ -4,6 +4,7 @@ export interface ChangeReportRepository {
   getLatest(orgId: OrgId, id: ChangeReportId): Promise<ChangeReport | null>;
   insertVersion(report: ChangeReport): Promise<void>;
   listVersions(orgId: OrgId, id: ChangeReportId): Promise<ChangeReport[]>;
+  findById(id: ChangeReportId): Promise<ChangeReport | null>;
 }
 
 function copyReport(report: ChangeReport): ChangeReport {
@@ -53,5 +54,13 @@ export class InMemoryChangeReportRepository implements ChangeReportRepository {
 
   async listVersions(orgId: OrgId, id: ChangeReportId): Promise<ChangeReport[]> {
     return (this.rows.get(key(orgId, id)) ?? []).map(copyReport);
+  }
+
+  async findById(id: ChangeReportId): Promise<ChangeReport | null> {
+    for (const versions of this.rows.values()) {
+      const match = versions.find((r) => r.id === id);
+      if (match) return copyReport(match);
+    }
+    return null;
   }
 }

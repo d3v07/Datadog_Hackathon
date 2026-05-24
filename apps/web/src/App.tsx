@@ -1,110 +1,179 @@
-import { useEffect, useState } from "react";
-import { Onboard } from "./screens/Onboard.js";
-import { StripeModal } from "./screens/StripeModal.js";
+import { useEffect } from "react";
 import { SensoBrief } from "./screens/SensoBrief.js";
-import { VendorOnboarding } from "./screens/VendorOnboarding.js";
+import { Portfolio } from "./screens/Portfolio.js";
+import { ChangeReport } from "./screens/ChangeReport.js";
+import { Onboarding } from "./screens/Onboarding.js";
+import { RoleSwitcher } from "./components/RoleSwitcher.js";
+import { CommandPalette } from "./components/CommandPalette.js";
+
+function isAppRoute(pathname: string): boolean {
+  return pathname === "/app" || pathname.startsWith("/app/");
+}
 
 function parseEvidenceId(pathname: string): string | undefined {
-  const match = pathname.match(/^\/evidence\/([^/?#]+)\/?$/);
+  const match = pathname.match(/^\/app\/evidence\/([^/?#]+)\/?$/);
   return match?.[1];
 }
 
-function isOnboardingRoute(pathname: string): boolean {
-  return /^\/onboarding\/?$/.test(pathname);
+function parseVendorId(pathname: string): string | undefined {
+  const match = pathname.match(/^\/app\/vendor\/([^/?#]+)\/?$/);
+  return match?.[1];
 }
 
-function isDashboardRoute(pathname: string): boolean {
-  return /^\/dashboard\/?$/.test(pathname);
+function parseChangeId(pathname: string): string | undefined {
+  const match = pathname.match(/^\/app\/change\/([^/?#]+)\/?$/);
+  return match?.[1];
+}
+
+function currentNav(pathname: string): "portfolio" | "policy" | "settings" | null {
+  if (
+    pathname === "/app" ||
+    pathname === "/app/" ||
+    pathname.startsWith("/app/vendor") ||
+    pathname.startsWith("/app/change") ||
+    pathname.startsWith("/app/evidence")
+  ) return "portfolio";
+  if (pathname.startsWith("/app/policy")) return "policy";
+  if (pathname.startsWith("/app/settings")) return "settings";
+  return null;
 }
 
 export function App(): JSX.Element | null {
   const pathname =
     typeof window !== "undefined" ? window.location.pathname : "/";
-  const isAppRoute =
-    isOnboardingRoute(pathname) ||
-    isDashboardRoute(pathname) ||
-    Boolean(parseEvidenceId(pathname));
+
+  const inApp = isAppRoute(pathname);
 
   useEffect(() => {
-    if (isAppRoute) {
+    document.title = "Redline";
+  }, []);
+
+  useEffect(() => {
+    if (inApp) {
       document.body.classList.add("app-mode");
+    } else {
+      document.body.classList.remove("app-mode");
     }
     return () => {
       document.body.classList.remove("app-mode");
     };
-  }, [isAppRoute]);
+  }, [inApp]);
+
+  if (!inApp) return null;
 
   const evidenceId = parseEvidenceId(pathname);
-  if (evidenceId) {
-    return <SensoBrief changeReportId={evidenceId} />;
-  }
+  const activeNav = currentNav(pathname);
 
-  if (isOnboardingRoute(pathname)) {
-    return <VendorOnboardingApp />;
-  }
-
-  if (isDashboardRoute(pathname)) {
-    const tier = typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("tier")
-      : null;
-    const parsed = tier ? parseInt(tier, 10) : NaN;
-    const tierNum = parsed === 1 || parsed === 2 || parsed === 3 ? parsed : undefined;
-    return <DashboardApp prefillTier={tierNum} />;
-  }
-
-  return null;
-}
-
-interface DashboardAppProps {
-  prefillTier?: 1 | 2 | 3;
-}
-
-function DashboardApp({ prefillTier }: DashboardAppProps): JSX.Element {
-  const [showUpgrade, setShowUpgrade] = useState(false);
   return (
-    <main className="app">
-      <header className="app__header">
-        <img src="/logo.png" alt="Unsyphn" className="app__mark" style={{ height: 28, width: "auto" }} />
-        <nav aria-label="breadcrumb">
-          <span className="app__crumb">Add Vendor</span>
-        </nav>
-        <div className="app__actions" style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          <a className="btn btn--ghost app__nav" href="/onboarding">
-            Vendor Onboarding
-          </a>
-          <button
-            className="btn btn--ghost app__upgrade"
-            type="button"
-            onClick={() => setShowUpgrade(true)}
-          >
-            Upgrade to Compliance Pack
-          </button>
-        </div>
-      </header>
-      <Onboard prefillTier={prefillTier} />
-      {showUpgrade && <StripeModal onClose={() => setShowUpgrade(false)} />}
-    </main>
+    <>
+      <TopBar activeNav={activeNav} />
+      <main className="app-content">
+        {evidenceId ? (
+          <SensoBrief changeReportId={evidenceId} />
+        ) : pathname === "/app" || pathname === "/app/" ? (
+          <Portfolio />
+        ) : parseVendorId(pathname) ? (
+          <div className="placeholder">Vendor Detail (Wave 3)</div>
+        ) : parseChangeId(pathname) ? (
+          <ChangeReport changeId={parseChangeId(pathname)!} />
+        ) : pathname.startsWith("/app/policy") ? (
+          <div className="placeholder">Policy Studio coming soon</div>
+        ) : pathname.startsWith("/app/onboarding") ? (
+          <Onboarding />
+        ) : pathname.startsWith("/app/settings") ? (
+          <div className="placeholder">Settings (Wave 3)</div>
+        ) : null}
+      </main>
+      <CommandPalette />
+    </>
   );
 }
 
-function VendorOnboardingApp(): JSX.Element {
+interface TopBarProps {
+  activeNav: "portfolio" | "policy" | "settings" | null;
+}
+
+function TopBar({ activeNav }: TopBarProps): JSX.Element {
   return (
-    <main className="app">
-      <header className="app__header">
-        <img src="/logo.png" alt="Unsyphn" className="app__mark" style={{ height: 28, width: "auto" }} />
-        <nav aria-label="breadcrumb">
-          <span className="app__crumb">Vendor Onboarding</span>
-        </nav>
-        <a
-          className="btn btn--ghost"
-          href="/dashboard"
-          style={{ marginLeft: "auto" }}
-          aria-label="Back to dashboard"
-        >
-          ← Back to Dashboard
-        </a>
-      </header>
-      <VendorOnboarding />
-    </main>
+    <header
+      className="topbar"
+      style={{
+        height: 48,
+        display: "flex",
+        alignItems: "center",
+        padding: "0 var(--space-5)",
+        borderBottom: "1px solid var(--border)",
+        gap: "var(--space-5)",
+        background: "var(--surface)",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "var(--font-display)",
+          fontWeight: 500,
+          fontSize: "var(--text-sm)",
+          color: "var(--text-strong)",
+          letterSpacing: "-0.01em",
+          userSelect: "none",
+        }}
+      >
+        Redline
+      </span>
+
+      <nav
+        aria-label="Main navigation"
+        style={{ display: "flex", gap: "var(--space-2)", flex: 1 }}
+      >
+        {(
+          [
+            ["portfolio", "Portfolio", "/app"],
+            ["policy", "Policy", "/app/policy"],
+            ["settings", "Settings", "/app/settings"],
+          ] as const
+        ).map(([key, label, href]) => (
+          <a
+            key={key}
+            href={href}
+            className={activeNav === key ? "is-active" : ""}
+            style={{
+              fontFamily: "var(--font-text)",
+              fontWeight: 400,
+              fontSize: "var(--text-sm)",
+              color:
+                activeNav === key ? "var(--accent)" : "var(--text-2)",
+              padding: "4px var(--space-3)",
+              borderRadius: "var(--radius-sm)",
+              textDecoration: "none",
+              transition: "color var(--dur-fast)",
+            }}
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
+      <RoleSwitcher />
+
+      <button
+        type="button"
+        aria-label="Open command palette"
+        onClick={() => window.dispatchEvent(new CustomEvent("redline:openPalette"))}
+        style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "var(--text-xs)",
+          color: "var(--muted)",
+          background: "none",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--radius-sm)",
+          padding: "2px 6px",
+          cursor: "pointer",
+        }}
+      >
+        ⌘K
+      </button>
+    </header>
   );
 }
