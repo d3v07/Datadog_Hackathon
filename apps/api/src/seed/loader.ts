@@ -14,12 +14,14 @@ interface Caches {
   orgs: Map<string, Org>;
   users: Map<string, User>;
   tokens: Map<string, string>; // bearer-token → orgId
+  changeReports: ChangeReport[];
 }
 
 const caches: Caches = {
   orgs: new Map(),
   users: new Map(),
   tokens: new Map(),
+  changeReports: [],
 };
 
 function readJson<T>(path: string): T {
@@ -40,6 +42,7 @@ export function loadSeeds(opts?: { seedDir?: string }): void {
   caches.orgs.clear();
   caches.users.clear();
   caches.tokens.clear();
+  caches.changeReports = changeReports;
 
   for (const o of orgs) caches.orgs.set(o.id, o);
   for (const u of users) caches.users.set(u.id, u);
@@ -50,6 +53,13 @@ export function loadSeeds(opts?: { seedDir?: string }): void {
   vendorStore.load(vendors);
   policyStore.load(policies);
   changeReportStore.load(changeReports);
+}
+
+// Exposes the seeded change reports so callers (e.g. index.ts boot) can
+// hydrate the canonical ChangeReportRepository. Without this, lifecycle
+// endpoints (acknowledge / snooze / resolve) 404 on seeded change ids.
+export function getSeededChangeReports(): ChangeReport[] {
+  return caches.changeReports;
 }
 
 export function getOrg(id: string): Org | undefined {

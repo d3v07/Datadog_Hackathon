@@ -56,7 +56,10 @@ export function createServerApp(argv = process.argv) {
   return createApp({ reports: seed.reports });
 }
 
-export function buildApp() {
+export function buildApp(deps?: { seedChangeReports?: ChangeReport[] }) {
+  if (deps?.seedChangeReports && deps.seedChangeReports.length > 0) {
+    return createApp({ reports: new InMemoryChangeReportRepository(deps.seedChangeReports) });
+  }
   return createApp();
 }
 
