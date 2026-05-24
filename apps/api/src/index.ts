@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
 import { buildApp } from "./server.js";
 import { env } from "./env.js";
-import { loadSeeds } from "./seed/loader.js";
+import { loadSeeds, getSeededChangeReports } from "./seed/loader.js";
 import { migrate } from "./db/migrate.js";
 import { ensureStripeProducts } from "./providers/stripe.js";
 import { logger } from "./logger.js";
@@ -24,7 +24,7 @@ async function main(): Promise<void> {
   } else {
     logger.info("Stripe not configured; set STRIPE_SECRET_KEY to enable billing");
   }
-  const app = buildApp();
+  const app = buildApp({ seedChangeReports: getSeededChangeReports() });
   serve({ fetch: app.fetch, port: e.PORT }, (info) => {
     logger.info({ port: info.port }, "Redline API listening");
   });
