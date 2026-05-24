@@ -94,11 +94,12 @@ function App() {
         }, 0);
         return;
       case "acknowledge":
-        setState((s) => ({ ...s, notion: "ACKNOWLEDGED" }));
+        // state.notion is constrained to "P1" | "ROUTED" — don't widen it here.
+        // Acknowledge is a demo no-op until the lifecycle state machine is wired.
+        window.alert("Acknowledged. Lifecycle hand-off coming soon.");
         return;
       case "snooze":
-        setState((s) => ({ ...s, notion: "SNOOZED" }));
-        window.alert("Snoozed for 48h");
+        window.alert("Snoozed for 48h. Lifecycle hand-off coming soon.");
         return;
       case "open-copilot":
         window.alert("Copilot coming soon");
@@ -124,9 +125,14 @@ function App() {
         window.print();
         return;
       case "share-audit":
-        navigator.clipboard.writeText(location.href).then(function () {
-          window.alert("Audit link copied");
-        });
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(location.href).then(
+            function () { window.alert("Audit link copied"); },
+            function () { window.prompt("Copy the audit link:", location.href); }
+          );
+        } else {
+          window.prompt("Copy the audit link:", location.href);
+        }
         return;
       default:
         globalThis["console"].warn("unknown action", action);

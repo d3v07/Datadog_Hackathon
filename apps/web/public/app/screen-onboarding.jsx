@@ -2,7 +2,14 @@
 // Posts to POST /v1/vendors via the vite proxy. SLA tier → criticality tier
 // mapping is: 6H Express → 1 (critical), 24H Standard → 2 (material), 48H Basic → 3 (informational).
 
-const DEMO_BEARER_TOKEN = "demo_token_acme_corp_2026";
+// Bearer token sourced from the same meta tag live.js reads so it can be
+// rotated/overridden in one place (public/app/index.html line 7).
+function getBearerToken() {
+  if (typeof document === "undefined") return "";
+  const meta = document.querySelector('meta[name="redline-bearer"]');
+  return (meta && meta.getAttribute("content")) || "";
+}
+const DEMO_BEARER_TOKEN = getBearerToken();
 
 const OWNERS = [
   { id: "usr_priya",  name: "Priya Natarajan" },
