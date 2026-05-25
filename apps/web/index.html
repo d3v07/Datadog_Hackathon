@@ -407,6 +407,19 @@ h1.title em{
   letter-spacing: -0.02em;
   text-shadow: 0 1px 3px rgba(0,0,0,.6);
 }
+.tile .vendor-logo{
+  position:absolute;
+  top:50%; left:50%;
+  transform: translate(-50%, -50%);
+  z-index:2;
+  width: 50%; height: 50%;
+  object-fit: contain;
+  opacity:.92;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.6));
+  pointer-events:none;
+}
+body[data-density="plain"]   .tile > .vendor-logo,
+body[data-density="letters"] .tile .vendor-logo { display:none; }
 
 /* density modes */
 body[data-density="plain"]   .tile > svg,
@@ -626,21 +639,28 @@ body[data-density="marks"]   .tile svg { display:block; }
   ];
   const LETTERS = 'AZSNGFLVRMZGDHJAID'.split('');
 
+  // 54 SaaS vendor slugs — Simple Icons (CC0, no attribution required)
+  // Served from https://cdn.simpleicons.org/{slug}/ffffff (white silhouette on dark glass)
+  const VENDOR_LOGOS = [
+    'notion','slack','figma','microsoftoffice','salesforce','stripe','datadog','github','amazonaws',
+    'googlecloud','vercel','linear','jira','atlassian','asana','mondaydotcom','hubspot','mailchimp',
+    'intercom','zendesk','segment','mixpanel','amplitude','posthog','zoom','googlecalendar','gmail',
+    'microsoftoutlook','microsoftteams','dropbox','box','googledrive','adobeacrobatreader','adobephotoshop','adobeillustrator',
+    'sketch','framer','miro','loom','calendly','docusign','brex','okta','auth0',
+    '1password','lastpass','bitwarden','snowflake','mongodb','postgresql','redis','sentry','pagerduty','airtable'
+  ];
+
   // helper: cube edge size in px (set on init + resize)
   function getS(){
     const v = parseFloat(getComputedStyle(cube).getPropertyValue('--S'));
     return isFinite(v) && v > 0 ? v : 420;
   }
 
-  // create face backdrops, each carrying the UNSYPHN wordmark
+  // create face backdrops (wordmark removed — vendor logos render on the tiles instead)
   FACES.forEach(([cls, N, R, U], fi)=>{
     const f = document.createElement('div');
     f.className = 'face ' + cls;
     f.style.setProperty('--glow', AURORA[fi % AURORA.length]);
-    const wm = document.createElement('span');
-    wm.className = 'wordmark';
-    wm.textContent = 'UNSYPHN';
-    f.appendChild(wm);
     cube.appendChild(f);
   });
 
@@ -654,9 +674,12 @@ body[data-density="marks"]   .tile svg { display:block; }
         el.className = 'tile ' + cls;
         const color = AURORA[(fi * 3 + (row + col)) % AURORA.length];
         el.style.setProperty('--glow', color);
+        const slug = VENDOR_LOGOS[tileIdx % VENDOR_LOGOS.length];
         el.innerHTML =
           tileHTML(tileIdx) +
-          '<span class="letter">' + LETTERS[tileIdx % LETTERS.length] + '</span>';
+          '<img class="vendor-logo" alt="" aria-hidden="true" loading="lazy" ' +
+          'src="https://cdn.simpleicons.org/' + slug + '/ffffff" ' +
+          'onerror="this.style.display=\'none\'" />';
         cube.appendChild(el);
 
         // base local 2D offset on the face
