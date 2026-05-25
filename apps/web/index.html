@@ -130,7 +130,7 @@ body{
   width:100vw;height:100vh;
   pointer-events:none;
   z-index:1;
-  opacity:0.85;
+  opacity:0.45;
 }
 @media (prefers-reduced-motion: reduce){
   #cursor-trail{display:none}
@@ -1006,28 +1006,23 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
     var dist = Math.hypot(dx, dy);
     lastX = ev.clientX; lastY = ev.clientY;
     hasMoved = true;
-    // emit every ~14ms OR when moved 8+ pixels — gives a continuous dot trail
-    if (now - lastEmit < 14 && dist < 6) return;
+    // throttle harder — emit at most every ~40ms or when moved 14+px
+    if (now - lastEmit < 40 && dist < 14) return;
     lastEmit = now;
-    // dot count scales with speed
-    var n = Math.min(4, 1 + Math.floor(dist / 18));
-    for (var i = 0; i < n; i++){
-      var off = (Math.random() - 0.5) * Math.min(28, dist * 0.6 + 8);
-      var perp = (Math.random() - 0.5) * 14;
-      // jitter perpendicular to motion direction so dots scatter like the logo's halftone
-      var nx = dist > 0.001 ? (-dy / dist) : 0;
-      var ny = dist > 0.001 ? ( dx / dist) : 0;
-      particles.push({
-        x: ev.clientX + off + nx * perp,
-        y: ev.clientY + off + ny * perp,
-        r: 2 + Math.random() * 7,
-        color: palette[(Math.random() * palette.length) | 0],
-        age: 0,
-        life: 900 + Math.random() * 700, // ms
-      });
-    }
-    // soft cap so memory stays bounded on fast moves
-    if (particles.length > 220) particles.splice(0, particles.length - 220);
+    // at most 1 dot per emission — keeps the trail whispered, not sprayed
+    var off = (Math.random() - 0.5) * Math.min(16, dist * 0.4 + 4);
+    var perp = (Math.random() - 0.5) * 8;
+    var nx = dist > 0.001 ? (-dy / dist) : 0;
+    var ny = dist > 0.001 ? ( dx / dist) : 0;
+    particles.push({
+      x: ev.clientX + off + nx * perp,
+      y: ev.clientY + off + ny * perp,
+      r: 1.5 + Math.random() * 2.5,             // 1.5 – 4px (was 2 – 9)
+      color: palette[(Math.random() * palette.length) | 0],
+      age: 0,
+      life: 520 + Math.random() * 380,          // 520 – 900ms (was 900 – 1600)
+    });
+    if (particles.length > 90) particles.splice(0, particles.length - 90);
   }, { passive: true });
 
   var prev = performance.now();
@@ -1039,9 +1034,9 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
       p.age += dt;
       var t = p.age / p.life;
       if (t >= 1){ particles.splice(i, 1); continue; }
-      // fade-out with soft easing
-      var alpha = (1 - t) * (1 - t * 0.6);
-      var radius = p.r * (1 - t * 0.25);
+      // gentler fade — peak alpha ~0.5, decays smoothly
+      var alpha = (1 - t) * (1 - t * 0.6) * 0.55;
+      var radius = p.r * (1 - t * 0.4);
       ctx.beginPath();
       ctx.fillStyle = p.color;
       ctx.globalAlpha = alpha;
