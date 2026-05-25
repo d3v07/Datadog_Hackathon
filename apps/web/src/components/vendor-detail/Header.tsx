@@ -54,7 +54,17 @@ export function Header({ vendor, members, onPatch }: Props): JSX.Element {
         <ArrowLeft size={12} aria-hidden="true" /> All vendors
       </a>
 
-      <div style={{ display: "flex", gap: "var(--space-5)", alignItems: "flex-start", marginBottom: "var(--space-5)" }}>
+      <section
+        className="glass-strong fade-up"
+        style={{
+          display: "flex",
+          gap: "var(--space-5)",
+          alignItems: "flex-start",
+          marginBottom: "var(--space-5)",
+          padding: "var(--space-5)",
+          borderRadius: 12,
+        }}
+      >
         <VendorLogo name={vendor.name} domain={homepageHost} size={64} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <h1 className="h1" style={{ fontWeight: 600, marginBottom: "var(--space-1)" }}>
@@ -72,7 +82,7 @@ export function Header({ vendor, members, onPatch }: Props): JSX.Element {
               <button
                 ref={ownerAnchor}
                 type="button"
-                className="btn btn-ghost"
+                className="btn btn-ghost button-pop"
                 onClick={() => setOwnerOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={ownerOpen}
@@ -127,7 +137,7 @@ export function Header({ vendor, members, onPatch }: Props): JSX.Element {
               <button
                 ref={tierAnchor}
                 type="button"
-                className="badge badge-neutral"
+                className="badge badge-neutral button-pop"
                 onClick={() => setTierOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={tierOpen}
@@ -155,7 +165,7 @@ export function Header({ vendor, members, onPatch }: Props): JSX.Element {
               <button
                 ref={postureAnchor}
                 type="button"
-                className={postureClass(posture)}
+                className={`${postureClass(posture)} button-pop`}
                 onClick={() => setPostureOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={postureOpen}
@@ -186,7 +196,7 @@ export function Header({ vendor, members, onPatch }: Props): JSX.Element {
             )}
           </div>
         </div>
-      </div>
+      </section>
     </>
   );
 }

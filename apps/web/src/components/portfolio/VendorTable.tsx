@@ -98,12 +98,10 @@ export function VendorTable({
 
   return (
     <div
+      className="glass fade-up"
       style={{
-        background: "#ffffff",
-        border: "1px solid rgba(15,23,42,0.08)",
         borderRadius: 16,
         overflow: "hidden",
-        boxShadow: "0 6px 20px rgba(15,23,42,0.06)",
       }}
     >
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -135,18 +133,11 @@ export function VendorTable({
             return (
               <tr
                 key={v.id}
+                className="row-hover"
                 onClick={() => window.location.assign(`/app/vendors/${v.id}`)}
                 style={{
                   cursor: "pointer",
                   background: isSelected ? "rgba(94,106,210,0.04)" : "transparent",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isSelected) (e.currentTarget as HTMLElement).style.background = "#f8fafc";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = isSelected
-                    ? "rgba(94,106,210,0.04)"
-                    : "transparent";
                 }}
               >
                 <td

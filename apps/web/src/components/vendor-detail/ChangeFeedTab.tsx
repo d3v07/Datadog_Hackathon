@@ -57,7 +57,7 @@ export function ChangeFeedTab({ vendorId }: { vendorId: string }): JSX.Element {
   if (error) return <span className="badge badge-danger">{error}</span>;
   if (changes.length === 0)
     return (
-      <div className="card" style={{ padding: "var(--space-7)", textAlign: "center" }}>
+      <div className="card glass-soft fade-up" style={{ padding: "var(--space-7)", textAlign: "center" }}>
         <CheckSquare size={24} aria-hidden="true" style={{ color: "var(--success)", display: "block", margin: "0 auto var(--space-2)" }} />
         <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text-2)" }}>
           No material changes detected. Continuous monitoring is active.
@@ -87,7 +87,7 @@ export function ChangeFeedTab({ vendorId }: { vendorId: string }): JSX.Element {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+    <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-1)" }}>
         <Activity size={14} aria-hidden="true" style={{ color: "var(--success)" }} />
         <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>

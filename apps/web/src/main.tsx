@@ -4,6 +4,7 @@ import { App } from "./App.js";
 import "./styles/tokens.css";
 import "./styles/app.css";
 import "./styles/public.css";
+import "./styles/polish.css";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("#root not found");

@@ -1,4 +1,5 @@
 import type { Vendor } from "@unsyphn/shared";
+import { CountUp } from "../CountUp.js";
 import { fmtUsd } from "./types.js";
 
 interface Props {
@@ -16,23 +17,43 @@ function vendorsRenewingIn(vendors: ReadonlyArray<Vendor>, days: number): number
   return count;
 }
 
+interface StatSpec {
+  value: number;
+  format: (n: number) => string;
+  label: string;
+  tone?: "danger" | "warning";
+}
+
 export function PortfolioStats({ vendors }: Props): JSX.Element {
   const total = vendors.length;
   const runRate = vendors.reduce((s, v) => s + (v.contract?.annualSpendUsd ?? 0), 0);
   const renewingSoon = vendorsRenewingIn(vendors, 90);
   const highRisk = vendors.filter((v) => v.posture === "risk").length;
 
-  const stats: ReadonlyArray<{ value: string; label: string; tone?: "danger" | "warning" }> = [
-    { value: String(total), label: "Vendors" },
-    { value: fmtUsd(runRate), label: "Annual run-rate" },
-    { value: String(renewingSoon), label: "Renewing in 90 days", tone: renewingSoon > 0 ? "warning" : undefined },
-    { value: String(highRisk), label: "High-risk", tone: highRisk > 0 ? "danger" : undefined },
+  const intFmt = (n: number): string => Math.round(n).toString();
+
+  const stats: ReadonlyArray<StatSpec> = [
+    { value: total, format: intFmt, label: "Vendors" },
+    { value: runRate, format: (n) => fmtUsd(Math.round(n)), label: "Annual run-rate" },
+    {
+      value: renewingSoon,
+      format: intFmt,
+      label: "Renewing in 90 days",
+      tone: renewingSoon > 0 ? "warning" : undefined,
+    },
+    {
+      value: highRisk,
+      format: intFmt,
+      label: "High-risk",
+      tone: highRisk > 0 ? "danger" : undefined,
+    },
   ];
 
   return (
     <div
       role="region"
       aria-label="Portfolio summary"
+      className="stagger-children"
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
@@ -42,12 +63,10 @@ export function PortfolioStats({ vendors }: Props): JSX.Element {
       {stats.map((s) => (
         <div
           key={s.label}
+          className="glass-strong lift-on-hover"
           style={{
-            background: "#ffffff",
-            border: "1px solid rgba(15,23,42,0.08)",
             borderRadius: 12,
             padding: "16px 18px",
-            boxShadow: "0 4px 14px rgba(15,23,42,0.04)",
           }}
         >
           <div
@@ -65,7 +84,7 @@ export function PortfolioStats({ vendors }: Props): JSX.Element {
               fontVariantNumeric: "tabular-nums",
             }}
           >
-            {s.value}
+            <CountUp value={s.value} format={s.format} />
           </div>
           <div
             style={{

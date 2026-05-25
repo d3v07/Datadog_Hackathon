@@ -135,22 +135,21 @@ const S = {
 // the columns.
 export function PricingMatrix(): JSX.Element {
   return (
-    <section aria-label="Feature comparison" style={S.section}>
+    <section aria-label="Feature comparison" style={S.section} className="fade-up">
       <h2 className="h2" style={S.h2}>
         Feature comparison
       </h2>
       <style>{`details[open] .details-chevron { transform: rotate(180deg); }`}</style>
       {SECTIONS.map((ms) => (
-        <details key={ms.label} style={{ marginBottom: "var(--space-3)" }}>
+        <details key={ms.label} className="glass" style={{ marginBottom: "var(--space-3)", borderRadius: "var(--radius-md)" }}>
           <summary
+            className="button-pop"
             style={{
               listStyle: "none",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               padding: "var(--space-4) var(--space-5)",
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
               borderRadius: "var(--radius-md)",
               cursor: "pointer",
               fontWeight: 600,
@@ -165,7 +164,7 @@ export function PricingMatrix(): JSX.Element {
               aria-hidden="true"
               style={{
                 color: "var(--text-muted)",
-                transition: "transform var(--dur-fast)",
+                transition: "transform var(--dur-md) var(--ease-spring)",
                 flexShrink: 0,
               }}
               className="details-chevron"
@@ -173,8 +172,7 @@ export function PricingMatrix(): JSX.Element {
           </summary>
           <div
             style={{
-              border: "1px solid var(--border)",
-              borderTop: "none",
+              borderTop: "1px solid var(--border)",
               borderRadius: "0 0 var(--radius-md) var(--radius-md)",
               overflow: "auto",
             }}
@@ -226,7 +224,7 @@ export function PricingMatrix(): JSX.Element {
               </thead>
               <tbody>
                 {ms.rows.map((row) => (
-                  <tr key={row.feature}>
+                  <tr key={row.feature} className="row-hover">
                     <th
                       scope="row"
                       style={{

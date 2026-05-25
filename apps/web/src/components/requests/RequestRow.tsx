@@ -10,7 +10,7 @@ import type { RequestDto, RouteTarget } from "./types.js";
 interface Props {
   request: RequestDto;
   busy: boolean;
-  onApprove: (id: string) => void;
+  onApprove: (id: string, originEl?: HTMLElement) => void;
   onReject: (id: string) => void;
   onRoute: (id: string, target: RouteTarget, note?: string) => void;
   onReopen: (id: string) => void;
@@ -70,7 +70,7 @@ export function RequestRow({
 
   return (
     <article
-      className="card"
+      className="card glass-soft row-hover"
       style={{
         padding: "var(--space-4) var(--space-5)",
         marginBottom: "var(--space-3)",
@@ -178,8 +178,8 @@ export function RequestRow({
               <>
                 <button
                   type="button"
-                  className="btn btn-primary"
-                  onClick={() => onApprove(request.id)}
+                  className="btn btn-primary button-pop"
+                  onClick={(e) => onApprove(request.id, e.currentTarget)}
                   disabled={busy}
                   style={{ height: 32 }}
                 >
@@ -187,7 +187,7 @@ export function RequestRow({
                 </button>
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary button-pop"
                   onClick={() => onReject(request.id)}
                   disabled={busy}
                   style={{ height: 32 }}
@@ -196,7 +196,7 @@ export function RequestRow({
                 </button>
                 <button
                   type="button"
-                  className="btn btn-ghost"
+                  className="btn btn-ghost button-pop"
                   onClick={() => setRoutePanelOpen((v) => !v)}
                   disabled={busy}
                   style={{ height: 32 }}
@@ -208,7 +208,7 @@ export function RequestRow({
             {request.status === "approved" && (
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-secondary button-pop"
                 onClick={() => onConvert(request)}
                 disabled={busy}
                 style={{ height: 32 }}
@@ -219,7 +219,7 @@ export function RequestRow({
             {request.status === "rejected" && (
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-secondary button-pop"
                 onClick={() => onReopen(request.id)}
                 disabled={busy}
                 style={{ height: 32 }}
@@ -230,7 +230,7 @@ export function RequestRow({
             {request.status === "routed" && (
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-secondary button-pop"
                 onClick={() => onRecall(request.id)}
                 disabled={busy}
                 style={{ height: 32 }}
@@ -240,7 +240,7 @@ export function RequestRow({
             )}
             <button
               type="button"
-              className="btn btn-ghost"
+              className="btn btn-ghost button-pop"
               onClick={() => setExpanded((v) => !v)}
               aria-expanded={expanded}
               aria-controls={`comments-${request.id}`}

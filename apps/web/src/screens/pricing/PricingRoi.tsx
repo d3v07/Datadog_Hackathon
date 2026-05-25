@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import { CountUp } from "../../components/CountUp.js";
 
 // ROI formula — calibrated: 500 employees -> ~291 apps. Numbers held constant
 // with the original Pricing.tsx so the ROI story doesn't shift mid-demo.
@@ -45,7 +46,7 @@ export function PricingRoi(): JSX.Element {
 
   return (
     <section aria-label="ROI calculator" style={S.section}>
-      <div className="card" style={{ padding: "var(--space-6)" }}>
+      <div className="card glass-strong lift-on-hover fade-up" style={{ padding: "var(--space-6)" }}>
         <h2 className="h2" style={{ ...S.h2, marginBottom: "var(--space-5)" }}>
           ROI calculator
         </h2>
@@ -67,6 +68,7 @@ export function PricingRoi(): JSX.Element {
             step={50}
             value={employees}
             onChange={(e) => setEmployees(Number(e.target.value))}
+            className="focus-glow"
             style={{ width: "100%", accentColor: "var(--accent)" }}
             aria-label="Number of employees"
           />
@@ -115,8 +117,8 @@ export function PricingRoi(): JSX.Element {
             }}
           >
             <span>Projected annual savings</span>
-            <span style={{ ...S.mono500, color: "var(--success)" }}>
-              {fmt(roi.annualRecoverable)}
+            <span style={{ ...S.mono500, color: "var(--success)", transition: "color var(--dur-sm)" }}>
+              <CountUp value={roi.annualRecoverable} format={fmt} durationMs={650} />
             </span>
           </div>
           <div
@@ -147,7 +149,7 @@ export function PricingRoi(): JSX.Element {
 
         <a
           href="mailto:deals@unsyphn.com?subject=Talk%20to%20a%20deal%20expert"
-          className="btn btn-secondary"
+          className="btn btn-secondary button-pop"
           style={{ justifyContent: "center" }}
         >
           Talk to a deal expert

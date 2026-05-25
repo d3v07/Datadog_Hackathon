@@ -37,13 +37,13 @@ export function PricingFaq(): JSX.Element {
   return (
     <section aria-label="Frequently asked questions" style={S.section}>
       <h2 className="h2" style={S.h2}>FAQ</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+      <style>{`details[open] .faq-chevron { transform: rotate(180deg); }`}</style>
+      <div className="stagger-children" style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
         {FAQ_ITEMS.map((item) => (
           <details
             key={item.q}
+            className="glass-soft row-hover"
             style={{
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
               borderRadius: "var(--radius-md)",
             }}
           >
@@ -65,8 +65,12 @@ export function PricingFaq(): JSX.Element {
               <ChevronDown
                 size={16}
                 aria-hidden="true"
-                style={{ color: "var(--text-muted)", flexShrink: 0 }}
-                className="details-chevron"
+                style={{
+                  color: "var(--text-muted)",
+                  flexShrink: 0,
+                  transition: "transform var(--dur-md) var(--ease-spring)",
+                }}
+                className="faq-chevron"
               />
             </summary>
             <p style={{ padding: "0 var(--space-5) var(--space-4)", ...S.sm, lineHeight: 1.65, margin: 0 }}>

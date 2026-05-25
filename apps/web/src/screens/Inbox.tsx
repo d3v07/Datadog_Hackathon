@@ -240,12 +240,12 @@ export function Inbox(): JSX.Element {
       className="page"
       style={{ padding: "var(--space-7) var(--space-6)", maxWidth: 1000, margin: "0 auto" }}
     >
-      <div style={{ marginBottom: "var(--space-5)" }}>
+      <header className="fade-up" style={{ marginBottom: "var(--space-5)" }}>
         <h1 className="h1" style={{ marginBottom: "var(--space-2)" }}>Inbox</h1>
         <p className="lead" style={{ margin: 0, color: "#64748b" }}>
           Material vendor changes for your active lens. Reviewed once a day keeps you ahead of renewal cliffs.
         </p>
-      </div>
+      </header>
 
       <LensChips />
 
@@ -263,13 +263,13 @@ export function Inbox(): JSX.Element {
       )}
 
       {loading && (
-        <div className="card" style={{ padding: 0, overflow: "hidden" }} aria-busy="true" aria-label="Loading inbox">
+        <div className="card glass-soft" style={{ padding: 0, overflow: "hidden" }} aria-busy="true" aria-label="Loading inbox">
           {Array.from({ length: 6 }, (_, i) => <InboxSkeletonRow key={i} />)}
         </div>
       )}
 
       {!loading && error && (
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card glass-soft fade-up" style={{ padding: 16 }}>
           <span className="badge badge-danger">{error}</span>
         </div>
       )}
@@ -309,9 +309,6 @@ export function Inbox(): JSX.Element {
         </div>
       )}
 
-      <style>{`
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
-      `}</style>
     </main>
   );
 }

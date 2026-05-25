@@ -63,7 +63,7 @@ export function FindingDrawer({ finding, open, busy, onClose, onChangeState }: P
 
   return (
     <Drawer open={open} onClose={onClose} title={`Finding · ${finding.severity}`}>
-      <div>
+      <div className="fade-in">
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
           <span className={severityClass}>{finding.severity}</span>
           <span className="badge badge-neutral" style={{ textTransform: "capitalize" }}>

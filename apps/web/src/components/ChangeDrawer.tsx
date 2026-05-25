@@ -4,6 +4,7 @@ import { X, AlertCircle, CheckCircle, Clock, ArrowUpRight } from "lucide-react";
 import type { InboxItem, EvidenceBriefResponse, Severity } from "@unsyphn/shared";
 import { ApiError, DEMO_BEARER_TOKEN } from "../lib/api.js";
 import { ROLES, ROLE_LABELS, type Role } from "../lib/role.js";
+import { celebrate } from "../lib/confetti.js";
 import { DiffViewer } from "./DiffViewer.js";
 
 export interface ChangeDrawerProps {
@@ -271,6 +272,7 @@ export function ChangeDrawer({ open, onClose, item, onEscalated }: ChangeDrawerP
     try {
       await postChange(`/v1/changes/${item.id}/${key}`, body);
       showToast(successMsg);
+      if (key === "resolve" && item.severity === "P1") celebrate();
       onClose();
     } catch {
       showToast("Action failed", "error");
@@ -307,13 +309,14 @@ export function ChangeDrawer({ open, onClose, item, onEscalated }: ChangeDrawerP
 
   return createPortal(
     <>
-      <div aria-hidden="true" onClick={onClose} style={{ display: open ? "block" : "none", position: "fixed", inset: 0, background: "rgba(15,23,42,0.4)", zIndex: 300 }} />
+      <div aria-hidden="true" onClick={onClose} className={open ? "fade-in" : undefined} style={{ display: open ? "block" : "none", position: "fixed", inset: 0, background: "rgba(15,23,42,0.42)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", zIndex: 300 }} />
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="change-drawer-title"
-        style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "min(480px, 100vw)", background: "var(--surface)", borderLeft: "1px solid var(--border)", zIndex: 301, display: "flex", flexDirection: "column", transform: open ? "translateX(0)" : "translateX(100%)", transition: `transform var(--dur-base) var(--ease-out)`, boxShadow: "var(--shadow-3)" }}
+        className="glass-strong"
+        style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "min(480px, 100vw)", borderLeft: "1px solid var(--glass-border)", zIndex: 301, display: "flex", flexDirection: "column", transform: open ? "translateX(0)" : "translateX(100%)", transition: `transform var(--dur-md) var(--ease-out)` }}
       >
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "0 var(--space-5)", height: 56, borderBottom: "1px solid var(--border)", flexShrink: 0 }}>

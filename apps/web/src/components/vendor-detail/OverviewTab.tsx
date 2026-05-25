@@ -37,7 +37,7 @@ function slugFromName(name: string): string {
 
 function Tile({ label, value, sub }: { label: string; value: string; sub?: string }): JSX.Element {
   return (
-    <div className="card" style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+    <div className="card glass-strong lift-on-hover" style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
       <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
       <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: "var(--text-2xl)", color: "var(--text)", lineHeight: 1.1 }}>{value}</span>
       {sub && <span style={{ fontSize: "var(--text-xs)", color: "var(--text-2)" }}>{sub}</span>}
@@ -122,8 +122,8 @@ export function OverviewTab({ vendor, changes, onOpenPacket, onOpenShareAuditor,
   const termYears = renewsAt ? Math.max(1, Math.min(3, 1 + Math.floor(rand() * 3))) : null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: "var(--space-3)" }}>
+    <div className="stagger-children" style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+      <div className="stagger-children" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: "var(--space-3)" }}>
         <Tile label="Annual spend" value={fmtUsd(annualSpend)} />
         <Tile label="Total seats" value={seatCount > 0 ? seatCount.toLocaleString() : "—"} />
         <Tile
@@ -136,7 +136,7 @@ export function OverviewTab({ vendor, changes, onOpenPacket, onOpenShareAuditor,
 
       <div>
         <Head>Contract terms</Head>
-        <div className="card" style={{ padding: "var(--space-4)", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: "var(--space-3) var(--space-4)" }}>
+        <div className="card glass-strong fade-up" style={{ padding: "var(--space-4)", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: "var(--space-3) var(--space-4)" }}>
           <Field label="Renewal date" value={renewsAt ? new Date(renewsAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"} hint={days !== null ? (days > 0 ? `${days}d remaining` : `Expired ${Math.abs(days)}d ago`) : undefined} />
           <Field label="Annual spend" value={fmtUsd(annualSpend)} />
           <Field label="Seat count" value={seatCount > 0 ? seatCount.toLocaleString() : "—"} />
@@ -148,7 +148,7 @@ export function OverviewTab({ vendor, changes, onOpenPacket, onOpenShareAuditor,
 
       <div>
         <Head>Integrations</Head>
-        <div className="card" style={{ padding: "var(--space-4)" }}>
+        <div className="card glass-strong fade-up" style={{ padding: "var(--space-4)" }}>
           {integrations.length === 0 ? (
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>
               <Plug size={14} aria-hidden="true" /> No integrations connected for {vendor.name}.
@@ -180,33 +180,33 @@ export function OverviewTab({ vendor, changes, onOpenPacket, onOpenShareAuditor,
 
       <div>
         <Head>Last scan</Head>
-        <div className="card" style={{ padding: "var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+        <div className="card glass-strong fade-up" style={{ padding: "var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
           <Clock size={14} aria-hidden="true" style={{ color: "var(--text-muted)" }} />
           <span style={{ fontSize: "var(--text-sm)", color: "var(--text-2)" }}>
             {relTime(lastScanIso)} · monitored every 60s
           </span>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-secondary button-pop"
             onClick={() => void scanNow()}
             disabled={scanning}
             style={{ marginLeft: "auto", fontSize: "var(--text-xs)" }}
           >
-            <RefreshCw size={13} aria-hidden="true" className={scanning ? "spin" : ""} /> {scanning ? "Scanning…" : "Scan now"}
+            <RefreshCw size={13} aria-hidden="true" className={scanning ? "spin" : "icon-spin-on-hover"} /> {scanning ? "Scanning…" : "Scan now"}
           </button>
         </div>
       </div>
 
-      <div>
+      <div className="fade-up">
         <Head>Quick actions</Head>
         <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-          <button type="button" className="btn btn-primary" onClick={onOpenPacket}>
+          <button type="button" className="btn btn-primary button-pop" onClick={onOpenPacket}>
             <Send size={13} aria-hidden="true" /> Generate renegotiation packet
           </button>
-          <button type="button" className="btn btn-secondary" onClick={onOpenShareAuditor}>
+          <button type="button" className="btn btn-secondary button-pop" onClick={onOpenShareAuditor}>
             <Share2 size={13} aria-hidden="true" /> Share with auditor
           </button>
-          <button type="button" className="btn btn-ghost" onClick={() => void markInactive()} disabled={markBusy}>
+          <button type="button" className="btn btn-ghost button-pop" onClick={() => void markInactive()} disabled={markBusy}>
             <FileX2 size={13} aria-hidden="true" /> Mark as risk
           </button>
         </div>
@@ -228,11 +228,11 @@ export function OverviewTab({ vendor, changes, onOpenPacket, onOpenShareAuditor,
       {changes.length > 0 && (
         <div>
           <Head>Recent activity</Head>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+          <div className="stagger-children" style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
             {changes.slice(0, 3).map((ch) => (
               <div
                 key={ch.id}
-                className="card"
+                className="card glass-soft row-hover"
                 style={{ padding: "var(--space-3) var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}
               >
                 <span className={ch.severity === "P1" ? "badge badge-danger" : "badge badge-warning"} style={{ flexShrink: 0 }}>

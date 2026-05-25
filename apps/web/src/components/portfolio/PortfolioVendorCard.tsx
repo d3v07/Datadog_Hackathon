@@ -69,22 +69,21 @@ export function PortfolioVendorCard({
       onKeyDown={handleKey}
       style={{
         position: "relative",
-        background: "#ffffff",
-        border: selected
-          ? "1px solid #5E6AD2"
-          : "1px solid rgba(15,23,42,0.08)",
+        ...(selected
+          ? {
+              border: "1px solid #5E6AD2",
+              boxShadow:
+                "0 0 0 3px rgba(94,106,210,0.15), 0 6px 20px rgba(15,23,42,0.06)",
+            }
+          : {}),
         borderRadius: 16,
         padding: 20,
-        boxShadow: selected
-          ? "0 0 0 3px rgba(94,106,210,0.15), 0 6px 20px rgba(15,23,42,0.06)"
-          : "0 6px 20px rgba(15,23,42,0.06)",
         cursor: "pointer",
         display: "flex",
         flexDirection: "column",
         gap: 12,
-        transition: "box-shadow 160ms ease, border-color 160ms ease",
       }}
-      className="portfolio-card"
+      className={`portfolio-card glass-strong lift-on-hover${selected ? " is-selected" : ""}`}
     >
       {/* Checkbox top-right, visible on hover (CSS handles), always visible when selected */}
       <label

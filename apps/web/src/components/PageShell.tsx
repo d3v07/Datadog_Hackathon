@@ -32,7 +32,7 @@ export function PageShell({ active = null, children }: PageShellProps): JSX.Elem
             </li>
           ))}
         </ul>
-        <a href="/app/" className="cta">Get access →</a>
+        <a href="/app/" className="cta button-pop">Get access →</a>
       </nav>
 
       <main className="public-main">{children}</main>
@@ -46,7 +46,7 @@ function PublicFooter(): JSX.Element {
   return (
     <footer className="public-footer">
       <div className="inner">
-        <div className="top">
+        <div className="top fade-up">
           <div>
             <div className="brand">
               <img src="/unsyphn-mark.png" alt="Unsyphn" width={28} height={20} />

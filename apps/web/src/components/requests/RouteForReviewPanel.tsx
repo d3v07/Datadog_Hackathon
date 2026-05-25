@@ -44,7 +44,7 @@ export function RouteForReviewPanel({ busy, onSubmit, onCancel }: Props): JSX.El
         <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "var(--text-xs)", color: "var(--text-2)" }}>
           Route to
           <select
-            className="input"
+            className="input focus-glow"
             value={target}
             onChange={(e) => setTarget(e.target.value as RouteTarget)}
             style={{ height: 34, minWidth: 160 }}
@@ -57,7 +57,7 @@ export function RouteForReviewPanel({ busy, onSubmit, onCancel }: Props): JSX.El
         <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, fontSize: "var(--text-xs)", color: "var(--text-2)", minWidth: 200 }}>
           Note (optional)
           <input
-            className="input"
+            className="input focus-glow"
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -67,10 +67,10 @@ export function RouteForReviewPanel({ busy, onSubmit, onCancel }: Props): JSX.El
         </label>
       </div>
       <div style={{ display: "flex", gap: "var(--space-2)" }}>
-        <button type="submit" className="btn btn-primary" disabled={busy} style={{ height: 32, fontSize: "var(--text-xs)" }}>
+        <button type="submit" className="btn btn-primary button-pop" disabled={busy} style={{ height: 32, fontSize: "var(--text-xs)" }}>
           {busy ? "Routing..." : `Route to ${TARGET_LABELS[target]}`}
         </button>
-        <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy} style={{ height: 32, fontSize: "var(--text-xs)" }}>
+        <button type="button" className="btn btn-ghost button-pop" onClick={onCancel} disabled={busy} style={{ height: 32, fontSize: "var(--text-xs)" }}>
           Cancel
         </button>
       </div>

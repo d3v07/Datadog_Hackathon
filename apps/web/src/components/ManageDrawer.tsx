@@ -143,7 +143,7 @@ export function ManageDrawer({ integration, open, onClose, onDisconnected }: Pro
                 style={{ ...S.scopeRow, borderBottom: i === scopes.length - 1 ? "none" : "1px solid var(--border)" }}
               >
                 <code style={S.scopeCode}>{scope}</code>
-                <button type="button" style={S.revokeBtn} onClick={() => revokeScope(scope)}>
+                <button type="button" className="button-pop" style={S.revokeBtn} onClick={() => revokeScope(scope)}>
                   Revoke
                 </button>
               </div>
@@ -154,7 +154,7 @@ export function ManageDrawer({ integration, open, onClose, onDisconnected }: Pro
 
       <div style={S.section}>
         <div style={S.sectionLabel}>Sync history</div>
-        <div style={S.block}>
+        <div className="stagger-children" style={S.block}>
           {historyError && (
             <div style={{ fontSize: "var(--text-xs)", color: "var(--danger)" }}>{historyError}</div>
           )}
@@ -164,6 +164,7 @@ export function ManageDrawer({ integration, open, onClose, onDisconnected }: Pro
           {history.map((s, i) => (
             <div
               key={s.id}
+              className="glass-soft row-hover"
               style={{ ...S.syncRow, borderBottom: i === history.length - 1 ? "none" : "1px solid var(--border)" }}
             >
               <span>{formatSyncTime(s.startedAt)}</span>
@@ -178,20 +179,20 @@ export function ManageDrawer({ integration, open, onClose, onDisconnected }: Pro
 
       <div style={S.section}>
         <div style={S.sectionLabel}>Danger zone</div>
-        <button type="button" style={S.disconnectBtn} onClick={() => setConfirming(true)}>
+        <button type="button" className="button-pop" style={S.disconnectBtn} onClick={() => setConfirming(true)}>
           <Trash2 size={13} aria-hidden="true" />
           Disconnect {integration.name}
         </button>
         {confirming && (
-          <div style={S.confirm}>
+          <div className="fade-up" style={S.confirm}>
             <AlertTriangle size={14} aria-hidden="true" style={{ display: "inline", marginRight: 6, color: "var(--danger)" }} />
             Disconnecting stops syncs and drops cached credentials. Records already
             ingested are kept.
             <div style={S.confirmRow}>
-              <button type="button" style={S.confirmYes} onClick={() => void confirmDisconnect()}>
+              <button type="button" className="button-pop" style={S.confirmYes} onClick={() => void confirmDisconnect()}>
                 Yes, disconnect
               </button>
-              <button type="button" style={S.confirmNo} onClick={() => setConfirming(false)}>
+              <button type="button" className="button-pop" style={S.confirmNo} onClick={() => setConfirming(false)}>
                 Cancel
               </button>
             </div>

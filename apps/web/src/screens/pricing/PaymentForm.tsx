@@ -48,6 +48,7 @@ export function PaymentForm({ intent, onProcessing, onError, onTierSuccess, disa
       <PaymentElement />
       <button
         type="submit"
+        className="button-pop"
         style={{
           display: "inline-flex",
           alignItems: "center",

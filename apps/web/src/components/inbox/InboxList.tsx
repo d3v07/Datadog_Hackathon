@@ -43,9 +43,9 @@ export function InboxList({
   let localFlatIndex = flatIndexOffset - 1;
 
   return (
-    <>
+    <div className="stagger-children">
       {dayGroups.map((group) => (
-        <section key={group.bucket} aria-label={group.label} style={{ marginBottom: 24 }}>
+        <section key={group.bucket} aria-label={group.label} className="fade-up" style={{ marginBottom: 24 }}>
           <div
             style={{
               fontSize: 10.5,
@@ -61,7 +61,7 @@ export function InboxList({
             {group.label} · {group.items.length}
           </div>
           <div
-            className="card"
+            className="card glass-soft"
             style={{ padding: 0, overflow: "hidden" }}
             role="list"
             aria-label={`${group.label} items`}
@@ -76,6 +76,7 @@ export function InboxList({
                 <div
                   key={item.id}
                   role="listitem"
+                  className="row-hover"
                   ref={(el) => registerRowRef(idx, el as HTMLDivElement | null)}
                 >
                   <MaterialChangeCard
@@ -100,6 +101,6 @@ export function InboxList({
           </div>
         </section>
       ))}
-    </>
+    </div>
   );
 }

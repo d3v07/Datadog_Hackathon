@@ -59,6 +59,7 @@ export function PricingAddOns({ selected, onToggle }: PricingAddOnsProps): JSX.E
     <section aria-label="Add-ons" style={S.section}>
       <h2 className="h2" style={S.h2}>Add-ons</h2>
       <div
+        className="stagger-children"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
@@ -70,7 +71,7 @@ export function PricingAddOns({ selected, onToggle }: PricingAddOnsProps): JSX.E
           return (
             <div
               key={a.id}
-              className="card"
+              className="card glass-strong lift-on-hover"
               style={{
                 padding: "var(--space-5)",
                 outline: isSelected ? "2px solid var(--accent)" : undefined,
@@ -115,7 +116,7 @@ export function PricingAddOns({ selected, onToggle }: PricingAddOnsProps): JSX.E
                 <button
                   type="button"
                   onClick={() => onToggle(a.id)}
-                  className={isSelected ? "btn btn-primary" : "btn btn-secondary"}
+                  className={(isSelected ? "btn btn-primary" : "btn btn-secondary") + " button-pop"}
                   style={{ flex: 1, justifyContent: "center" }}
                   aria-pressed={isSelected}
                   data-testid={`addon-${a.id}`}
@@ -130,7 +131,7 @@ export function PricingAddOns({ selected, onToggle }: PricingAddOnsProps): JSX.E
                 </button>
                 <a
                   href={`mailto:${a.mailto}`}
-                  className="btn btn-secondary"
+                  className="btn btn-secondary button-pop"
                   style={{ justifyContent: "center" }}
                 >
                   Enquire

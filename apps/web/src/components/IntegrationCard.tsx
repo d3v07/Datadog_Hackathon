@@ -13,20 +13,12 @@ interface Props {
 
 const S = {
   card: {
-    background: "var(--surface)",
-    border: "1px solid var(--border)",
     borderRadius: "var(--radius-md)",
     padding: "var(--space-4)",
     display: "flex",
     flexDirection: "column" as const,
     gap: "var(--space-3)",
-    transition: "transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out)",
     minHeight: 168,
-  } as React.CSSProperties,
-  cardHover: {
-    transform: "translateY(-1px)",
-    borderColor: "var(--border-strong)",
-    boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
   } as React.CSSProperties,
   header: { display: "flex", alignItems: "flex-start", gap: "var(--space-3)" } as React.CSSProperties,
   name: {
@@ -147,7 +139,6 @@ function domainFor(slug: string): string {
 
 export function IntegrationCard({ integration, onConnect, onManage, onSyncNow, syncBusy }: Props): JSX.Element {
   const [now, setNow] = useState(Date.now());
-  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
     if (!integration.connected) return;
@@ -156,11 +147,7 @@ export function IntegrationCard({ integration, onConnect, onManage, onSyncNow, s
   }, [integration.connected]);
 
   return (
-    <div
-      style={{ ...S.card, ...(hovered ? S.cardHover : {}) }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="glass-strong lift-on-hover" style={S.card}>
       <div style={S.header}>
         <VendorLogo name={integration.name} domain={domainFor(integration.slug)} size={28} />
         <div style={{ minWidth: 0, flex: 1 }}>
@@ -182,6 +169,7 @@ export function IntegrationCard({ integration, onConnect, onManage, onSyncNow, s
           <div style={S.actions}>
             <button
               type="button"
+              className="button-pop"
               style={{ ...S.btnOutline, opacity: syncBusy ? 0.6 : 1 }}
               onClick={() => onSyncNow(integration)}
               disabled={syncBusy}
@@ -192,6 +180,7 @@ export function IntegrationCard({ integration, onConnect, onManage, onSyncNow, s
             </button>
             <button
               type="button"
+              className="button-pop"
               style={S.btnOutline}
               onClick={() => onManage(integration)}
               aria-label={`Manage ${integration.name}`}
@@ -209,7 +198,7 @@ export function IntegrationCard({ integration, onConnect, onManage, onSyncNow, s
           </div>
           <div style={S.lastSync}>{integration.authType.toUpperCase()} auth</div>
           <div style={S.actions}>
-            <button type="button" style={S.btnPrimary} onClick={() => onConnect(integration)}>
+            <button type="button" className="button-pop" style={S.btnPrimary} onClick={() => onConnect(integration)}>
               Connect
             </button>
           </div>

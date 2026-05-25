@@ -337,7 +337,7 @@ export function Workbench({ renewal, onClose }: WorkbenchProps): JSX.Element {
             type="button"
             onClick={onClose}
             aria-label="Close workbench"
-            className="btn btn-ghost"
+            className="btn btn-ghost button-pop"
             style={{ width: 36, height: 36, padding: 0, flexShrink: 0 }}
           >
             <X size={18} aria-hidden="true" />
@@ -376,7 +376,7 @@ export function Workbench({ renewal, onClose }: WorkbenchProps): JSX.Element {
             <SectionHead label="Renegotiation packet" />
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-primary button-pop"
               style={{ height: 32, fontSize: "var(--text-xs)" }}
               onClick={() => setPacketOpen(true)}
             >

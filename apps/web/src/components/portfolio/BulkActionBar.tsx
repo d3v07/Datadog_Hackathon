@@ -50,6 +50,7 @@ export function BulkActionBar({
     <div
       role="region"
       aria-label="Bulk actions"
+      className="slide-in-right"
       style={{
         position: "sticky",
         top: 48,

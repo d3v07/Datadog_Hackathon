@@ -348,7 +348,7 @@ export function ConnectDrawer({ integration, open, onClose, onConnected }: Props
       </div>
       <p style={S.description}>{integration.description}</p>
 
-      <form onSubmit={(e) => void submit(e)}>
+      <form onSubmit={(e) => void submit(e)} className="fade-up">
         {integration.authType === "oauth" && (
           <div style={S.fieldGroup}>
             {integration.requiredFields.map((f) => (
@@ -363,6 +363,7 @@ export function ConnectDrawer({ integration, open, onClose, onConnected }: Props
                   placeholder={f.placeholder ?? ""}
                   value={values[f.key] ?? ""}
                   onChange={(e) => setField(f.key, e.target.value)}
+                  className="focus-glow"
                   style={S.input}
                   required={!f.optional}
                 />
@@ -372,6 +373,7 @@ export function ConnectDrawer({ integration, open, onClose, onConnected }: Props
               type="button"
               onClick={simulateOauth}
               disabled={oauthState !== "idle"}
+              className="button-pop"
               style={{ ...S.oauthBtn, opacity: oauthState !== "idle" ? 0.85 : 1 }}
             >
               {oauthState === "authorizing" ? (
@@ -415,6 +417,7 @@ export function ConnectDrawer({ integration, open, onClose, onConnected }: Props
                   placeholder={f.placeholder ?? ""}
                   value={values[f.key] ?? ""}
                   onChange={(e) => setField(f.key, e.target.value)}
+                  className="focus-glow"
                   style={S.input}
                   required={!f.optional}
                   autoComplete="off"
@@ -441,6 +444,7 @@ export function ConnectDrawer({ integration, open, onClose, onConnected }: Props
                   placeholder={f.placeholder ?? ""}
                   value={values[f.key] ?? ""}
                   onChange={(e) => setField(f.key, e.target.value)}
+                  className="focus-glow"
                   style={S.input}
                   required
                 />
@@ -488,7 +492,7 @@ export function ConnectDrawer({ integration, open, onClose, onConnected }: Props
             <div style={S.sectionHeading}>Webhook URL</div>
             <div style={S.webhookRow}>
               <input value={webhookUrl} readOnly style={S.webhookInput} aria-label="Webhook URL" />
-              <button type="button" style={S.copyBtn} onClick={copyWebhook}>
+              <button type="button" className="button-pop" style={S.copyBtn} onClick={copyWebhook}>
                 {copied ? (
                   <>
                     <Check size={12} aria-hidden="true" />
@@ -508,12 +512,13 @@ export function ConnectDrawer({ integration, open, onClose, onConnected }: Props
         {error && <div style={S.error}>{error}</div>}
 
         <div style={S.footer}>
-          <button type="button" onClick={onClose} style={S.cancel}>
+          <button type="button" onClick={onClose} className="button-pop" style={S.cancel}>
             Cancel
           </button>
           <button
             type="submit"
             disabled={!canSubmit() || submitting}
+            className="button-pop"
             style={{ ...S.submit, opacity: !canSubmit() || submitting ? 0.55 : 1 }}
           >
             {submitting ? (

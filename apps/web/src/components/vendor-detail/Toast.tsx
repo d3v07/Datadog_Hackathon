@@ -3,13 +3,12 @@ export function VendorToast({ message }: { message: string }): JSX.Element {
     <div
       role="status"
       aria-live="polite"
+      className="glass-strong slide-in-right"
       style={{
         position: "fixed",
         bottom: 24,
-        left: "50%",
-        transform: "translateX(-50%)",
-        background: "var(--text)",
-        color: "var(--surface)",
+        right: 24,
+        color: "var(--text)",
         padding: "var(--space-2) var(--space-4)",
         borderRadius: "var(--radius-pill)",
         fontSize: "var(--text-sm)",

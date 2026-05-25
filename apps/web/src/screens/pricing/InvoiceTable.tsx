@@ -19,11 +19,9 @@ const S = {
     marginBottom: "var(--space-4)",
   } as React.CSSProperties,
   card: {
-    border: "1px solid var(--border)",
     borderRadius: "var(--radius-md)",
-    background: "var(--surface)",
     overflow: "auto" as const,
-  },
+  } as React.CSSProperties,
   th: {
     padding: "var(--space-2) var(--space-5)",
     textAlign: "left" as const,
@@ -146,7 +144,7 @@ export function InvoiceTable(): JSX.Element | null {
           {downloadError}
         </p>
       ) : null}
-      <div style={S.card}>
+      <div className="glass fade-up" style={S.card}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
           <thead>
             <tr>
@@ -159,7 +157,7 @@ export function InvoiceTable(): JSX.Element | null {
           </thead>
           <tbody>
             {invoices.map((inv) => (
-              <tr key={inv.id}>
+              <tr key={inv.id} className="row-hover">
                 <td style={S.td}>
                   <span style={S.mono500}>{inv.period}</span>
                 </td>
@@ -175,12 +173,14 @@ export function InvoiceTable(): JSX.Element | null {
                     type="button"
                     onClick={() => handleDownload(inv)}
                     disabled={downloadingId === inv.id}
+                    className="button-pop"
                     style={{
                       background: "none",
                       border: "none",
                       cursor: downloadingId === inv.id ? "wait" : "pointer",
                       color: "var(--accent)",
-                      padding: 0,
+                      padding: "4px 8px",
+                      borderRadius: "var(--radius-sm)",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: 6,

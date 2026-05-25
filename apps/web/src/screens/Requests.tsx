@@ -16,6 +16,7 @@ import type {
 } from "../components/requests/types.js";
 import { useRole } from "../lib/role.js";
 import { LensChips } from "../components/LensChips.js";
+import { celebrateFromElement } from "../lib/confetti.js";
 
 const STATUS_FILTERS: ReadonlyArray<{ key: StatusFilter; label: string }> = [
   { key: "pending", label: "Pending" },
@@ -118,12 +119,18 @@ export function Requests(): JSX.Element {
   }, []);
 
   const runDecision = useCallback(
-    async (id: string, body: Parameters<typeof decideRequest>[1], successMsg: string) => {
+    async (
+      id: string,
+      body: Parameters<typeof decideRequest>[1],
+      successMsg: string,
+      onSuccess?: () => void,
+    ) => {
       setBusyId(id);
       try {
         const updated = await decideRequest(id, body);
         applyUpdated(updated);
         showToast(successMsg);
+        onSuccess?.();
         // The tab the row was in may no longer match — refresh in background.
         void refresh();
       } catch (err) {
@@ -138,7 +145,10 @@ export function Requests(): JSX.Element {
   );
 
   const onApprove = useCallback(
-    (id: string) => runDecision(id, { status: "approved" }, "Request approved"),
+    (id: string, originEl?: HTMLElement) =>
+      runDecision(id, { status: "approved" }, "Request approved", () => {
+        if (originEl) celebrateFromElement(originEl);
+      }),
     [runDecision],
   );
   const onReject = useCallback(
@@ -205,29 +215,31 @@ export function Requests(): JSX.Element {
       className="page"
       style={{ padding: "var(--space-7) var(--space-6)", maxWidth: 1000, margin: "0 auto" }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "var(--space-2)",
-        }}
-      >
-        <h1 className="h1">Requests</h1>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => setDrawerOpen(true)}
-          aria-label="Open new request form"
+      <header className="fade-up">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "var(--space-2)",
+          }}
         >
-          <Plus size={14} aria-hidden="true" />
-          New request
-        </button>
-      </div>
+          <h1 className="h1">Requests</h1>
+          <button
+            type="button"
+            className="btn btn-primary button-pop"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open new request form"
+          >
+            <Plus size={14} aria-hidden="true" />
+            New request
+          </button>
+        </div>
 
-      {allItems.length > 0 && (
-        <p className="lead" style={{ marginBottom: "var(--space-5)" }}>{buildLead(allItems)}</p>
-      )}
+        {allItems.length > 0 && (
+          <p className="lead" style={{ marginBottom: "var(--space-5)" }}>{buildLead(allItems)}</p>
+        )}
+      </header>
 
       <LensChips />
 
@@ -246,6 +258,7 @@ export function Requests(): JSX.Element {
               role="tab"
               aria-selected={active}
               onClick={() => setFilter(key)}
+              className="button-pop"
               style={{
                 padding: "4px var(--space-3)",
                 fontSize: "var(--text-sm)",
@@ -292,21 +305,24 @@ export function Requests(): JSX.Element {
           No {filter !== "all" ? filter : ""} requests for the {role} lens.
         </p>
       )}
-      {!loading &&
-        items.map((req) => (
-          <RequestRow
-            key={req.id}
-            request={req}
-            busy={busyId === req.id}
-            onApprove={onApprove}
-            onReject={onReject}
-            onRoute={onRoute}
-            onReopen={onReopen}
-            onRecall={onRecall}
-            onConvert={onConvert}
-            onComment={onComment}
-          />
-        ))}
+      {!loading && items.length > 0 && (
+        <div className="stagger-children">
+          {items.map((req) => (
+            <RequestRow
+              key={req.id}
+              request={req}
+              busy={busyId === req.id}
+              onApprove={onApprove}
+              onReject={onReject}
+              onRoute={onRoute}
+              onReopen={onReopen}
+              onRecall={onRecall}
+              onConvert={onConvert}
+              onComment={onComment}
+            />
+          ))}
+        </div>
+      )}
 
       <NewRequestDrawer
         open={drawerOpen}

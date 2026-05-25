@@ -44,7 +44,7 @@ function fmtDate(iso: string): string {
 
 export function FindingsTable({ findings, onOpen }: Props): JSX.Element {
   return (
-    <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+    <div className="card glass fade-up" style={{ padding: 0, overflow: "hidden" }}>
       <table
         style={{
           width: "100%",
@@ -67,6 +67,7 @@ export function FindingsTable({ findings, onOpen }: Props): JSX.Element {
           {findings.map((f) => (
             <tr
               key={f.id}
+              className="row-hover"
               style={{ borderTop: "1px solid var(--border)", cursor: "pointer" }}
               onClick={() => onOpen(f)}
             >

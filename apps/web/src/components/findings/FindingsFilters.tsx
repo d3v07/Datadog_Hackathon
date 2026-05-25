@@ -69,7 +69,7 @@ function ChipGroup<T extends string>({
           type="button"
           onClick={() => onChange(chip.value)}
           aria-pressed={value === chip.value}
-          className={value === chip.value ? "badge badge-accent" : "badge badge-neutral"}
+          className={`${value === chip.value ? "badge badge-accent" : "badge badge-neutral"} button-pop`}
           style={{ cursor: "pointer", border: "none" }}
         >
           {chip.label}

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Command } from "lucide-react";
 import { SensoBrief } from "./screens/SensoBrief.js";
 import { Portfolio } from "./screens/Portfolio.js";
@@ -110,6 +110,33 @@ export function App(): JSX.Element | null {
     };
   }, [inApp]);
 
+  useEffect(() => {
+    if (!inApp) return;
+    if (
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+    let raf = 0;
+    const handler = (e: PointerEvent): void => {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        document.documentElement.style.setProperty("--cursor-x", String(x));
+        document.documentElement.style.setProperty("--cursor-y", String(y));
+      });
+    };
+    window.addEventListener("pointermove", handler, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", handler);
+      cancelAnimationFrame(raf);
+      document.documentElement.style.removeProperty("--cursor-x");
+      document.documentElement.style.removeProperty("--cursor-y");
+    };
+  }, [inApp]);
+
   if (pathname === "/pricing") return <Pricing />;
   if (pathname === "/trust") return <TrustCenter />;
   if (pathname === "/demo") return <Demo />;
@@ -166,9 +193,18 @@ interface TopBarProps {
 }
 
 function TopBar({ activeNav }: TopBarProps): JSX.Element {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = (): void => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <header
-      className="topbar"
+      className={scrolled ? "topbar topbar-scrolled" : "topbar"}
       style={{
         height: 48,
         display: "flex",

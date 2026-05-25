@@ -43,6 +43,7 @@ export function BillingToggle({ value, onChange }: BillingToggleProps): JSX.Elem
     >
       <button
         type="button"
+        className="button-pop"
         style={value === "monthly" ? activeBtn : baseBtn}
         onClick={() => onChange("monthly")}
         aria-pressed={value === "monthly"}
@@ -51,6 +52,7 @@ export function BillingToggle({ value, onChange }: BillingToggleProps): JSX.Elem
       </button>
       <button
         type="button"
+        className="button-pop"
         style={value === "annual" ? activeBtn : baseBtn}
         onClick={() => onChange("annual")}
         aria-pressed={value === "annual"}

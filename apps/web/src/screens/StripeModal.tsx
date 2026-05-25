@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { loadStripe, type Stripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
@@ -12,6 +12,7 @@ import {
   type PaymentIntentResponse,
 } from "../lib/api.js";
 import { useEntitlements } from "../lib/stream.js";
+import { celebrate } from "../lib/confetti.js";
 import { CouponField } from "./pricing/CouponField.js";
 import { PaymentForm } from "./pricing/PaymentForm.js";
 import { SimulateHint } from "./pricing/SimulateButton.js";
@@ -67,17 +68,14 @@ const S = {
     padding: "var(--space-5)",
   },
   modal: {
-    background: "var(--surface)",
-    border: "1px solid var(--border)",
     borderRadius: "var(--radius-lg)",
     padding: "var(--space-6)",
     maxWidth: 460,
     width: "100%",
     position: "relative" as const,
-    boxShadow: "0 24px 60px rgba(0,0,0,0.4)",
     maxHeight: "92vh",
     overflowY: "auto" as const,
-  },
+  } as React.CSSProperties,
   header: {
     display: "flex",
     alignItems: "center",
@@ -215,6 +213,18 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
   const [alreadyEntitled, setAlreadyEntitled] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | undefined>();
   const [showToast, setShowToast] = useState(false);
+  const celebratedRef = useRef(false);
+
+  // Single source of truth: confetti fires once per modal lifetime when we
+  // flip to success — covers both the tier flow (finishTierSuccess) and the
+  // legacy Compliance Pack SSE flip. Skips the no-op "already entitled" path.
+  useEffect(() => {
+    if (status !== "success") return;
+    if (alreadyEntitled) return;
+    if (celebratedRef.current) return;
+    celebratedRef.current = true;
+    celebrate({ particleCount: 120, spread: 90 });
+  }, [status, alreadyEntitled]);
 
   // Only the legacy Compliance Pack flow waits for the SSE flip.
   const entitlements = useEntitlements({
@@ -328,11 +338,11 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
   );
 
   return (
-    <div style={S.backdrop} role="dialog" aria-modal="true" aria-labelledby="stripe-modal-title" onClick={onBackdropClick}>
-      <div style={S.modal}>
+    <div className="fade-in" style={S.backdrop} role="dialog" aria-modal="true" aria-labelledby="stripe-modal-title" onClick={onBackdropClick}>
+      <div className="glass-strong scale-in" style={S.modal}>
         <header style={S.header}>
           <h2 id="stripe-modal-title" style={S.title}>{displayName}</h2>
-          <button style={S.closeBtn} type="button" onClick={onClose} aria-label="Close">
+          <button className="button-pop" style={S.closeBtn} type="button" onClick={onClose} aria-label="Close">
             <X size={18} aria-hidden="true" />
           </button>
         </header>
@@ -381,6 +391,7 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
             />
 
             <button
+              className="button-pop"
               style={{ ...S.btnPrimary, marginTop: "var(--space-4)" }}
               type="button"
               onClick={() => void beginPayment()}
@@ -422,10 +433,10 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
 
         {status === "failure" && (
           <>
-            <div style={S.alertErr} role="alert">
+            <div className="fade-up" style={S.alertErr} role="alert">
               {errorMessage ?? "Payment failed"}
             </div>
-            <button style={S.btnPrimary} type="button" onClick={() => void beginPayment()} data-testid="retry">
+            <button className="button-pop" style={S.btnPrimary} type="button" onClick={() => void beginPayment()} data-testid="retry">
               Retry
             </button>
           </>

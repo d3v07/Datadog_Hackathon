@@ -38,13 +38,18 @@ function lastTwelveMonths(): Array<{ key: string; label: string }> {
 
 function Tile({ label, value, sub }: { label: string; value: string; sub?: string }): JSX.Element {
   return (
-    <div className="card" style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+    <div className="card glass-strong lift-on-hover" style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
       <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
       <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: "var(--text-2xl)", color: "var(--text)", lineHeight: 1.1 }}>{value}</span>
       {sub && <span style={{ fontSize: "var(--text-xs)", color: "var(--text-2)" }}>{sub}</span>}
     </div>
   );
 }
+
+const SPEND_BAR_STYLE = `
+  .spend-bar { transition: opacity var(--dur-sm) var(--ease-out); }
+  .spend-bar:hover { opacity: 1; }
+`;
 
 function Head({ children }: { children: React.ReactNode }): JSX.Element {
   return (
@@ -80,8 +85,9 @@ export function SpendTab({ vendor, onOpenPacket }: Props): JSX.Element {
   const recoverable = seatCount > 0 ? unused * perSeat : 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: "var(--space-3)" }}>
+    <div className="stagger-children" style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+      <style>{SPEND_BAR_STYLE}</style>
+      <div className="stagger-children" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: "var(--space-3)" }}>
         <Tile label="Annual spend" value={fmtUsd(annualSpend)} />
         <Tile label="Per-seat cost" value={`$${perSeat.toLocaleString()}`} sub="per year" />
         <Tile label="Active seats" value={seatCount > 0 ? `${activeSeats} / ${seatCount}` : "—"} sub={seatCount > 0 ? `${utilizationPct}% utilization` : undefined} />
@@ -90,7 +96,7 @@ export function SpendTab({ vendor, onOpenPacket }: Props): JSX.Element {
 
       <div>
         <Head>Monthly spend · last 12 months</Head>
-        <div className="card" style={{ padding: "var(--space-4)" }}>
+        <div className="card glass-strong fade-up" style={{ padding: "var(--space-4)" }}>
           <svg
             role="img"
             aria-label={`Monthly spend chart for ${vendor.name}, last 12 months`}
@@ -105,7 +111,7 @@ export function SpendTab({ vendor, onOpenPacket }: Props): JSX.Element {
               const y = 170 - h;
               return (
                 <g key={months[i]!.key}>
-                  <rect x={x} y={y} width={bw} height={h} rx={3} fill="var(--accent)" opacity={0.85}>
+                  <rect className="spend-bar" x={x} y={y} width={bw} height={h} rx={3} fill="var(--accent)" opacity={0.85}>
                     <title>{`${months[i]!.label}: ${fmtUsd(Math.round(v))}`}</title>
                   </rect>
                   <text x={x + bw / 2} y={192} fontSize={10} textAnchor="middle" fill="var(--text-muted)">
@@ -121,7 +127,7 @@ export function SpendTab({ vendor, onOpenPacket }: Props): JSX.Element {
       {seatCount > 0 && (
         <div>
           <Head>Seat utilization</Head>
-          <div className="card" style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+          <div className="card glass-strong fade-up" style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <span style={{ fontSize: "var(--text-sm)", color: "var(--text)" }}>
                 {activeSeats} of {seatCount} seats active
@@ -148,7 +154,7 @@ export function SpendTab({ vendor, onOpenPacket }: Props): JSX.Element {
       )}
 
       {aboveBenchmark && (
-        <div className="card" style={{ padding: "var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)", borderColor: "var(--warning)" }}>
+        <div className="card glass-strong fade-up" style={{ padding: "var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)", borderColor: "var(--warning)" }}>
           <Lightbulb size={18} aria-hidden="true" style={{ color: "var(--warning)" }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 600, color: "var(--text)", fontSize: "var(--text-sm)" }}>
@@ -158,7 +164,7 @@ export function SpendTab({ vendor, onOpenPacket }: Props): JSX.Element {
               You pay ${perSeat.toLocaleString()}/seat vs benchmark ${benchmark.toLocaleString()}. Consider renegotiation.
             </div>
           </div>
-          <button type="button" className="btn btn-primary" onClick={onOpenPacket} style={{ fontSize: "var(--text-xs)" }}>
+          <button type="button" className="btn btn-primary button-pop" onClick={onOpenPacket} style={{ fontSize: "var(--text-xs)" }}>
             Build packet
           </button>
         </div>

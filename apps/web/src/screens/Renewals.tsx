@@ -238,6 +238,7 @@ export function Renewals(): JSX.Element {
       style={{ padding: "var(--space-7) var(--space-6)", maxWidth: 1280, margin: "0 auto" }}
     >
       <header
+        className="fade-up"
         style={{
           display: "flex",
           alignItems: "flex-end",
@@ -259,7 +260,7 @@ export function Renewals(): JSX.Element {
         </div>
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-secondary button-pop"
           onClick={handleExportAll}
           disabled={loading || openCards.length === 0}
           style={{
@@ -292,7 +293,7 @@ export function Renewals(): JSX.Element {
             key={d}
             type="button"
             onClick={() => setDays(d)}
-            className={days === d ? "badge badge-accent" : "badge badge-neutral"}
+            className={`${days === d ? "badge badge-accent" : "badge badge-neutral"} button-pop`}
             style={{ cursor: "pointer", border: "none" }}
             aria-pressed={days === d}
           >

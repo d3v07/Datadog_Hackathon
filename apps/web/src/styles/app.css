@@ -85,11 +85,27 @@ body.app-mode #root {
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out),
-              border-color var(--dur-fast) var(--ease-out),
-              color var(--dur-fast) var(--ease-out);
+  transition: background var(--dur-sm) var(--ease-out),
+              border-color var(--dur-sm) var(--ease-out),
+              color var(--dur-sm) var(--ease-out),
+              transform var(--dur-sm) var(--ease-spring),
+              box-shadow var(--dur-sm) var(--ease-out);
   white-space: nowrap;
   text-decoration: none;
+}
+.btn:hover:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.10);
+}
+.btn:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(0) scale(0.98);
+  transition-duration: var(--dur-xs);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover:not(:disabled):not([aria-disabled="true"]),
+  .btn:active:not(:disabled):not([aria-disabled="true"]) {
+    transform: none;
+  }
 }
 
 .btn:focus-visible {
@@ -277,4 +293,28 @@ body.app-mode #root {
 
 .spin {
   animation: spin 0.9s linear infinite;
+}
+
+/* ---------- Global form-control focus transitions ---------- */
+
+input, textarea, select {
+  transition: border-color var(--dur-sm) var(--ease-out),
+              box-shadow var(--dur-sm) var(--ease-out);
+}
+
+/* ---------- Generic table polish ---------- */
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+th {
+  transition: background-color var(--dur-sm) var(--ease-out);
+}
+th:hover {
+  background-color: rgba(15,23,42,0.025);
+}
+tr {
+  transition: background-color var(--dur-sm) var(--ease-out),
+              transform var(--dur-sm) var(--ease-out);
 }

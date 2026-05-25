@@ -121,7 +121,7 @@ function ConnectionsTab({ showToast }: { showToast: (msg: string) => void }): JS
   const outbound = integrations.filter((i) => i.category === "outbound");
 
   const renderGrid = (items: IntegrationDto[]): JSX.Element => (
-    <div style={S.grid}>
+    <div className="stagger-children" style={S.grid}>
       {items.map((it) => (
         <IntegrationCard
           key={it.id}
@@ -237,14 +237,14 @@ function TeamTab({ showToast }: { showToast: (msg: string) => void }): JSX.Eleme
     <>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-4)" }}>
         <div style={S.sectionLabel}>Members ({members.length})</div>
-        <button type="button" style={S.btnAccent} onClick={() => setDrawerOpen(true)}>
+        <button type="button" className="button-pop" style={S.btnAccent} onClick={() => setDrawerOpen(true)}>
           Invite member
         </button>
       </div>
       {loadError && <div style={{ color: "var(--danger)", fontSize: "var(--text-sm)", marginBottom: "var(--space-3)" }}>{loadError}</div>}
-      <div style={{ ...S.card, marginBottom: "var(--space-5)" }}>
+      <div className="stagger-children" style={{ ...S.card, marginBottom: "var(--space-5)" }}>
         {members.map((m, i) => (
-          <div key={m.id} style={i < members.length - 1 ? S.row : S.rowLast}>
+          <div key={m.id} className="glass-soft row-hover" style={i < members.length - 1 ? S.row : S.rowLast}>
             <div style={S.avatar}>{m.avatarLetter}</div>
             <div style={S.rowInfo}>
               <div style={S.rowName}>{m.name}</div>
@@ -258,18 +258,18 @@ function TeamTab({ showToast }: { showToast: (msg: string) => void }): JSX.Eleme
         ))}
       </div>
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="Invite member">
-        <form onSubmit={(e) => void handleInvite(e)}>
+        <form onSubmit={(e) => void handleInvite(e)} className="fade-up">
           <div style={S.formGroup}>
             <label htmlFor="invite-email" style={S.label}>Email address</label>
-            <input id="invite-email" type="email" required placeholder="name@company.com" value={email} onChange={(e) => setEmail(e.target.value)} style={S.input} />
+            <input id="invite-email" type="email" required placeholder="name@company.com" value={email} onChange={(e) => setEmail(e.target.value)} className="focus-glow" style={S.input} />
           </div>
           <div style={S.formGroup}>
             <label htmlFor="invite-role" style={S.label}>Role</label>
-            <select id="invite-role" value={role} onChange={(e) => setRole(e.target.value)} style={S.select}>
+            <select id="invite-role" value={role} onChange={(e) => setRole(e.target.value)} className="focus-glow" style={S.select}>
               {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
           </div>
-          <button type="submit" disabled={submitting} style={{ ...S.inviteBtn, opacity: submitting ? 0.6 : 1 }}>
+          <button type="submit" disabled={submitting} className="button-pop" style={{ ...S.inviteBtn, opacity: submitting ? 0.6 : 1 }}>
             {submitting ? "Sending…" : "Send invitation"}
           </button>
         </form>
@@ -301,15 +301,15 @@ function BillingTab({ showToast }: { showToast: (msg: string) => void }): JSX.El
     <>
       <div style={S.section}>
         <div style={S.sectionLabel}>Current plan</div>
-        <div style={S.billingBlock}>
+        <div className="glass-strong lift-on-hover fade-up" style={S.billingBlock}>
           <div style={S.billingTitle}>Growth · $1,500/mo · Billed annually</div>
           <div style={S.billingMeta}>
             Next charge: Jun 24, 2026 · $18,000<br />
             Card: •••• 4242
           </div>
           <div style={S.btnRow}>
-            <button type="button" style={S.btnOutline} onClick={() => setStripeOpen(true)}>Manage subscription</button>
-            <button type="button" style={S.btnOutline} onClick={() => setStripeOpen(true)}>Update payment method</button>
+            <button type="button" className="button-pop" style={S.btnOutline} onClick={() => setStripeOpen(true)}>Manage subscription</button>
+            <button type="button" className="button-pop" style={S.btnOutline} onClick={() => setStripeOpen(true)}>Update payment method</button>
           </div>
         </div>
         <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: "var(--space-5)" }}>
@@ -322,7 +322,7 @@ function BillingTab({ showToast }: { showToast: (msg: string) => void }): JSX.El
       <div style={S.section}>
         <div style={S.sectionLabel}>Add-ons (active)</div>
         <div style={S.card}>
-          <div style={S.rowLast}>
+          <div className="row-hover" style={S.rowLast}>
             <CheckCircle size={16} color="var(--success)" aria-hidden="true" />
             <div style={S.rowInfo}>
               <div style={S.rowName}>Compliance Pack</div>
@@ -334,18 +334,18 @@ function BillingTab({ showToast }: { showToast: (msg: string) => void }): JSX.El
 
       <div style={S.section}>
         <div style={S.sectionLabel}>Available add-ons</div>
-        <div style={S.card}>
+        <div className="stagger-children" style={S.card}>
           {[
             { name: "Negotiation Concierge", price: "$10K/quarter" },
             { name: "GRC Bridge (Vanta + Drata)", price: "$1,000/mo" },
           ].map((addon, i, arr) => (
-            <div key={addon.name} style={i < arr.length - 1 ? S.row : S.rowLast}>
+            <div key={addon.name} className="row-hover" style={i < arr.length - 1 ? S.row : S.rowLast}>
               <Circle size={16} color="var(--text-muted)" aria-hidden="true" />
               <div style={S.rowInfo}>
                 <div style={S.rowName}>{addon.name}</div>
                 <div style={S.rowMeta}>{addon.price}</div>
               </div>
-              <button type="button" style={S.btnAccent} onClick={() => setStripeOpen(true)}>Add</button>
+              <button type="button" className="button-pop" style={S.btnAccent} onClick={() => setStripeOpen(true)}>Add</button>
             </div>
           ))}
         </div>
@@ -353,14 +353,14 @@ function BillingTab({ showToast }: { showToast: (msg: string) => void }): JSX.El
 
       <div style={S.section}>
         <div style={S.sectionLabel}>Recent invoices</div>
-        <div style={S.card}>
+        <div className="glass fade-up stagger-children" style={S.card}>
           {invoices.length === 0 && (
             <div style={{ padding: "var(--space-5)", fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>
               No invoices yet.
             </div>
           )}
           {invoices.map((inv, i) => (
-            <div key={inv.id} style={i < invoices.length - 1 ? S.row : S.rowLast}>
+            <div key={inv.id} className="row-hover" style={i < invoices.length - 1 ? S.row : S.rowLast}>
               <div style={S.rowInfo}>
                 <div style={S.rowName}>{inv.id}</div>
                 <div style={S.rowMeta}>
@@ -368,7 +368,7 @@ function BillingTab({ showToast }: { showToast: (msg: string) => void }): JSX.El
                 </div>
               </div>
               <span style={S.badge(true)}>{inv.status}</span>
-              <button type="button" style={S.btnOutline} aria-label={`Download ${inv.id}`} onClick={() => handleDownload(inv)}>
+              <button type="button" className="button-pop" style={S.btnOutline} aria-label={`Download ${inv.id}`} onClick={() => handleDownload(inv)}>
                 <Download size={12} aria-hidden="true" style={{ display: "inline", marginRight: 4 }} />
                 Download
               </button>
@@ -391,7 +391,9 @@ export function Settings(): JSX.Element {
 
   return (
     <main style={pageStyle}>
-      <h1 style={S.h1}>Settings</h1>
+      <header className="fade-up">
+        <h1 style={S.h1}>Settings</h1>
+      </header>
       <div style={S.tabBar} role="tablist" aria-label="Settings sections">
         {(["connections", "team", "billing"] as Tab[]).map((t) => (
           <button
@@ -400,6 +402,7 @@ export function Settings(): JSX.Element {
             role="tab"
             aria-selected={tab === t}
             onClick={() => setTab(t)}
+            className="button-pop"
             style={S.tab(tab === t)}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}

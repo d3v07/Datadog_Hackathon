@@ -27,7 +27,7 @@ function ChangeCard({ change }: { change: Change }): JSX.Element {
 
   return (
     <div
-      className="card"
+      className="card row-hover"
       style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}
     >
       {/* Category + materiality row */}

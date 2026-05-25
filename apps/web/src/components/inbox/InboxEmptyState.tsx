@@ -10,7 +10,7 @@ export function InboxEmptyState({ role, query }: InboxEmptyStateProps): JSX.Elem
 
   return (
     <div
-      className="card"
+      className="card glass-soft fade-up"
       style={{
         padding: 56,
         textAlign: "center",

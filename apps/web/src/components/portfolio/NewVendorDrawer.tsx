@@ -254,6 +254,7 @@ export function NewVendorDrawer({
     <Drawer open={open} onClose={onClose} title="Add new vendor">
       <form
         onSubmit={(e) => void handleSubmit(e)}
+        className="fade-up"
         style={{ display: "flex", flexDirection: "column", gap: 16 }}
         noValidate
       >
@@ -266,6 +267,7 @@ export function NewVendorDrawer({
             <input
               id="nv-name"
               type="text"
+              className="focus-glow"
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
               placeholder="e.g. Linear"
@@ -284,6 +286,7 @@ export function NewVendorDrawer({
             <input
               id="nv-url"
               type="url"
+              className="focus-glow"
               value={form.homepageUrl}
               onChange={(e) => updateField("homepageUrl", e.target.value)}
               placeholder="https://example.com"
@@ -301,6 +304,7 @@ export function NewVendorDrawer({
             input={
               <select
                 id="nv-category"
+                className="focus-glow"
                 value={form.category}
                 onChange={(e) => updateField("category", e.target.value)}
                 style={INPUT_STYLE}
@@ -319,6 +323,7 @@ export function NewVendorDrawer({
             input={
               <select
                 id="nv-tier"
+                className="focus-glow"
                 value={form.tier}
                 onChange={(e) => updateField("tier", Number(e.target.value) as VendorTier)}
                 style={INPUT_STYLE}
@@ -338,6 +343,7 @@ export function NewVendorDrawer({
             input={
               <select
                 id="nv-posture"
+                className="focus-glow"
                 value={form.posture}
                 onChange={(e) => updateField("posture", e.target.value as VendorPosture)}
                 style={INPUT_STYLE}
@@ -354,6 +360,7 @@ export function NewVendorDrawer({
             input={
               <select
                 id="nv-owner"
+                className="focus-glow"
                 value={form.ownerId}
                 onChange={(e) => updateField("ownerId", e.target.value)}
                 style={INPUT_STYLE}
@@ -378,6 +385,7 @@ export function NewVendorDrawer({
               <input
                 id="nv-spend"
                 type="number"
+                className="focus-glow"
                 min={0}
                 step={1}
                 value={form.annualSpendUsd}
@@ -396,6 +404,7 @@ export function NewVendorDrawer({
               <input
                 id="nv-seats"
                 type="number"
+                className="focus-glow"
                 min={1}
                 step={1}
                 value={form.seatCount}
@@ -416,6 +425,7 @@ export function NewVendorDrawer({
             <input
               id="nv-renewal"
               type="date"
+              className="focus-glow"
               value={form.renewalDate}
               onChange={(e) => updateField("renewalDate", e.target.value)}
               aria-invalid={errors.renewalDate ? true : undefined}
@@ -456,6 +466,7 @@ export function NewVendorDrawer({
           input={
             <textarea
               id="nv-notes"
+              className="focus-glow"
               value={form.notes}
               onChange={(e) => updateField("notes", e.target.value)}
               placeholder="Context for the review team."
@@ -493,6 +504,7 @@ export function NewVendorDrawer({
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button
             type="button"
+            className="button-pop"
             onClick={onClose}
             style={{
               padding: "8px 14px",
@@ -508,6 +520,7 @@ export function NewVendorDrawer({
           </button>
           <button
             type="submit"
+            className="button-pop"
             disabled={submitting}
             style={{
               padding: "8px 14px",

@@ -231,11 +231,14 @@ function Palette({ open, onClose }: PaletteProps): JSX.Element | null {
   return createPortal(
     <div
       role="presentation"
+      className="fade-in"
       style={{
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        background: "rgba(0,0,0,0.6)",
+        background: "rgba(15,23,42,0.55)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
@@ -250,11 +253,10 @@ function Palette({ open, onClose }: PaletteProps): JSX.Element | null {
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
+        className="glass-strong scale-in"
         style={{
           width: 560,
           maxHeight: 480,
-          background: "var(--surface)",
-          border: "1px solid var(--border-strong)",
           borderRadius: 12,
           overflow: "hidden",
           display: "flex",
@@ -270,7 +272,7 @@ function Palette({ open, onClose }: PaletteProps): JSX.Element | null {
         >
           <input
             ref={inputRef}
-            className="input"
+            className="input focus-glow"
             type="search"
             placeholder="Jump to vendor, switch role, or run action…"
             value={query}
@@ -356,7 +358,7 @@ function Palette({ open, onClose }: PaletteProps): JSX.Element | null {
                     fontSize: "var(--text-sm)",
                     textAlign: "left",
                     fontFamily: "var(--font-text)",
-                    transition: "background var(--dur-fast)",
+                    transition: "background-color var(--dur-sm) var(--ease-out)",
                   }}
                 >
                   <span>{item.label}</span>

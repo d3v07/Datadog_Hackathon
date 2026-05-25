@@ -22,12 +22,17 @@ const CHIP_STYLES = `
   font-weight: 500;
   background: transparent;
   color: #475569;
-  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  transition:
+    background var(--dur-sm) var(--ease-out),
+    color var(--dur-sm) var(--ease-out),
+    transform var(--dur-sm) var(--ease-spring),
+    box-shadow var(--dur-sm) var(--ease-out);
   white-space: nowrap;
   line-height: 1;
 }
 .lens-chip:hover {
   background: #f1f5f9;
+  transform: translateY(-1px);
 }
 .lens-chip:focus-visible {
   outline: none;
@@ -36,9 +41,11 @@ const CHIP_STYLES = `
 .lens-chip-active {
   background: #5E6AD2;
   color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(94,106,210,0.15), 0 2px 8px rgba(94,106,210,0.28);
 }
 .lens-chip-active:hover {
   background: #5E6AD2;
+  transform: translateY(-1px);
 }
 @media (max-width: 640px) {
   .lens-chips-bar {

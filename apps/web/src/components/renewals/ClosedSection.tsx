@@ -47,7 +47,7 @@ export function ClosedSection({
         onClick={() => setExpanded((v) => !v)}
         aria-expanded={expanded}
         aria-controls="closed-renewals-grid"
-        className="btn btn-ghost"
+        className="btn btn-ghost button-pop"
         style={{
           display: "flex",
           alignItems: "center",
@@ -81,6 +81,7 @@ export function ClosedSection({
       {expanded && (
         <div
           id="closed-renewals-grid"
+          className="stagger-children"
           style={{
             marginTop: "var(--space-3)",
             display: "grid",

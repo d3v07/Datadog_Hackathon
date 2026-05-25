@@ -90,7 +90,7 @@ export function ActivityTab({ vendor, members, onError }: Props): JSX.Element {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+    <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
       <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "center" }}>
         <div role="tablist" aria-label="Activity filter" style={{ display: "flex", gap: "var(--space-1)" }}>
           {FILTERS.map((f) => (
@@ -100,7 +100,7 @@ export function ActivityTab({ vendor, members, onError }: Props): JSX.Element {
               role="tab"
               aria-selected={filter === f.id}
               onClick={() => setFilter(f.id)}
-              className={filter === f.id ? "badge badge-accent" : "badge badge-neutral"}
+              className={`${filter === f.id ? "badge badge-accent" : "badge badge-neutral"} button-pop`}
               style={{ cursor: "pointer", border: filter === f.id ? "none" : "1px solid var(--border)" }}
             >
               {f.label}
@@ -109,7 +109,7 @@ export function ActivityTab({ vendor, members, onError }: Props): JSX.Element {
         </div>
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-secondary button-pop"
           onClick={exportBundle}
           disabled={!latestChangeId}
           style={{ marginLeft: "auto", fontSize: "var(--text-xs)" }}
@@ -123,21 +123,23 @@ export function ActivityTab({ vendor, members, onError }: Props): JSX.Element {
           Loading activity…
         </div>
       ) : filtered.length === 0 ? (
-        <div className="card" style={{ padding: "var(--space-7)", textAlign: "center" }}>
+        <div className="card glass-soft fade-up" style={{ padding: "var(--space-7)", textAlign: "center" }}>
           <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>No activity in this view yet.</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="glass fade-up" style={{ display: "flex", flexDirection: "column", borderRadius: 12, padding: "var(--space-2) var(--space-3)" }}>
           {filtered.map((e, idx) => {
             const Icon = iconFor(e.kind);
             return (
               <div
                 key={e.id}
+                className="row-hover"
                 style={{
                   display: "flex",
                   gap: "var(--space-3)",
                   padding: "var(--space-3) var(--space-1)",
                   borderBottom: idx < filtered.length - 1 ? "1px solid var(--border)" : "none",
+                  borderRadius: 6,
                 }}
               >
                 <div

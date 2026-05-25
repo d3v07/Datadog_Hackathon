@@ -84,12 +84,14 @@ export function CouponField({ appliedCoupon, onApply }: CouponFieldProps): JSX.E
           value={coupon}
           onChange={(e) => setCoupon(e.target.value)}
           placeholder="HACKATHON25"
+          className="focus-glow"
           style={S.couponInput}
           aria-describedby="coupon-feedback"
         />
         <button
           type="button"
           onClick={() => void applyCouponClick()}
+          className="button-pop"
           style={S.couponBtn}
           data-testid="apply-coupon"
         >

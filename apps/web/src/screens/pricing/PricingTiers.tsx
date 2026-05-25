@@ -28,7 +28,7 @@ const S = {
 
 export function PricingTiers({ cadence, onSubscribe }: PricingTiersProps): JSX.Element {
   return (
-    <section aria-label="Pricing tiers" style={S.grid}>
+    <section aria-label="Pricing tiers" style={S.grid} className="stagger-children">
       {TIERS.map((tier) => (
         <TierCard
           key={tier.id}
@@ -64,7 +64,7 @@ function TierCard({ tier, cadence, onSubscribe }: TierCardProps): JSX.Element {
 
   return (
     <div
-      className="card"
+      className="card glass-strong lift-on-hover"
       style={{
         ...S.card,
         outline: tier.recommended ? "2px solid var(--accent)" : undefined,
@@ -143,6 +143,7 @@ function TierCard({ tier, cadence, onSubscribe }: TierCardProps): JSX.Element {
               gap: "var(--space-2)",
               ...S.sm,
               lineHeight: 1.45,
+              transition: "color var(--dur-sm) var(--ease-out)",
             }}
           >
             <Check
@@ -158,7 +159,8 @@ function TierCard({ tier, cadence, onSubscribe }: TierCardProps): JSX.Element {
         type="button"
         onClick={handleCta}
         className={
-          tier.ctaVariant === "primary" ? "btn btn-primary" : "btn btn-secondary"
+          (tier.ctaVariant === "primary" ? "btn btn-primary" : "btn btn-secondary") +
+          " button-pop"
         }
         style={{ width: "100%", justifyContent: "center" }}
         data-tier={tier.id}

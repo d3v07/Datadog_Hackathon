@@ -52,18 +52,22 @@ function href(subject: string): string {
 export function Docs(): JSX.Element {
   return (
     <PageShell active="docs">
-      <header className="public-hero">
+      <header className="public-hero fade-up">
         <h1>Docs</h1>
         <p className="lead">Everything you need to wire Unsyphn into your stack.</p>
       </header>
 
       <section className="public-section" aria-label="Documentation sections">
-        <div className="public-grid">
+        <div className="public-grid stagger-children">
           {SECTIONS.map((s) => (
-            <article key={s.title} className="public-card">
+            <article key={s.title} className="public-card glass-strong lift-on-hover">
               <h3>{s.title}</h3>
               <p>{s.blurb}</p>
-              <a href={href(s.subject)} aria-label={`Read ${s.title}`}>
+              <a
+                href={href(s.subject)}
+                aria-label={`Read ${s.title}`}
+                style={{ transition: "color var(--dur-sm) var(--ease-out)" }}
+              >
                 Read more →
               </a>
             </article>
@@ -71,7 +75,7 @@ export function Docs(): JSX.Element {
         </div>
       </section>
 
-      <section className="public-section" aria-labelledby="help">
+      <section className="public-section fade-up" aria-labelledby="help">
         <h2 id="help">Need a hand?</h2>
         <p>
           Most teams self-serve onboarding in under 20 minutes. If you hit a

@@ -59,12 +59,13 @@ function KanbanColumn(props: ColumnProps): JSX.Element {
       }}
     >
       <div
+        className="glass-soft fade-up"
         style={{
           display: "flex",
           alignItems: "center",
           gap: "var(--space-2)",
-          paddingBottom: "var(--space-2)",
-          borderBottom: "2px solid var(--border)",
+          padding: "var(--space-2) var(--space-3)",
+          borderRadius: "var(--radius-md)",
         }}
       >
         <h2

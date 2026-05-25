@@ -216,6 +216,7 @@ export function VendorDetail(): JSX.Element {
               key={id}
               type="button"
               role="tab"
+              className="button-pop"
               aria-selected={on}
               aria-controls={`panel-${id}`}
               id={`tab-${id}`}
@@ -231,7 +232,6 @@ export function VendorDetail(): JSX.Element {
                 fontWeight: on ? 600 : 400,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
-                transition: "color var(--dur-fast),border-color var(--dur-fast)",
                 marginBottom: -1,
               }}
             >

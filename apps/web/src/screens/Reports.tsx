@@ -7,6 +7,7 @@ import {
   type ReportCategory,
 } from "../lib/api.js";
 import { LensChips } from "../components/LensChips.js";
+import { SkeletonCard } from "../components/SkeletonRow.js";
 
 const CATEGORY_LABEL: Record<ReportCategory, string> = {
   risk: "Risk",
@@ -72,7 +73,7 @@ interface CardProps {
 function ReportCard({ report, busy, onGenerate }: CardProps): JSX.Element {
   return (
     <article
-      className="card"
+      className="card glass-strong lift-on-hover"
       style={{
         padding: "var(--space-5)",
         display: "flex",
@@ -135,7 +136,7 @@ function ReportCard({ report, busy, onGenerate }: CardProps): JSX.Element {
       <div style={{ display: "flex", gap: "var(--space-2)", marginTop: "auto", flexWrap: "wrap" }}>
         <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-primary button-pop"
           onClick={() => onGenerate(report.id)}
           disabled={busy}
           style={{ fontSize: "var(--text-sm)" }}
@@ -148,7 +149,7 @@ function ReportCard({ report, busy, onGenerate }: CardProps): JSX.Element {
             href={report.downloadUrl}
             target="_blank"
             rel="noreferrer"
-            className="btn btn-secondary"
+            className="btn btn-secondary button-pop"
             style={{ fontSize: "var(--text-sm)", textDecoration: "none" }}
           >
             <Download size={13} aria-hidden="true" />
@@ -253,7 +254,7 @@ export function Reports(): JSX.Element {
       className="page"
       style={{ padding: "var(--space-7) var(--space-6)", maxWidth: 1100, margin: "0 auto" }}
     >
-      <header style={{ marginBottom: "var(--space-6)" }}>
+      <header className="fade-up" style={{ marginBottom: "var(--space-6)" }}>
         <h1 className="h1" style={{ marginBottom: "var(--space-2)" }}>
           Reports
         </h1>
@@ -265,27 +266,39 @@ export function Reports(): JSX.Element {
       <LensChips />
 
       {loading && (
-        <div className="card" style={{ padding: "var(--space-7)", textAlign: "center", color: "var(--text-muted)" }} aria-busy="true">
-          Loading reports…
+        <div
+          className="stagger-children"
+          aria-busy="true"
+          aria-label="Loading reports"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "var(--space-4)",
+          }}
+        >
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} height={200} bars={3} />
+          ))}
         </div>
       )}
 
       {!loading && error && (
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card glass-soft fade-up" style={{ padding: 16 }}>
           <span className="badge badge-danger">{error}</span>
         </div>
       )}
 
       {!loading && !error && reports.length === 0 && (
-        <div className="card" style={{ padding: "var(--space-9)", textAlign: "center", color: "var(--text-2)" }}>
+        <div className="card glass-soft fade-up" style={{ padding: "var(--space-9)", textAlign: "center", color: "var(--text-2)" }}>
           No reports configured yet.
         </div>
       )}
 
       {!loading && !error && scheduled.length > 0 && (
-        <section aria-labelledby="reports-scheduled" style={{ marginBottom: "var(--space-7)" }}>
+        <section aria-labelledby="reports-scheduled" className="fade-up" style={{ marginBottom: "var(--space-7)" }}>
           <SectionHeader title="Scheduled" count={scheduled.length} />
           <div
+            className="stagger-children"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
@@ -305,9 +318,10 @@ export function Reports(): JSX.Element {
       )}
 
       {!loading && !error && onDemand.length > 0 && (
-        <section aria-labelledby="reports-on-demand">
+        <section aria-labelledby="reports-on-demand" className="fade-up">
           <SectionHeader title="On-demand" count={onDemand.length} />
           <div
+            className="stagger-children"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",

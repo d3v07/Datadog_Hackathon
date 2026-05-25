@@ -146,7 +146,7 @@ export function ContractsTab({ vendor, onUploadComplete, onError }: Props): JSX.
           Loading contracts…
         </div>
       ) : contracts.length === 0 ? (
-        <div className="card" style={{ padding: "var(--space-7)", textAlign: "center" }}>
+        <div className="card glass-soft fade-up" style={{ padding: "var(--space-7)", textAlign: "center" }}>
           <FileText size={28} aria-hidden="true" style={{ color: "var(--text-muted)", display: "block", margin: "0 auto var(--space-3)" }} />
           <h3 style={{ margin: "0 0 var(--space-2)", fontSize: "var(--text-base)", fontWeight: 600, color: "var(--text)" }}>
             No contracts uploaded yet
@@ -156,7 +156,7 @@ export function ContractsTab({ vendor, onUploadComplete, onError }: Props): JSX.
           </p>
           <button
             type="button"
-            className="btn btn-primary"
+            className="btn btn-primary button-pop"
             onClick={() => fileInput.current?.click()}
             disabled={uploading}
           >
@@ -165,11 +165,11 @@ export function ContractsTab({ vendor, onUploadComplete, onError }: Props): JSX.
         </div>
       ) : (
         <>
-          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+          <ul className="stagger-children" style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
             {contracts.map((c) => (
               <li
                 key={c.id}
-                className="card"
+                className="card glass row-hover"
                 style={{ padding: "var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}
               >
                 <FileText size={18} aria-hidden="true" style={{ color: "var(--accent)", flexShrink: 0 }} />
@@ -181,12 +181,12 @@ export function ContractsTab({ vendor, onUploadComplete, onError }: Props): JSX.
                     {fmtBytes(c.sizeBytes)} · uploaded {fmtDate(c.uploadedAt)} ({relTime(c.uploadedAt)}) by {c.uploadedBy}
                   </div>
                 </div>
-                <button type="button" className="btn btn-ghost" onClick={() => setClauseDrawerFor(c)} style={{ fontSize: "var(--text-xs)" }}>
+                <button type="button" className="btn btn-ghost button-pop" onClick={() => setClauseDrawerFor(c)} style={{ fontSize: "var(--text-xs)" }}>
                   View clauses
                 </button>
                 <button
                   type="button"
-                  className="btn btn-ghost"
+                  className="btn btn-ghost button-pop"
                   onClick={() => void handleDownload(c)}
                   disabled={downloadingId === c.id}
                   aria-label={`Download ${c.filename}`}
@@ -204,7 +204,7 @@ export function ContractsTab({ vendor, onUploadComplete, onError }: Props): JSX.
           </ul>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-secondary button-pop"
             onClick={() => fileInput.current?.click()}
             disabled={uploading}
             style={{ alignSelf: "flex-start" }}
@@ -252,13 +252,13 @@ function ClauseDrawer({ contract, clauses, onClose }: DrawerProps): JSX.Element 
         role="dialog"
         aria-modal="true"
         aria-labelledby="clause-drawer-title"
+        className="glass-strong slide-in-right"
         style={{
           position: "fixed",
           top: 0,
           right: 0,
           bottom: 0,
           width: "min(440px,100vw)",
-          background: "var(--surface)",
           borderLeft: "1px solid var(--border)",
           zIndex: 401,
           display: "flex",
@@ -270,7 +270,7 @@ function ClauseDrawer({ contract, clauses, onClose }: DrawerProps): JSX.Element 
           <h2 id="clause-drawer-title" style={{ flex: 1, margin: 0, fontSize: "var(--text-sm)", fontWeight: 600 }}>
             Extracted clauses · {contract.filename}
           </h2>
-          <button type="button" className="btn btn-ghost" onClick={onClose} aria-label="Close clause drawer" style={{ width: 32, height: 32, padding: 0 }}>
+          <button type="button" className="btn btn-ghost button-pop" onClick={onClose} aria-label="Close clause drawer" style={{ width: 32, height: 32, padding: 0 }}>
             <X size={16} aria-hidden="true" />
           </button>
         </div>

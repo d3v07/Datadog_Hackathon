@@ -312,6 +312,7 @@ export function Portfolio(): JSX.Element {
       <style>{PAGE_STYLE}</style>
 
       <header
+        className="fade-up"
         style={{
           display: "flex",
           alignItems: "flex-end",
@@ -343,6 +344,7 @@ export function Portfolio(): JSX.Element {
           <ViewToggle view={filters.view} onChange={(v) => setFilters({ ...filters, view: v })} />
           <button
             type="button"
+            className="button-pop"
             onClick={() => {
               setAddInitial(undefined);
               setAddOpen(true);
@@ -366,6 +368,7 @@ export function Portfolio(): JSX.Element {
           </button>
           <button
             type="button"
+            className="button-pop"
             onClick={() => handleShareWithAuditor([])}
             style={{
               display: "inline-flex",
@@ -444,6 +447,7 @@ export function Portfolio(): JSX.Element {
         <EmptyState />
       ) : (
         <div
+          className="stagger-children"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",

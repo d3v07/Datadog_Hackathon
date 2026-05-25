@@ -3,12 +3,13 @@ import { PageShell } from "../components/PageShell.js";
 export function Terms(): JSX.Element {
   return (
     <PageShell active={null}>
-      <header className="public-hero">
+      <header className="public-hero fade-up">
         <h1>Terms of Service</h1>
         <p className="lead">Last updated: May 2026</p>
       </header>
 
-      <section className="public-section" aria-labelledby="accept">
+      <div className="stagger-children">
+      <section className="public-section glass-soft" aria-labelledby="accept" style={{ padding: 24, borderRadius: 14 }}>
         <h2 id="accept">Acceptance</h2>
         <p>
           By creating an Unsyphn workspace or using any portion of the service,
@@ -18,7 +19,7 @@ export function Terms(): JSX.Element {
         </p>
       </section>
 
-      <section className="public-section" aria-labelledby="service">
+      <section className="public-section glass-soft" aria-labelledby="service" style={{ padding: 24, borderRadius: 14 }}>
         <h2 id="service">Service description</h2>
         <p>
           Unsyphn is a subscription operations platform that discovers,
@@ -29,7 +30,7 @@ export function Terms(): JSX.Element {
         </p>
       </section>
 
-      <section className="public-section" aria-labelledby="use">
+      <section className="public-section glass-soft" aria-labelledby="use" style={{ padding: 24, borderRadius: 14 }}>
         <h2 id="use">Acceptable use</h2>
         <p>
           You agree not to: reverse-engineer the service, attempt to bypass
@@ -40,7 +41,7 @@ export function Terms(): JSX.Element {
         </p>
       </section>
 
-      <section className="public-section" aria-labelledby="billing">
+      <section className="public-section glass-soft" aria-labelledby="billing" style={{ padding: 24, borderRadius: 14 }}>
         <h2 id="billing">Subscription &amp; billing</h2>
         <p>
           Paid plans are billed monthly or annually in advance via the pricing
@@ -51,7 +52,7 @@ export function Terms(): JSX.Element {
         </p>
       </section>
 
-      <section className="public-section" aria-labelledby="liability">
+      <section className="public-section glass-soft" aria-labelledby="liability" style={{ padding: 24, borderRadius: 14 }}>
         <h2 id="liability">Liability</h2>
         <p>
           The service is provided &ldquo;as is&rdquo; without warranties of any
@@ -63,7 +64,7 @@ export function Terms(): JSX.Element {
         </p>
       </section>
 
-      <section className="public-section" aria-labelledby="terminate">
+      <section className="public-section glass-soft" aria-labelledby="terminate" style={{ padding: 24, borderRadius: 14 }}>
         <h2 id="terminate">Termination</h2>
         <p>
           You may cancel at any time from your billing settings; cancellation
@@ -75,7 +76,7 @@ export function Terms(): JSX.Element {
         </p>
       </section>
 
-      <section className="public-section" aria-labelledby="changes">
+      <section className="public-section glass-soft" aria-labelledby="changes" style={{ padding: 24, borderRadius: 14 }}>
         <h2 id="changes">Changes</h2>
         <p>
           We may update these terms from time to time. Material changes will be
@@ -84,7 +85,7 @@ export function Terms(): JSX.Element {
         </p>
       </section>
 
-      <section className="public-section" aria-labelledby="law">
+      <section className="public-section glass-soft" aria-labelledby="law" style={{ padding: 24, borderRadius: 14 }}>
         <h2 id="law">Governing law</h2>
         <p>
           These terms are governed by the laws of the State of Delaware,
@@ -95,6 +96,7 @@ export function Terms(): JSX.Element {
           Questions: <a href="mailto:legal@unsyphn.com">legal@unsyphn.com</a>.
         </p>
       </section>
+      </div>
     </PageShell>
   );
 }

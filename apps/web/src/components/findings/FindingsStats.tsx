@@ -1,4 +1,5 @@
 import type { Finding, FindingType } from "../../lib/api.js";
+import { CountUp } from "../CountUp.js";
 
 const TYPE_LABELS: Record<FindingType, string> = {
   change: "Change",
@@ -12,10 +13,12 @@ interface Props {
   findings: ReadonlyArray<Finding>;
 }
 
-function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }): JSX.Element {
+const intFmt = (n: number): string => Math.round(n).toString();
+
+function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }): JSX.Element {
   return (
     <div
-      className="card"
+      className="card glass-strong lift-on-hover"
       style={{
         padding: "var(--space-3) var(--space-4)",
         display: "flex",
@@ -44,7 +47,7 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
           lineHeight: 1.1,
         }}
       >
-        {value}
+        <CountUp value={value} format={intFmt} />
       </span>
     </div>
   );
@@ -67,6 +70,7 @@ export function FindingsStats({ findings }: Props): JSX.Element {
     <div
       role="region"
       aria-label="Findings overview"
+      className="stagger-children"
       style={{
         display: "flex",
         gap: "var(--space-3)",
@@ -74,10 +78,10 @@ export function FindingsStats({ findings }: Props): JSX.Element {
         flexWrap: "wrap",
       }}
     >
-      <Stat label="Open findings" value={String(open.length)} />
-      <Stat label="P1 critical" value={String(p1)} accent={p1 > 0} />
+      <Stat label="Open findings" value={open.length} />
+      <Stat label="P1 critical" value={p1} accent={p1 > 0} />
       {(Object.entries(byType) as Array<[FindingType, number]>).map(([type, count]) => (
-        <Stat key={type} label={TYPE_LABELS[type]} value={String(count)} />
+        <Stat key={type} label={TYPE_LABELS[type]} value={count} />
       ))}
     </div>
   );

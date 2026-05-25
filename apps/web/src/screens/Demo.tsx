@@ -47,7 +47,7 @@ export function Demo(): JSX.Element {
 
   return (
     <PageShell active="demo">
-      <header className="public-hero">
+      <header className="public-hero fade-up">
         <h1>See Unsyphn in 20 minutes</h1>
         <p className="lead">
           We&rsquo;ll connect a sample workspace, watch one vendor change land, and
@@ -55,7 +55,7 @@ export function Demo(): JSX.Element {
         </p>
       </header>
 
-      <section className="public-section" aria-label="Walkthrough request">
+      <section className="public-section glass-strong lift-on-hover fade-up" aria-label="Walkthrough request" style={{ padding: 24, borderRadius: 14 }}>
         <form className="public-form" onSubmit={handleSubmit} noValidate={false}>
           <label htmlFor="demo-name">
             Name
@@ -66,6 +66,7 @@ export function Demo(): JSX.Element {
               autoComplete="name"
               value={form.name}
               onChange={(e) => update("name", e.target.value)}
+              className="focus-glow"
               aria-label="Your name"
             />
           </label>
@@ -79,6 +80,7 @@ export function Demo(): JSX.Element {
               autoComplete="email"
               value={form.email}
               onChange={(e) => update("email", e.target.value)}
+              className="focus-glow"
               aria-label="Your work email"
             />
           </label>
@@ -92,6 +94,7 @@ export function Demo(): JSX.Element {
               autoComplete="organization"
               value={form.company}
               onChange={(e) => update("company", e.target.value)}
+              className="focus-glow"
               aria-label="Company name"
             />
           </label>
@@ -103,6 +106,7 @@ export function Demo(): JSX.Element {
               required
               value={form.size}
               onChange={(e) => update("size", e.target.value)}
+              className="focus-glow"
               aria-label="Team size"
             >
               {TEAM_SIZES.map((s) => (
@@ -119,17 +123,18 @@ export function Demo(): JSX.Element {
               value={form.useCase}
               onChange={(e) => update("useCase", e.target.value)}
               placeholder="What are you trying to fix? Renewal chaos, shadow IT, GRC sprawl, vendor risk…"
+              className="focus-glow"
               aria-label="What you want to solve"
             />
           </label>
 
-          <button type="submit" className="public-btn">
+          <button type="submit" className="public-btn button-pop">
             Request walkthrough →
           </button>
         </form>
       </section>
 
-      <section className="public-section" aria-label="What to expect">
+      <section className="public-section fade-up" aria-label="What to expect">
         <h2>What you&rsquo;ll see</h2>
         <p>
           A 20-minute live session: connect Google or M365 in 90 seconds, watch

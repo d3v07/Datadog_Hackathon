@@ -166,25 +166,25 @@ export function RenegotiationPacket({ vendorId, open, onClose }: Props): JSX.Ele
       <div
         aria-hidden="true"
         onClick={onClose}
-        style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.4)", zIndex: 400 }}
+        className="fade-in"
+        style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.42)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", zIndex: 400 }}
       />
       <div
         ref={(el) => { panelRef.current = el; }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="reneg-title"
+        className="glass-strong slide-in-right"
         style={{
           position: "fixed",
           top: 0,
           right: 0,
           bottom: 0,
           width: "min(560px, 100vw)",
-          background: "var(--surface)",
-          borderLeft: "1px solid var(--border)",
+          borderLeft: "1px solid var(--glass-border)",
           zIndex: 401,
           display: "flex",
           flexDirection: "column",
-          boxShadow: "var(--shadow-3)",
         }}
       >
         {/* Header */}
@@ -198,7 +198,7 @@ export function RenegotiationPacket({ vendorId, open, onClose }: Props): JSX.Ele
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-5)", display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+        <div className="fade-up" style={{ flex: 1, overflowY: "auto", padding: "var(--space-5)", display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
           {loading && (
             <div aria-live="polite" aria-busy style={{ color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>
               Building packet...
@@ -288,13 +288,13 @@ export function RenegotiationPacket({ vendorId, open, onClose }: Props): JSX.Ele
         {/* Footer actions */}
         {data && (
           <div style={{ display: "flex", gap: "var(--space-2)", padding: "var(--space-4) var(--space-5)", borderTop: "1px solid var(--border)", flexShrink: 0, flexWrap: "wrap" }}>
-            <button type="button" className="btn btn-secondary" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", height: 32, fontSize: "var(--text-xs)" }} onClick={copyEmail}>
+            <button type="button" className="btn btn-secondary button-pop" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", height: 32, fontSize: "var(--text-xs)" }} onClick={copyEmail}>
               <Copy size={13} aria-hidden="true" /> Copy email
             </button>
-            <button type="button" className="btn btn-primary" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", height: 32, fontSize: "var(--text-xs)" }} onClick={sendViaGmail}>
+            <button type="button" className="btn btn-primary button-pop" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", height: 32, fontSize: "var(--text-xs)" }} onClick={sendViaGmail}>
               <Mail size={13} aria-hidden="true" /> Send via Gmail
             </button>
-            <button type="button" className="btn btn-ghost" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", height: 32, fontSize: "var(--text-xs)", marginLeft: "auto" }} onClick={() => alert("PDF export coming soon")}>
+            <button type="button" className="btn btn-ghost button-pop" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", height: 32, fontSize: "var(--text-xs)", marginLeft: "auto" }} onClick={() => alert("PDF export coming soon")}>
               <FileText size={13} aria-hidden="true" /> Export PDF
             </button>
           </div>

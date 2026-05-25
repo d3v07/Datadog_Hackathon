@@ -53,7 +53,11 @@ export function BlockersPanel({ vendorId }: { vendorId: string }): JSX.Element {
   }, [vendorId]);
 
   return (
-    <section aria-labelledby="wb-blockers">
+    <section
+      aria-labelledby="wb-blockers"
+      className="glass-strong fade-up"
+      style={{ padding: "var(--space-4)", borderRadius: "var(--radius-md)" }}
+    >
       <SectionHead label="Legal / Risk blockers" />
       {blockers === null ? (
         <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>Checking…</p>
@@ -70,6 +74,7 @@ export function BlockersPanel({ vendorId }: { vendorId: string }): JSX.Element {
         </p>
       ) : (
         <ul
+          className="stagger-children"
           style={{
             margin: 0,
             padding: 0,
@@ -83,6 +88,7 @@ export function BlockersPanel({ vendorId }: { vendorId: string }): JSX.Element {
             <li key={b.id}>
               <a
                 href={`/app/findings?vendorId=${encodeURIComponent(vendorId)}&type=change&severity=P1`}
+                className="row-hover"
                 style={{
                   display: "flex",
                   alignItems: "center",

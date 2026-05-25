@@ -94,7 +94,7 @@ export function ShareAuditorDrawer({
   return (
     <Drawer open={open} onClose={onClose} title="Generate auditor share link">
       {!result ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+        <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div>
             <Label>Vendors</Label>
             <div
@@ -165,6 +165,7 @@ export function ShareAuditorDrawer({
                 <button
                   key={d}
                   type="button"
+                  className="button-pop"
                   onClick={() => setExpiry(d)}
                   style={{
                     flex: 1,
@@ -188,6 +189,7 @@ export function ShareAuditorDrawer({
             <Label htmlFor="auditor-note">Note (optional)</Label>
             <textarea
               id="auditor-note"
+              className="focus-glow"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Context the auditor will see in the share link."
@@ -225,6 +227,7 @@ export function ShareAuditorDrawer({
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
             <button
               type="button"
+              className="button-pop"
               onClick={onClose}
               style={{
                 padding: "8px 14px",
@@ -240,6 +243,7 @@ export function ShareAuditorDrawer({
             </button>
             <button
               type="button"
+              className="button-pop"
               onClick={() => void handleGenerate()}
               disabled={busy || picked.size === 0}
               style={{
@@ -258,7 +262,7 @@ export function ShareAuditorDrawer({
           </div>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <p
             style={{
               fontSize: 13,
@@ -302,6 +306,7 @@ export function ShareAuditorDrawer({
             />
             <button
               type="button"
+              className="button-pop"
               onClick={() => void handleCopy()}
               style={{
                 display: "inline-flex",
@@ -346,6 +351,7 @@ export function ShareAuditorDrawer({
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 4 }}>
             <button
               type="button"
+              className="button-pop"
               onClick={() => setResult(null)}
               style={{
                 padding: "8px 14px",
@@ -361,6 +367,7 @@ export function ShareAuditorDrawer({
             </button>
             <button
               type="button"
+              className="button-pop"
               onClick={onClose}
               style={{
                 padding: "8px 14px",

@@ -12,6 +12,7 @@ import { FindingsStats } from "../components/findings/FindingsStats.js";
 import { FindingsTable } from "../components/findings/FindingsTable.js";
 import { FindingDrawer } from "../components/findings/FindingDrawer.js";
 import { LensChips } from "../components/LensChips.js";
+import { SkeletonRow } from "../components/SkeletonRow.js";
 
 function readSearchParam(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -162,7 +163,7 @@ export function Findings(): JSX.Element {
       className="page"
       style={{ padding: "var(--space-7) var(--space-6)", maxWidth: 1200, margin: "0 auto" }}
     >
-      <header style={{ marginBottom: "var(--space-5)" }}>
+      <header className="fade-up" style={{ marginBottom: "var(--space-5)" }}>
         <h1 className="h1" style={{ marginBottom: "var(--space-2)" }}>
           Findings
         </h1>
@@ -189,23 +190,25 @@ export function Findings(): JSX.Element {
 
       {loading && (
         <div
-          className="card"
-          style={{ padding: "var(--space-7)", textAlign: "center", color: "var(--text-muted)" }}
+          className="stagger-children"
           aria-busy="true"
+          aria-label="Loading findings"
         >
-          Loading findings…
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonRow key={i} height={64} bars={2} />
+          ))}
         </div>
       )}
 
       {!loading && error && (
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card glass-soft fade-up" style={{ padding: 16 }}>
           <span className="badge badge-danger">{error}</span>
         </div>
       )}
 
       {!loading && !error && filtered.length === 0 && (
         <div
-          className="card"
+          className="card glass-soft fade-up"
           style={{
             padding: "var(--space-9)",
             textAlign: "center",

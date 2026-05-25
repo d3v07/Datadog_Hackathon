@@ -112,7 +112,7 @@ export function Pricing(): JSX.Element {
   return (
     <div style={S.page}>
       {/* Hero */}
-      <section style={S.hero}>
+      <section style={S.hero} className="fade-up">
         <h1
           className="h1"
           style={{

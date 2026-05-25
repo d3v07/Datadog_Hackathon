@@ -66,13 +66,12 @@ export function Popover({ open, onClose, anchor, children, labelledBy, width = 2
       ref={panelRef}
       role="menu"
       aria-labelledby={labelledBy}
+      className="glass-strong scale-in"
       style={{
         position: "absolute",
         top: "calc(100% + 4px)",
         left: 0,
         minWidth: width,
-        background: "var(--surface)",
-        border: "1px solid var(--border)",
         borderRadius: 8,
         boxShadow: "var(--shadow-3)",
         padding: 4,
@@ -99,6 +98,7 @@ export function PopoverItem({
       role="menuitemradio"
       aria-checked={selected ?? false}
       onClick={onClick}
+      className="button-pop"
       style={{
         display: "flex",
         alignItems: "center",

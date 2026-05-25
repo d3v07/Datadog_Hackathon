@@ -53,7 +53,7 @@ export function Contact(): JSX.Element {
 
   return (
     <PageShell active="contact">
-      <header className="public-hero">
+      <header className="public-hero fade-up">
         <h1>Talk to us</h1>
         <p className="lead">
           Pick the channel that fits — we route security and press separately so
@@ -62,9 +62,9 @@ export function Contact(): JSX.Element {
       </header>
 
       <section className="public-section" aria-label="Contact channels">
-        <div className="public-grid">
+        <div className="public-grid stagger-children">
           {CHANNELS.map(({ Icon, label, email, blurb }) => (
-            <article key={label} className="public-card">
+            <article key={label} className="public-card glass-strong lift-on-hover">
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                 <Icon size={18} aria-hidden="true" color="#5E6AD2" />
                 <h3 style={{ margin: 0 }}>{label}</h3>
@@ -76,12 +76,12 @@ export function Contact(): JSX.Element {
         </div>
       </section>
 
-      <section className="public-section" aria-label="Office">
+      <section className="public-section fade-up" aria-label="Office">
         <h2>Where we work</h2>
         <p>New Jersey · NYC · Remote-first across North America and Europe.</p>
       </section>
 
-      <section className="public-section" aria-label="Send a message">
+      <section className="public-section glass-strong fade-up" aria-label="Send a message" style={{ padding: 24, borderRadius: 14 }}>
         <h2>Or just send a note</h2>
         <form className="public-form" onSubmit={handleSubmit}>
           <label htmlFor="contact-name">
@@ -93,6 +93,7 @@ export function Contact(): JSX.Element {
               autoComplete="name"
               value={form.name}
               onChange={(e) => update("name", e.target.value)}
+              className="focus-glow"
               aria-label="Your name"
             />
           </label>
@@ -106,6 +107,7 @@ export function Contact(): JSX.Element {
               autoComplete="email"
               value={form.email}
               onChange={(e) => update("email", e.target.value)}
+              className="focus-glow"
               aria-label="Your email"
             />
           </label>
@@ -118,11 +120,12 @@ export function Contact(): JSX.Element {
               value={form.message}
               onChange={(e) => update("message", e.target.value)}
               placeholder="What&rsquo;s on your mind?"
+              className="focus-glow"
               aria-label="Your message"
             />
           </label>
 
-          <button type="submit" className="public-btn">
+          <button type="submit" className="public-btn button-pop">
             Send →
           </button>
         </form>

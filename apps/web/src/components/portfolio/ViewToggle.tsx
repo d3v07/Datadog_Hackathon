@@ -43,6 +43,7 @@ function ToggleButton({
   return (
     <button
       type="button"
+      className="button-pop"
       aria-label={label}
       aria-pressed={active}
       onClick={onClick}

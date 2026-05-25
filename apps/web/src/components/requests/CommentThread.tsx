@@ -61,7 +61,7 @@ export function CommentThread({ comments, busy, onSubmit }: Props): JSX.Element 
       {comments.length > 3 && !showAll && (
         <button
           type="button"
-          className="btn btn-ghost"
+          className="btn btn-ghost button-pop"
           onClick={() => setShowAll(true)}
           style={{ alignSelf: "flex-start", height: 28, fontSize: "var(--text-xs)" }}
         >
@@ -73,9 +73,9 @@ export function CommentThread({ comments, busy, onSubmit }: Props): JSX.Element 
           No comments yet.
         </p>
       ) : (
-        <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+        <ul className="stagger-children" style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
           {visible.map((c) => (
-            <li key={c.id} style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-start" }}>
+            <li key={c.id} className="fade-up" style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-start" }}>
               <Avatar letter={c.authorLetter} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: 2 }}>
@@ -100,7 +100,7 @@ export function CommentThread({ comments, busy, onSubmit }: Props): JSX.Element 
         </label>
         <textarea
           id="cmt-input"
-          className="input"
+          className="input focus-glow"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Add a comment..."
@@ -110,7 +110,7 @@ export function CommentThread({ comments, busy, onSubmit }: Props): JSX.Element 
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button
             type="submit"
-            className="btn btn-secondary"
+            className="btn btn-secondary button-pop"
             disabled={busy || draft.trim().length === 0}
             style={{ height: 32, fontSize: "var(--text-xs)" }}
           >

@@ -32,7 +32,7 @@ export function NextActionCard({ vendor, changeCount, onTab }: Props): JSX.Eleme
           : { badge: "Monitor", label: "View inbox filtered to vendor", tab: null };
 
   return (
-    <div className="card" style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)", minWidth: 200, maxWidth: 240 }}>
+    <div className="card glass-strong lift-on-hover fade-up" style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)", minWidth: 200, maxWidth: 240 }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
         <Zap size={14} aria-hidden="true" style={{ color: "var(--warning)", flexShrink: 0 }} />
         <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--text)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
@@ -43,7 +43,7 @@ export function NextActionCard({ vendor, changeCount, onTab }: Props): JSX.Eleme
       <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text-2)", lineHeight: 1.5 }}>{cta.label}</p>
       <button
         type="button"
-        className="btn btn-primary"
+        className="btn btn-primary button-pop"
         style={{ alignSelf: "flex-start" }}
         onClick={() => (cta.tab ? onTab(cta.tab) : window.location.assign(`/app/inbox?vendorId=${vendor.id}`))}
       >

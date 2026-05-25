@@ -46,7 +46,7 @@ export function InboxFilterRow({
           type="button"
           onClick={() => onFilterChange(value)}
           aria-pressed={filter === value}
-          className={filter === value ? "badge badge-accent" : "badge badge-neutral"}
+          className={`${filter === value ? "badge badge-accent" : "badge badge-neutral"} button-pop`}
           style={{ cursor: "pointer", border: "none" }}
         >
           {label}

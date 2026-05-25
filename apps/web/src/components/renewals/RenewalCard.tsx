@@ -104,13 +104,12 @@ function OwnerAvatar({ renewal, members, onAssign, disabled }: OwnerAvatarProps)
           ref={popRef}
           role="listbox"
           aria-label="Assign owner"
+          className="glass-strong scale-in"
           style={{
             position: "absolute",
             top: 32,
             left: 0,
             minWidth: 220,
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
             borderRadius: "var(--radius-md)",
             boxShadow: "var(--shadow-3)",
             zIndex: 50,
@@ -141,6 +140,7 @@ function OwnerAvatar({ renewal, members, onAssign, disabled }: OwnerAvatarProps)
                   type="button"
                   role="option"
                   aria-selected={isSelected}
+                  className="button-pop"
                   onClick={() => {
                     setOpen(false);
                     onAssign(m.id);
@@ -231,7 +231,7 @@ function KebabMenu({ actions }: KebabMenuProps): JSX.Element {
         aria-label="Card actions"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="btn btn-ghost"
+        className="btn btn-ghost button-pop"
         style={{ width: 28, height: 28, padding: 0 }}
       >
         <MoreHorizontal size={16} aria-hidden="true" />
@@ -241,13 +241,12 @@ function KebabMenu({ actions }: KebabMenuProps): JSX.Element {
         <div
           ref={menuRef}
           role="menu"
+          className="glass-strong scale-in"
           style={{
             position: "absolute",
             top: 30,
             right: 0,
             minWidth: 200,
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
             borderRadius: "var(--radius-md)",
             boxShadow: "var(--shadow-3)",
             zIndex: 50,
@@ -261,6 +260,7 @@ function KebabMenu({ actions }: KebabMenuProps): JSX.Element {
               key={a.key}
               type="button"
               role="menuitem"
+              className="button-pop"
               onClick={() => {
                 setOpen(false);
                 a.onSelect();
@@ -353,9 +353,8 @@ export function RenewalCard({
   return (
     <article
       ref={setNodeRef}
+      className="glass-strong"
       style={{
-        background: "var(--surface)",
-        border: "1px solid var(--border)",
         borderRadius: "var(--radius-md)",
         padding: "var(--space-4)",
         display: "flex",
@@ -364,7 +363,7 @@ export function RenewalCard({
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
-        boxShadow: isDragging ? "var(--shadow-3)" : "var(--shadow-1)",
+        boxShadow: isDragging ? "var(--shadow-3)" : undefined,
         cursor: closed ? "default" : "grab",
         position: "relative",
       }}
@@ -461,7 +460,7 @@ export function RenewalCard({
             type="button"
             aria-label="Export this renewal to calendar"
             title="Export to calendar"
-            className="btn btn-ghost"
+            className="btn btn-ghost button-pop"
             onClick={() => onExportIcs(renewal)}
             style={{ width: 28, height: 28, padding: 0 }}
           >
@@ -469,7 +468,7 @@ export function RenewalCard({
           </button>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-secondary button-pop"
             style={{ height: 28, fontSize: "var(--text-xs)" }}
             onClick={() => onOpen(renewal)}
           >

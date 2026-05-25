@@ -33,6 +33,7 @@ export function BulkActionBar({
       role="region"
       aria-live="polite"
       aria-label={`${count} selected`}
+      className="glass-strong slide-in-right"
       style={{
         position: "sticky",
         top: 0,
@@ -41,12 +42,12 @@ export function BulkActionBar({
         alignItems: "center",
         gap: 8,
         padding: "10px 16px",
-        background: "#0f172a",
+        background: "rgba(15,23,42,0.92)",
         color: "#f8fafc",
         borderRadius: 8,
         marginBottom: 12,
         fontSize: 13,
-        boxShadow: "0 4px 12px rgba(15,23,42,0.18)",
+        boxShadow: "0 12px 32px rgba(15,23,42,0.28), inset 0 1px 0 rgba(255,255,255,0.08)",
       }}
     >
       <button

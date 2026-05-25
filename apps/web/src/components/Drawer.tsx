@@ -74,11 +74,14 @@ export function Drawer({ open, onClose, children, title }: Props): JSX.Element {
       <div
         aria-hidden="true"
         onClick={onClose}
+        className={open ? "fade-in" : undefined}
         style={{
           display: open ? "block" : "none",
           position: "fixed",
           inset: 0,
-          background: "rgba(0,0,0,0.5)",
+          background: "rgba(15,23,42,0.42)",
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
           zIndex: 200,
         }}
       />
@@ -87,19 +90,19 @@ export function Drawer({ open, onClose, children, title }: Props): JSX.Element {
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
+        className="glass-strong"
         style={{
           position: "fixed",
           top: 0,
           right: 0,
           bottom: 0,
           width: 400,
-          background: "var(--surface)",
-          borderLeft: "1px solid var(--border)",
+          borderLeft: "1px solid var(--glass-border)",
           zIndex: 201,
           display: "flex",
           flexDirection: "column",
           transform: open ? "translateX(0)" : "translateX(100%)",
-          transition: `transform var(--dur-base) var(--ease-out)`,
+          transition: `transform var(--dur-md) var(--ease-out)`,
         }}
       >
         <div

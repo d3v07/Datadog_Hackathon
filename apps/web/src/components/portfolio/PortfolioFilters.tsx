@@ -36,12 +36,15 @@ export function PortfolioFilters({
 
   return (
     <div
+      className="glass-soft fade-up"
       style={{
         display: "flex",
         flexWrap: "wrap",
         gap: 8,
         alignItems: "center",
-        padding: "12px 0",
+        padding: "12px",
+        borderRadius: 10,
+        margin: "12px 0",
       }}
       role="region"
       aria-label="Vendor filters"
@@ -69,6 +72,7 @@ export function PortfolioFilters({
         />
         <input
           type="search"
+          className="glass-soft focus-glow"
           value={state.q}
           onChange={(e) => onChange({ ...state, q: e.target.value })}
           placeholder="Search vendors..."
@@ -79,7 +83,6 @@ export function PortfolioFilters({
             fontSize: 13,
             border: "1px solid rgba(15,23,42,0.12)",
             borderRadius: 8,
-            background: "#ffffff",
             color: "#0f172a",
             outline: "none",
           }}
@@ -116,6 +119,7 @@ export function PortfolioFilters({
       />
 
       <select
+        className="focus-glow"
         value={state.owner}
         onChange={(e) => onChange({ ...state, owner: e.target.value })}
         aria-label="Filter by owner"
@@ -130,6 +134,7 @@ export function PortfolioFilters({
       </select>
 
       <select
+        className="focus-glow"
         value={state.sort}
         onChange={(e) => onChange({ ...state, sort: e.target.value as SortKey })}
         aria-label="Sort"
@@ -196,6 +201,7 @@ function Chip({ active, onClick, label }: { active: boolean; onClick: () => void
   return (
     <button
       type="button"
+      className="button-pop"
       onClick={onClick}
       aria-pressed={active}
       style={{

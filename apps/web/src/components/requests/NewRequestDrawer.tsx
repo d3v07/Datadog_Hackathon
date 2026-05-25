@@ -167,7 +167,7 @@ export function NewRequestDrawer({ open, onClose, onCreated }: Props): JSX.Eleme
           <>
             <input
               id="req-vendor"
-              className="input"
+              className="input focus-glow"
               type="text"
               value={form.vendorName}
               onChange={(e) => onVendorChange(e.target.value)}
@@ -209,7 +209,7 @@ export function NewRequestDrawer({ open, onClose, onCreated }: Props): JSX.Eleme
           "Category",
           <select
             id="req-category"
-            className="input"
+            className="input focus-glow"
             value={form.category}
             onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
           >
@@ -225,7 +225,7 @@ export function NewRequestDrawer({ open, onClose, onCreated }: Props): JSX.Eleme
           "Expected annual spend ($)",
           <input
             id="req-spend"
-            className="input"
+            className="input focus-glow"
             type="number"
             min={0}
             value={form.expectedSpendUsd}
@@ -240,7 +240,7 @@ export function NewRequestDrawer({ open, onClose, onCreated }: Props): JSX.Eleme
           "Business justification",
           <textarea
             id="req-justification"
-            className="input"
+            className="input focus-glow"
             value={form.justification}
             onChange={(e) => setForm((p) => ({ ...p, justification: e.target.value }))}
             placeholder="Describe why this tool is needed..."
@@ -255,7 +255,7 @@ export function NewRequestDrawer({ open, onClose, onCreated }: Props): JSX.Eleme
             {serverError}
           </p>
         )}
-        <button type="submit" className="btn btn-primary" style={{ alignSelf: "flex-start" }} disabled={submitting}>
+        <button type="submit" className="btn btn-primary button-pop" style={{ alignSelf: "flex-start" }} disabled={submitting}>
           {submitting ? "Submitting..." : "Submit request"}
         </button>
       </form>
