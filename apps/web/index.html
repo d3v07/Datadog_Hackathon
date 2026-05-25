@@ -84,20 +84,28 @@ body{
    ───────────────────────────────────────────── */
 .nav{
   position:fixed;top:0;left:0;right:0;z-index:50;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px 28px;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  padding:20px 28px;
   font-family:var(--font-premium);font-size:12px;letter-spacing:.10em;text-transform:uppercase;
   color:#0f172a;
   font-weight:500;
 }
-.nav .brand{display:flex;align-items:center;gap:12px}
+.nav .brand{
+  display:flex;align-items:center;gap:16px;
+  grid-column:2;
+  justify-self:center;
+}
 .nav .brand .mark{
-  display:block;width:48px;height:32px;object-fit:contain;
+  display:block;width:72px;height:48px;object-fit:contain;
 }
 .nav .brand span{
-  font-size:13px;
-  letter-spacing:.16em;
-  font-weight:600;
+  font-size:20px;
+  letter-spacing:.20em;
+  font-weight:700;
+}
+.nav .cta{
+  grid-column:3;
+  justify-self:end;
 }
 .nav ul{list-style:none;display:flex;gap:28px}
 .nav a{color:#334155;text-decoration:none;opacity:.85;transition:opacity .2s}
@@ -113,6 +121,20 @@ body{
   transition:background .15s, transform .15s;
 }
 .nav .cta:hover{background:#1e293b;transform:translateY(-1px)}
+
+/* ─────────────────────────────────────────────
+   CURSOR TRAIL — dots that echo the brand mark
+   ───────────────────────────────────────────── */
+#cursor-trail{
+  position:fixed;inset:0;
+  width:100vw;height:100vh;
+  pointer-events:none;
+  z-index:1;
+  opacity:0.85;
+}
+@media (prefers-reduced-motion: reduce){
+  #cursor-trail{display:none}
+}
 
 /* ─────────────────────────────────────────────
    HERO
@@ -150,9 +172,9 @@ body{
 
 .stage{
   position:relative;
-  width:min(660px, 90vw, 86vh);
+  width:min(528px, 72vw, 69vh);
   aspect-ratio:1/1;
-  perspective: 1200px;
+  perspective: 1100px;
   perspective-origin: 50% 38%;
 }
 
@@ -593,17 +615,14 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
 <div class="grain"></div>
 
 <nav class="nav">
-  <div class="brand"><img class="mark" src="/unsyphn-mark.png" alt="Unsyphn" width="48" height="32"><span>UNSYPHN</span></div>
-  <ul>
-    <li><a href="#product">Product</a></li>
-  </ul>
+  <div class="brand"><img class="mark" src="/unsyphn-mark.png" alt="Unsyphn" width="72" height="48"><span>UNSYPHN</span></div>
   <a href="/app/" class="cta">Get access →</a>
 </nav>
 
+<canvas id="cursor-trail" aria-hidden="true"></canvas>
+
 <main>
 <section class="hero" id="hero">
-
-  <span class="eyebrow"><span class="dot"></span>v4.2 · The Subscription OS</span>
 
   <div class="stage" id="stage">
     <div class="scene" id="scene">
@@ -796,7 +815,7 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
         const sxA = Math.random()*2 - 1;
         const syA = Math.random()*2 - 1;
         const szA = Math.random()*2 - 1;
-        const spinMax = 220 + Math.random()*260;
+        const spinMax = 80 + Math.random()*120;
         const stagger = Math.random() * 0.18;
 
         TILES.push({
@@ -844,7 +863,9 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
   // when rAF is throttled (hidden tab, pre-first-frame, etc).
   function renderTiles(sp){
     const S = getS();
-    const scatter = S * 1.65;
+    // softer dispersal — tiles drift only ~55% of cube edge at peak so the cube reads
+    // intact for most of the scroll, then opens up gently near the bottom of the hero
+    const scatter = S * 0.55;
     for(let i = 0; i < TILES.length; i++){
       const t = TILES[i];
       const tp = Math.max(0, Math.min(1, (sp - t.stagger) / (1 - t.stagger)));
@@ -950,6 +971,88 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
     requestAnimationFrame(frame);
   }
 })();
+
+/* ─────────────────────────────────────────────
+   CURSOR TRAIL — dot pattern echoing the brand mark
+   ───────────────────────────────────────────── */
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var canvas = document.getElementById('cursor-trail');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+
+  function sizeCanvas(){
+    canvas.width  = window.innerWidth  * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width  = window.innerWidth  + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  sizeCanvas();
+  window.addEventListener('resize', sizeCanvas);
+
+  // Brand-mark palette — purple → blue gradient
+  var palette = ['#2E0F88','#3B1AAE','#5B36D6','#6E4DEA','#7855F0','#5E6AD2','#5B8AF0','#2BCAE8','#4FB8C9'];
+
+  var particles = [];
+  var lastEmit = 0;
+  var lastX = 0, lastY = 0;
+  var hasMoved = false;
+
+  window.addEventListener('pointermove', function(ev){
+    var now = performance.now();
+    var dx = ev.clientX - lastX, dy = ev.clientY - lastY;
+    var dist = Math.hypot(dx, dy);
+    lastX = ev.clientX; lastY = ev.clientY;
+    hasMoved = true;
+    // emit every ~14ms OR when moved 8+ pixels — gives a continuous dot trail
+    if (now - lastEmit < 14 && dist < 6) return;
+    lastEmit = now;
+    // dot count scales with speed
+    var n = Math.min(4, 1 + Math.floor(dist / 18));
+    for (var i = 0; i < n; i++){
+      var off = (Math.random() - 0.5) * Math.min(28, dist * 0.6 + 8);
+      var perp = (Math.random() - 0.5) * 14;
+      // jitter perpendicular to motion direction so dots scatter like the logo's halftone
+      var nx = dist > 0.001 ? (-dy / dist) : 0;
+      var ny = dist > 0.001 ? ( dx / dist) : 0;
+      particles.push({
+        x: ev.clientX + off + nx * perp,
+        y: ev.clientY + off + ny * perp,
+        r: 2 + Math.random() * 7,
+        color: palette[(Math.random() * palette.length) | 0],
+        age: 0,
+        life: 900 + Math.random() * 700, // ms
+      });
+    }
+    // soft cap so memory stays bounded on fast moves
+    if (particles.length > 220) particles.splice(0, particles.length - 220);
+  }, { passive: true });
+
+  var prev = performance.now();
+  function tick(now){
+    var dt = now - prev; prev = now;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = particles.length - 1; i >= 0; i--){
+      var p = particles[i];
+      p.age += dt;
+      var t = p.age / p.life;
+      if (t >= 1){ particles.splice(i, 1); continue; }
+      // fade-out with soft easing
+      var alpha = (1 - t) * (1 - t * 0.6);
+      var radius = p.r * (1 - t * 0.25);
+      ctx.beginPath();
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = alpha;
+      ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
 </script>
 
 <footer class="footer">
@@ -989,7 +1092,6 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
     </div>
     <div class="footer-bottom">
       <span>© 2026 Unsyphn · All rights reserved</span>
-      <span>Built for the Datadog hackathon</span>
     </div>
   </div>
 </footer>
