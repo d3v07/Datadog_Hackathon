@@ -20,8 +20,8 @@ export function PageShell({ active = null, children }: PageShellProps): JSX.Elem
 
       <nav className="public-nav" aria-label="Primary">
         <a className="brand" href="/" aria-label="Unsyphn home">
-          <img src="/unsyphn-mark.png" alt="" width={28} height={20} />
-          <span>UNSYPHN / Subscription OS</span>
+          <img src="/unsyphn-mark.png" alt="" width={48} height={32} />
+          <span>UNSYPHN</span>
         </a>
         <ul>
           {NAV_LINKS.map((l) => (

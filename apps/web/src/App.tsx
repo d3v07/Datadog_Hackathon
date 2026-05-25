@@ -183,17 +183,17 @@ function TopBar({ activeNav }: TopBarProps): JSX.Element {
           src="/unsyphn-mark.png"
           alt=""
           aria-hidden="true"
-          width={26}
-          height={18}
+          width={42}
+          height={28}
           style={{ display: "block", objectFit: "contain" }}
         />
         <span
           style={{
             fontFamily: "var(--font-display)",
-            fontWeight: 500,
-            fontSize: "var(--text-sm)",
+            fontWeight: 600,
+            fontSize: "var(--text-base)",
             color: "var(--text-strong)",
-            letterSpacing: "-0.01em",
+            letterSpacing: "0.04em",
           }}
         >
           Unsyphn
