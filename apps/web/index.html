@@ -545,7 +545,27 @@ body[data-density="marks"]   .tile > svg.tile-svg { display:none; }
   font-size:11px;letter-spacing:0;color:#64748b;
   font-family:var(--font-premium);
 }
+
+/* When a non-root route is being served by SPA fallback, hide the static landing
+   shell — the React route (Demo, Contact, Privacy, Terms, Docs, Pricing, Trust)
+   renders its own header/hero/footer via PageShell. Scoped to direct body children
+   so the React app's <main class="public-main"> inside #root stays visible. */
+html.spa-route > body > .aurora,
+html.spa-route > body > .grain,
+html.spa-route > body > nav.nav,
+html.spa-route > body > main,
+html.spa-route > body > .meta,
+html.spa-route > body > footer.footer{display:none!important}
+html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!important}
 </style>
+<script>
+  (function(){
+    var p = location.pathname;
+    if (p !== "/" && p !== "/index.html") {
+      document.documentElement.classList.add("spa-route");
+    }
+  })();
+</script>
 </head>
 <body>
 
@@ -593,7 +613,7 @@ body[data-density="marks"]   .tile > svg.tile-svg { display:none; }
     <p class="sub">UNSYPHN pulls every SaaS seat, invoice, and renewal your company runs into a single <em>liquid</em> vault — so finance, IT, and ops finally see the same picture.</p>
     <div class="cta-row">
       <button class="btn primary" onclick="location.href='/app/'">Start free trial</button>
-      <button class="btn" onclick="location.href='mailto:hello@unsyphn.com?subject=Book%20a%20walkthrough'">Book a walkthrough <span class="kbd">⌘ K</span></button>
+      <button class="btn" onclick="location.href='/demo'">Book a walkthrough <span class="kbd">⌘ K</span></button>
     </div>
     <div class="rainbow"><i></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
@@ -928,17 +948,17 @@ body[data-density="marks"]   .tile > svg.tile-svg { display:none; }
       <div>
         <h5>Company</h5>
         <nav aria-label="Company links">
-          <a href="mailto:hello@unsyphn.com">Contact</a>
-          <a href="mailto:privacy@unsyphn.com">Privacy</a>
-          <a href="mailto:legal@unsyphn.com">Terms</a>
+          <a href="/contact">Contact</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
         </nav>
       </div>
       <div>
         <h5>Resources</h5>
         <nav aria-label="Resource links">
-          <a href="/app/">Demo</a>
+          <a href="/demo">Demo</a>
           <a href="https://github.com/d3v07/Datadog_Hackathon" rel="noopener">Source</a>
-          <a href="mailto:hello@unsyphn.com?subject=Documentation">Docs</a>
+          <a href="/docs">Docs</a>
         </nav>
       </div>
     </div>

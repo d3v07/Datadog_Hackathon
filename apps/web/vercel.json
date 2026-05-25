@@ -5,5 +5,11 @@
       "destination": "/app/",
       "permanent": false
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/(demo|contact|privacy|terms|docs|pricing|trust)",
+      "destination": "/index.html"
+    }
   ]
 }

@@ -14,6 +14,11 @@ import { Pricing } from "./screens/Pricing.js";
 import { AuditorMode } from "./screens/AuditorMode.js";
 import { Settings } from "./screens/Settings.js";
 import { TrustCenter } from "./screens/TrustCenter.js";
+import { Demo } from "./screens/Demo.js";
+import { Contact } from "./screens/Contact.js";
+import { Privacy } from "./screens/Privacy.js";
+import { Terms } from "./screens/Terms.js";
+import { Docs } from "./screens/Docs.js";
 
 function VendorDetailPlaceholder(): JSX.Element {
   return (
@@ -96,6 +101,11 @@ export function App(): JSX.Element | null {
 
   if (pathname === "/pricing") return <Pricing />;
   if (pathname === "/trust") return <TrustCenter />;
+  if (pathname === "/demo") return <Demo />;
+  if (pathname === "/contact") return <Contact />;
+  if (pathname === "/privacy") return <Privacy />;
+  if (pathname === "/terms") return <Terms />;
+  if (pathname === "/docs") return <Docs />;
   const auditorMatch = pathname.match(/^\/auditor\/([^/?#]+)\/?$/);
   if (auditorMatch?.[1]) return <AuditorMode sessionToken={auditorMatch[1]} />;
   if (!inApp) return null;

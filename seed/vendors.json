@@ -46,5 +46,725 @@
       "annualSpendUsd": 84000,
       "seatCount": 20
     }
+  },
+  {
+    "id": "vnd_datadog",
+    "orgId": "org_acme",
+    "name": "Datadog",
+    "category": "observability",
+    "tier": 1,
+    "posture": "watch",
+    "dataClasses": ["content"],
+    "ownerId": "usr_devon",
+    "urls": {
+      "homepage": "https://datadoghq.com",
+      "terms": "https://datadoghq.com/legal/terms",
+      "pricing": "https://datadoghq.com/pricing",
+      "dpa": "https://datadoghq.com/legal/dpa",
+      "subProcessors": "https://datadoghq.com/legal/subprocessors",
+      "security": "https://datadoghq.com/security",
+      "sla": "https://datadoghq.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-09-30",
+      "annualSpendUsd": 240000,
+      "seatCount": 180
+    }
+  },
+  {
+    "id": "vnd_okta",
+    "orgId": "org_acme",
+    "name": "Okta",
+    "category": "security",
+    "tier": 1,
+    "posture": "ok",
+    "dataClasses": ["pii"],
+    "ownerId": "usr_marcus",
+    "urls": {
+      "homepage": "https://okta.com",
+      "terms": "https://okta.com/terms",
+      "pricing": "https://okta.com/pricing",
+      "dpa": "https://okta.com/dpa",
+      "subProcessors": "https://okta.com/subprocessors",
+      "security": "https://okta.com/security",
+      "sla": "https://okta.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-11-15",
+      "annualSpendUsd": 195000,
+      "seatCount": 1600
+    }
+  },
+  {
+    "id": "vnd_github",
+    "orgId": "org_acme",
+    "name": "GitHub",
+    "category": "devtools",
+    "tier": 1,
+    "posture": "ok",
+    "dataClasses": ["content", "pii"],
+    "ownerId": "usr_devon",
+    "urls": {
+      "homepage": "https://github.com",
+      "terms": "https://github.com/terms",
+      "pricing": "https://github.com/pricing",
+      "dpa": "https://github.com/dpa",
+      "subProcessors": "https://github.com/subprocessors",
+      "security": "https://github.com/security",
+      "sla": "https://github.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2027-01-22",
+      "annualSpendUsd": 132000,
+      "seatCount": 540
+    }
+  },
+  {
+    "id": "vnd_cloudflare",
+    "orgId": "org_acme",
+    "name": "Cloudflare",
+    "category": "infrastructure",
+    "tier": 1,
+    "posture": "ok",
+    "dataClasses": ["content"],
+    "ownerId": "usr_devon",
+    "urls": {
+      "homepage": "https://cloudflare.com",
+      "terms": "https://cloudflare.com/terms",
+      "pricing": "https://cloudflare.com/plans",
+      "dpa": "https://cloudflare.com/cloudflare-customer-dpa",
+      "subProcessors": "https://cloudflare.com/subprocessors",
+      "security": "https://cloudflare.com/trust-hub/security",
+      "sla": "https://cloudflare.com/business-sla"
+    },
+    "contract": {
+      "renewsAt": "2026-12-04",
+      "annualSpendUsd": 88000,
+      "seatCount": 45
+    }
+  },
+  {
+    "id": "vnd_snowflake",
+    "orgId": "org_acme",
+    "name": "Snowflake",
+    "category": "database",
+    "tier": 1,
+    "posture": "watch",
+    "dataClasses": ["pii", "financial", "content"],
+    "ownerId": "usr_devon",
+    "urls": {
+      "homepage": "https://snowflake.com",
+      "terms": "https://snowflake.com/legal",
+      "pricing": "https://snowflake.com/pricing",
+      "dpa": "https://snowflake.com/legal/dpa",
+      "subProcessors": "https://snowflake.com/legal/subprocessors",
+      "security": "https://snowflake.com/security",
+      "sla": "https://snowflake.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2027-03-12",
+      "annualSpendUsd": 312000,
+      "seatCount": 140
+    }
+  },
+  {
+    "id": "vnd_auth0",
+    "orgId": "org_acme",
+    "name": "Auth0",
+    "category": "security",
+    "tier": 1,
+    "posture": "ok",
+    "dataClasses": ["pii"],
+    "ownerId": "usr_marcus",
+    "urls": {
+      "homepage": "https://auth0.com",
+      "terms": "https://auth0.com/legal/ss",
+      "pricing": "https://auth0.com/pricing",
+      "dpa": "https://auth0.com/legal/dpa",
+      "subProcessors": "https://auth0.com/legal/subprocessors",
+      "security": "https://auth0.com/security",
+      "sla": "https://auth0.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-10-08",
+      "annualSpendUsd": 72000,
+      "seatCount": 60
+    }
+  },
+  {
+    "id": "vnd_figma",
+    "orgId": "org_acme",
+    "name": "Figma",
+    "category": "design",
+    "tier": 2,
+    "posture": "watch",
+    "dataClasses": ["content"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://figma.com",
+      "terms": "https://figma.com/tos",
+      "pricing": "https://figma.com/pricing",
+      "dpa": "https://figma.com/dpa",
+      "subProcessors": "https://figma.com/subprocessors",
+      "security": "https://figma.com/security",
+      "sla": "https://figma.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-08-21",
+      "annualSpendUsd": 64800,
+      "seatCount": 360
+    }
+  },
+  {
+    "id": "vnd_linear",
+    "orgId": "org_acme",
+    "name": "Linear",
+    "category": "productivity",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["content"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://linear.app",
+      "terms": "https://linear.app/terms",
+      "pricing": "https://linear.app/pricing",
+      "dpa": "https://linear.app/dpa",
+      "subProcessors": "https://linear.app/subprocessors",
+      "security": "https://linear.app/security",
+      "sla": "https://linear.app/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-11-02",
+      "annualSpendUsd": 38400,
+      "seatCount": 320
+    }
+  },
+  {
+    "id": "vnd_vercel",
+    "orgId": "org_acme",
+    "name": "Vercel",
+    "category": "infrastructure",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["content"],
+    "ownerId": "usr_devon",
+    "urls": {
+      "homepage": "https://vercel.com",
+      "terms": "https://vercel.com/legal/terms",
+      "pricing": "https://vercel.com/pricing",
+      "dpa": "https://vercel.com/legal/dpa",
+      "subProcessors": "https://vercel.com/legal/subprocessors",
+      "security": "https://vercel.com/security",
+      "sla": "https://vercel.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-09-14",
+      "annualSpendUsd": 52000,
+      "seatCount": 95
+    }
+  },
+  {
+    "id": "vnd_asana",
+    "orgId": "org_acme",
+    "name": "Asana",
+    "category": "productivity",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["content", "pii"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://asana.com",
+      "terms": "https://asana.com/terms",
+      "pricing": "https://asana.com/pricing",
+      "dpa": "https://asana.com/dpa",
+      "subProcessors": "https://asana.com/subprocessors",
+      "security": "https://asana.com/security",
+      "sla": "https://asana.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2027-02-19",
+      "annualSpendUsd": 48000,
+      "seatCount": 420
+    }
+  },
+  {
+    "id": "vnd_jira",
+    "orgId": "org_acme",
+    "name": "Jira",
+    "category": "productivity",
+    "tier": 2,
+    "posture": "watch",
+    "dataClasses": ["content"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://atlassian.com",
+      "terms": "https://atlassian.com/legal/cloud-terms-of-service",
+      "pricing": "https://atlassian.com/software/jira/pricing",
+      "dpa": "https://atlassian.com/legal/data-processing-addendum",
+      "subProcessors": "https://atlassian.com/legal/sub-processors",
+      "security": "https://atlassian.com/trust/security",
+      "sla": "https://atlassian.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-08-07",
+      "annualSpendUsd": 56000,
+      "seatCount": 480
+    }
+  },
+  {
+    "id": "vnd_hubspot",
+    "orgId": "org_acme",
+    "name": "HubSpot",
+    "category": "crm",
+    "tier": 2,
+    "posture": "watch",
+    "dataClasses": ["pii", "content"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://hubspot.com",
+      "terms": "https://legal.hubspot.com/terms-of-service",
+      "pricing": "https://hubspot.com/pricing",
+      "dpa": "https://legal.hubspot.com/dpa",
+      "subProcessors": "https://legal.hubspot.com/subprocessors",
+      "security": "https://hubspot.com/security",
+      "sla": "https://legal.hubspot.com/hubspot-sla"
+    },
+    "contract": {
+      "renewsAt": "2026-10-22",
+      "annualSpendUsd": 116000,
+      "seatCount": 220
+    }
+  },
+  {
+    "id": "vnd_intercom",
+    "orgId": "org_acme",
+    "name": "Intercom",
+    "category": "support",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["pii", "content"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://intercom.com",
+      "terms": "https://intercom.com/terms-and-policies",
+      "pricing": "https://intercom.com/pricing",
+      "dpa": "https://intercom.com/legal/dpa",
+      "subProcessors": "https://intercom.com/legal/subprocessors",
+      "security": "https://intercom.com/security",
+      "sla": "https://intercom.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-12-18",
+      "annualSpendUsd": 42000,
+      "seatCount": 65
+    }
+  },
+  {
+    "id": "vnd_zendesk",
+    "orgId": "org_acme",
+    "name": "Zendesk",
+    "category": "support",
+    "tier": 2,
+    "posture": "risk",
+    "dataClasses": ["pii", "content"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://zendesk.com",
+      "terms": "https://zendesk.com/company/agreements-and-terms",
+      "pricing": "https://zendesk.com/pricing",
+      "dpa": "https://zendesk.com/dpa",
+      "subProcessors": "https://zendesk.com/subprocessors",
+      "security": "https://zendesk.com/trust-center/security",
+      "sla": "https://zendesk.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-07-29",
+      "annualSpendUsd": 78000,
+      "seatCount": 140
+    }
+  },
+  {
+    "id": "vnd_mixpanel",
+    "orgId": "org_acme",
+    "name": "Mixpanel",
+    "category": "analytics",
+    "tier": 2,
+    "posture": "watch",
+    "dataClasses": ["pii", "content"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://mixpanel.com",
+      "terms": "https://mixpanel.com/legal/terms-of-use",
+      "pricing": "https://mixpanel.com/pricing",
+      "dpa": "https://mixpanel.com/legal/dpa",
+      "subProcessors": "https://mixpanel.com/legal/subprocessors",
+      "security": "https://mixpanel.com/security",
+      "sla": "https://mixpanel.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2027-01-08",
+      "annualSpendUsd": 36000,
+      "seatCount": 80
+    }
+  },
+  {
+    "id": "vnd_zoom",
+    "orgId": "org_acme",
+    "name": "Zoom",
+    "category": "communication",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["pii", "content"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://zoom.us",
+      "terms": "https://zoom.us/terms",
+      "pricing": "https://zoom.us/pricing",
+      "dpa": "https://zoom.us/dpa",
+      "subProcessors": "https://zoom.us/subprocessors",
+      "security": "https://zoom.us/trust/security",
+      "sla": "https://zoom.us/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-09-02",
+      "annualSpendUsd": 96000,
+      "seatCount": 1800
+    }
+  },
+  {
+    "id": "vnd_dropbox",
+    "orgId": "org_acme",
+    "name": "Dropbox",
+    "category": "productivity",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["content", "pii"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://dropbox.com",
+      "terms": "https://dropbox.com/terms",
+      "pricing": "https://dropbox.com/business/plans-comparison",
+      "dpa": "https://dropbox.com/business/trust/compliance/dpa",
+      "subProcessors": "https://dropbox.com/business/trust/compliance/subprocessors",
+      "security": "https://dropbox.com/business/trust/security",
+      "sla": "https://dropbox.com/business/trust/compliance/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-11-26",
+      "annualSpendUsd": 28800,
+      "seatCount": 240
+    }
+  },
+  {
+    "id": "vnd_sentry",
+    "orgId": "org_acme",
+    "name": "Sentry",
+    "category": "observability",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["content", "pii"],
+    "ownerId": "usr_devon",
+    "urls": {
+      "homepage": "https://sentry.io",
+      "terms": "https://sentry.io/terms",
+      "pricing": "https://sentry.io/pricing",
+      "dpa": "https://sentry.io/legal/dpa",
+      "subProcessors": "https://sentry.io/legal/subprocessors",
+      "security": "https://sentry.io/security",
+      "sla": "https://sentry.io/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-10-14",
+      "annualSpendUsd": 32400,
+      "seatCount": 110
+    }
+  },
+  {
+    "id": "vnd_pagerduty",
+    "orgId": "org_acme",
+    "name": "PagerDuty",
+    "category": "observability",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["pii"],
+    "ownerId": "usr_devon",
+    "urls": {
+      "homepage": "https://pagerduty.com",
+      "terms": "https://pagerduty.com/terms",
+      "pricing": "https://pagerduty.com/pricing",
+      "dpa": "https://pagerduty.com/dpa",
+      "subProcessors": "https://pagerduty.com/subprocessors",
+      "security": "https://pagerduty.com/security",
+      "sla": "https://pagerduty.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2027-04-09",
+      "annualSpendUsd": 41600,
+      "seatCount": 75
+    }
+  },
+  {
+    "id": "vnd_mongodb",
+    "orgId": "org_acme",
+    "name": "MongoDB",
+    "category": "database",
+    "tier": 2,
+    "posture": "watch",
+    "dataClasses": ["pii", "content"],
+    "ownerId": "usr_devon",
+    "urls": {
+      "homepage": "https://mongodb.com",
+      "terms": "https://mongodb.com/legal/terms-of-use",
+      "pricing": "https://mongodb.com/pricing",
+      "dpa": "https://mongodb.com/legal/dpa",
+      "subProcessors": "https://mongodb.com/legal/subprocessors",
+      "security": "https://mongodb.com/trust",
+      "sla": "https://mongodb.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-12-30",
+      "annualSpendUsd": 144000,
+      "seatCount": 90
+    }
+  },
+  {
+    "id": "vnd_1password",
+    "orgId": "org_acme",
+    "name": "1Password",
+    "category": "security",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["pii"],
+    "ownerId": "usr_marcus",
+    "urls": {
+      "homepage": "https://1password.com",
+      "terms": "https://1password.com/legal/terms-of-service",
+      "pricing": "https://1password.com/business-pricing",
+      "dpa": "https://1password.com/legal/dpa",
+      "subProcessors": "https://1password.com/legal/subprocessors",
+      "security": "https://1password.com/security",
+      "sla": "https://1password.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-08-15",
+      "annualSpendUsd": 31680,
+      "seatCount": 1320
+    }
+  },
+  {
+    "id": "vnd_airtable",
+    "orgId": "org_acme",
+    "name": "Airtable",
+    "category": "productivity",
+    "tier": 2,
+    "posture": "watch",
+    "dataClasses": ["content", "pii"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://airtable.com",
+      "terms": "https://airtable.com/terms",
+      "pricing": "https://airtable.com/pricing",
+      "dpa": "https://airtable.com/dpa",
+      "subProcessors": "https://airtable.com/subprocessors",
+      "security": "https://airtable.com/security",
+      "sla": "https://airtable.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2027-02-04",
+      "annualSpendUsd": 54000,
+      "seatCount": 380
+    }
+  },
+  {
+    "id": "vnd_posthog",
+    "orgId": "org_acme",
+    "name": "PostHog",
+    "category": "analytics",
+    "tier": 3,
+    "posture": "ok",
+    "dataClasses": ["pii", "content"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://posthog.com",
+      "terms": "https://posthog.com/terms",
+      "pricing": "https://posthog.com/pricing",
+      "dpa": "https://posthog.com/dpa",
+      "subProcessors": "https://posthog.com/subprocessors",
+      "security": "https://posthog.com/security",
+      "sla": "https://posthog.com/handbook/company/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-09-22",
+      "annualSpendUsd": 18000,
+      "seatCount": 45
+    }
+  },
+  {
+    "id": "vnd_sketch",
+    "orgId": "org_acme",
+    "name": "Sketch",
+    "category": "design",
+    "tier": 3,
+    "posture": "ok",
+    "dataClasses": ["content"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://sketch.com",
+      "terms": "https://sketch.com/tos",
+      "pricing": "https://sketch.com/pricing",
+      "dpa": "https://sketch.com/dpa",
+      "subProcessors": "https://sketch.com/subprocessors",
+      "security": "https://sketch.com/security",
+      "sla": "https://sketch.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2027-03-26",
+      "annualSpendUsd": 7200,
+      "seatCount": 28
+    }
+  },
+  {
+    "id": "vnd_framer",
+    "orgId": "org_acme",
+    "name": "Framer",
+    "category": "design",
+    "tier": 3,
+    "posture": "ok",
+    "dataClasses": ["content"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://framer.com",
+      "terms": "https://framer.com/legal/terms-of-service",
+      "pricing": "https://framer.com/pricing",
+      "dpa": "https://framer.com/legal/dpa",
+      "subProcessors": "https://framer.com/legal/subprocessors",
+      "security": "https://framer.com/legal/security",
+      "sla": "https://framer.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-10-30",
+      "annualSpendUsd": 5400,
+      "seatCount": 12
+    }
+  },
+  {
+    "id": "vnd_miro",
+    "orgId": "org_acme",
+    "name": "Miro",
+    "category": "productivity",
+    "tier": 3,
+    "posture": "watch",
+    "dataClasses": ["content"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://miro.com",
+      "terms": "https://miro.com/legal/terms-of-service",
+      "pricing": "https://miro.com/pricing",
+      "dpa": "https://miro.com/legal/data-processing-addendum",
+      "subProcessors": "https://miro.com/legal/subprocessors",
+      "security": "https://miro.com/trust/security",
+      "sla": "https://miro.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-12-12",
+      "annualSpendUsd": 21600,
+      "seatCount": 180
+    }
+  },
+  {
+    "id": "vnd_loom",
+    "orgId": "org_acme",
+    "name": "Loom",
+    "category": "communication",
+    "tier": 3,
+    "posture": "ok",
+    "dataClasses": ["content", "pii"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://loom.com",
+      "terms": "https://loom.com/terms",
+      "pricing": "https://loom.com/pricing",
+      "dpa": "https://loom.com/dpa",
+      "subProcessors": "https://loom.com/subprocessors",
+      "security": "https://loom.com/security",
+      "sla": "https://loom.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-08-28",
+      "annualSpendUsd": 12000,
+      "seatCount": 95
+    }
+  },
+  {
+    "id": "vnd_calendly",
+    "orgId": "org_acme",
+    "name": "Calendly",
+    "category": "automation",
+    "tier": 3,
+    "posture": "ok",
+    "dataClasses": ["pii"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://calendly.com",
+      "terms": "https://calendly.com/legal/terms-of-use",
+      "pricing": "https://calendly.com/pricing",
+      "dpa": "https://calendly.com/legal/dpa",
+      "subProcessors": "https://calendly.com/legal/subprocessors",
+      "security": "https://calendly.com/security",
+      "sla": "https://calendly.com/legal/sla"
+    },
+    "contract": {
+      "renewsAt": "2027-05-18",
+      "annualSpendUsd": 9600,
+      "seatCount": 160
+    }
+  },
+  {
+    "id": "vnd_bitwarden",
+    "orgId": "org_acme",
+    "name": "Bitwarden",
+    "category": "security",
+    "tier": 3,
+    "posture": "ok",
+    "dataClasses": ["pii"],
+    "ownerId": "usr_marcus",
+    "urls": {
+      "homepage": "https://bitwarden.com",
+      "terms": "https://bitwarden.com/terms",
+      "pricing": "https://bitwarden.com/pricing",
+      "dpa": "https://bitwarden.com/dpa",
+      "subProcessors": "https://bitwarden.com/subprocessors",
+      "security": "https://bitwarden.com/security",
+      "sla": "https://bitwarden.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-06-28",
+      "annualSpendUsd": 1800,
+      "seatCount": 30
+    }
+  },
+  {
+    "id": "vnd_discord",
+    "orgId": "org_acme",
+    "name": "Discord",
+    "category": "communication",
+    "tier": 3,
+    "posture": "risk",
+    "dataClasses": ["content", "pii"],
+    "ownerId": "usr_ada",
+    "urls": {
+      "homepage": "https://discord.com",
+      "terms": "https://discord.com/terms",
+      "pricing": "https://discord.com/nitro",
+      "dpa": "https://discord.com/dpa",
+      "subProcessors": "https://discord.com/subprocessors",
+      "security": "https://discord.com/safety",
+      "sla": "https://discord.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2027-04-22",
+      "annualSpendUsd": 3600,
+      "seatCount": 60
+    }
   }
 ]
