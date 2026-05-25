@@ -3,6 +3,16 @@ import { resolve } from "node:path";
 import type { ChangeReport, Org, User, Vendor } from "@unsyphn/shared";
 import { vendorStore } from "../db/vendor-store.js";
 import { policyStore, type SeededPolicy } from "../db/policy-store.js";
+import { renewalsStore, type RenewalRecord } from "../db/renewals-store.js";
+import { requestsStore, type IntakeRequestRecord } from "../db/requests-store.js";
+import {
+  integrationsStore,
+  type IntegrationRecord,
+} from "../db/integrations-store.js";
+import {
+  customerContractsStore,
+  type CustomerContractRecord,
+} from "../db/customer-contracts-store.js";
 
 // Locate seed/ relative to repo root. apps/api is two levels deep.
 function seedDir(): string {
@@ -12,7 +22,7 @@ function seedDir(): string {
 interface Caches {
   orgs: Map<string, Org>;
   users: Map<string, User>;
-  tokens: Map<string, string>; // bearer-token → orgId
+  tokens: Map<string, string>;
   changeReports: ChangeReport[];
 }
 
@@ -37,6 +47,14 @@ export function loadSeeds(opts?: { seedDir?: string }): void {
   const changeReports = readJson<ChangeReport[]>(
     resolve(dir, "change-reports.json"),
   );
+  const renewals = readJson<RenewalRecord[]>(resolve(dir, "renewals.json"));
+  const requests = readJson<IntakeRequestRecord[]>(resolve(dir, "requests.json"));
+  const integrations = readJson<IntegrationRecord[]>(
+    resolve(dir, "integrations.json"),
+  );
+  const customerContracts = readJson<CustomerContractRecord[]>(
+    resolve(dir, "customer-contracts.json"),
+  );
 
   caches.orgs.clear();
   caches.users.clear();
@@ -51,6 +69,10 @@ export function loadSeeds(opts?: { seedDir?: string }): void {
 
   vendorStore.load(vendors);
   policyStore.load(policies);
+  renewalsStore.load(renewals);
+  requestsStore.load(requests);
+  integrationsStore.load(integrations);
+  customerContractsStore.load(customerContracts);
 }
 
 // Exposes the seeded change reports so callers (e.g. index.ts boot) can
@@ -66,6 +88,10 @@ export function getOrg(id: string): Org | undefined {
 
 export function getUser(id: string): User | undefined {
   return caches.users.get(id);
+}
+
+export function listUsers(): User[] {
+  return [...caches.users.values()];
 }
 
 export function resolveBearer(token: string): string | undefined {

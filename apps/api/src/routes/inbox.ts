@@ -1,56 +1,47 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { dirname } from "node:path";
 import { Hono } from "hono";
-import type { InboxItem, Lens, Severity } from "@unsyphn/shared";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-interface MaterialChange extends InboxItem {
-  category: string;
-  diff: { before: string; after: string };
-  citations: Array<{ url?: string; quote?: string; fetchedAt?: string }>;
-}
-
-function loadMaterialChanges(): InboxItem[] {
-  const path = resolve(__dirname, "../seed/material-changes.json");
-  const raw = JSON.parse(readFileSync(path, "utf8")) as MaterialChange[];
-  return raw.map(({ diff: _diff, citations: _citations, category: _category, ...item }) => item);
-}
+import type { Lens, Severity } from "@unsyphn/shared";
+import { getSeededChangeReports } from "../seed/loader.js";
+import { toInboxItem } from "../lib/change-report-views.js";
 
 export const inboxRoute = new Hono();
 
 inboxRoute.get("/", (c) => {
   const filter = c.req.query("filter") ?? "all";
   const severity = c.req.query("severity") ?? "all";
-  const lens = (c.req.query("lens") ?? "procurement") as Lens;
+  const lens = c.req.query("lens");
   const limit = Math.min(Number(c.req.query("limit") ?? 50), 200);
 
-  let items = loadMaterialChanges();
+  const reports = getSeededChangeReports().filter((r) => r.state !== "resolved");
+  let items = reports.map(toInboxItem);
 
-  // URL filter values are plural ("changes", "renewals", "unused-seats"); kinds are singular.
-  const filterKindMap: Record<string, string> = {
-    changes: "change",
-    renewals: "renewal",
-    "unused-seats": "unused-seats",
-  };
-  const normalizedFilter = filterKindMap[filter] ?? filter;
-
-  if (filter !== "all") {
-    items = items.filter((item) => item.kind === normalizedFilter);
+  // Inbox kind has only been "change" since material-changes.json was retired;
+  // legacy callers still send filter=changes|all, treat both as no-op filters
+  // and let the kind enum guard future expansion.
+  if (filter !== "all" && filter !== "changes") {
+    items = items.filter((item) => item.kind === filter);
   }
 
   if (severity !== "all") {
     items = items.filter((item) => item.severity === (severity as Severity));
   }
 
-  if (lens !== "procurement") {
-    items = items.filter((item) => (item.lensTags as string[]).includes(lens));
+  // Phase 2: LensChips now sends the active role. Apply lens filter when set;
+  // if the filter empties the list, fall back to the unfiltered set so the
+  // user doesn't see a bare inbox on a quiet role-lens. When nothing exists
+  // pre-filter, return empty so the client can render its per-role empty copy.
+  if (lens && lens !== "all") {
+    const filtered = items.filter((item) =>
+      (item.lensTags as string[]).includes(lens as Lens),
+    );
+    if (filtered.length > 0 || items.length === 0) {
+      items = filtered;
+    }
   }
 
-  items = items.slice(0, limit);
+  items = items
+    .slice()
+    .sort((a, b) => Date.parse(b.occurredAt) - Date.parse(a.occurredAt))
+    .slice(0, limit);
 
   return c.json({ items, total: items.length });
 });

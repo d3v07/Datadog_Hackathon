@@ -14,9 +14,10 @@ import { createChangesRouter } from "./routes/changes.js";
 import { dashboardRoute } from "./routes/dashboard.js";
 import { createEvidenceRouter } from "./routes/evidence.js";
 import { createStreamRouter } from "./routes/stream.js";
-import { vendorsRoute } from "./routes/vendors.js";
+import { createVendorsRouter } from "./routes/vendors.js";
 import { stripeWebhookRoute } from "./routes/webhooks-stripe.js";
 import { inboxRoute } from "./routes/inbox.js";
+import { integrationsRoute } from "./routes/integrations.js";
 import { renewalsRoute } from "./routes/renewals.js";
 import { requestsRoute } from "./routes/requests.js";
 import { recoverableRoute } from "./routes/recoverable.js";
@@ -24,6 +25,9 @@ import { onboardingRoute } from "./routes/onboarding.js";
 import { auditorRoute } from "./routes/auditor.js";
 import { subProcessorsRoute } from "./routes/sub-processors.js";
 import { renegotiationRoute } from "./routes/renegotiation.js";
+import { teamRoute } from "./routes/team.js";
+import { findingsRoute } from "./routes/findings.js";
+import { reportsRoute } from "./routes/reports.js";
 import { createEventBroker, type EventBroker } from "./stream/broker.js";
 
 // serveStatic resolves `root` against process.cwd(). Compute the public/
@@ -63,17 +67,21 @@ export function createApp(deps: AppDeps = {}): Hono {
   app.route("/v1/evidence", createEvidenceRouter(reports));
   app.route("/v1/auditor", auditorRoute);
   app.use("/v1/*", createAuthMiddleware(deps.seedData?.tokens));
-  app.route("/v1/vendors", vendorsRoute);
+  app.route("/v1/vendors", createVendorsRouter({ reports }));
   app.route("/v1/billing", billingRoute);
   app.route("/v1/dashboard", dashboardRoute);
   app.route("/v1/changes", createChangesRouter({ reports, events, ...(deps.now ? { now: deps.now } : {}) }));
   app.route("/v1/inbox", inboxRoute);
+  app.route("/v1/integrations", integrationsRoute);
   app.route("/v1/renewals", renewalsRoute);
   app.route("/v1/requests", requestsRoute);
   app.route("/v1/recoverable", recoverableRoute);
   app.route("/v1/onboarding", onboardingRoute);
   app.route("/v1/vendors", subProcessorsRoute);
   app.route("/v1/vendors", renegotiationRoute);
+  app.route("/v1/team", teamRoute);
+  app.route("/v1/findings", findingsRoute);
+  app.route("/v1/reports", reportsRoute);
   app.route(
     "/v1/stream",
     createStreamRouter({ events, ...(deps.heartbeatIntervalMs === undefined ? {} : { heartbeatIntervalMs: deps.heartbeatIntervalMs }) }),

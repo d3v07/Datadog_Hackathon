@@ -12,11 +12,24 @@ import { getOrg } from "../seed/loader.js";
 import { newId } from "../lib/ids.js";
 import { actionStore } from "../db/actions.js";
 import { setEntitlement } from "../lib/entitlements.js";
+import { applyCoupon } from "../lib/coupons.js";
 
 export const billingRoute = new Hono();
 
+// Phase 8: in addition to the original Compliance Pack, the public Pricing
+// page now subscribes to the tier SKUs. Prices below are the monthly billed
+// amounts in USD cents; the modal client converts to annual on the front end.
+const TIER_AMOUNT_CENTS: Record<string, number> = {
+  [COMPLIANCE_PACK.id]: COMPLIANCE_PACK.amountUsdCents,
+  starter: 30_000,
+  growth: 150_000,
+  scale: 350_000,
+};
+
 const PaymentIntentBodySchema = z.object({
-  sku: z.literal(COMPLIANCE_PACK.id),
+  sku: z.enum([COMPLIANCE_PACK.id, "starter", "growth", "scale"]),
+  coupon: z.string().trim().max(64).optional(),
+  addOns: z.array(z.string().trim().max(64)).max(8).optional(),
 });
 
 billingRoute.get("/products", (c) => {
@@ -51,12 +64,6 @@ billingRoute.post("/payment-intents", async (c) => {
   if (!org) {
     throw new ApiError(ErrorCodes.NotFound, `Org ${orgId} not found`);
   }
-  if (org.entitlements.compliancePack) {
-    throw new ApiError(
-      ErrorCodes.Conflict,
-      "Org already has the Compliance Pack entitlement",
-    );
-  }
 
   let body: unknown;
   try {
@@ -74,6 +81,16 @@ billingRoute.post("/payment-intents", async (c) => {
     );
   }
 
+  const { sku, coupon: couponCode, addOns } = parsed.data;
+  // The Compliance Pack is a one-time entitlement-bearing purchase; reject if
+  // already entitled. Tier subscriptions can be re-purchased.
+  if (sku === COMPLIANCE_PACK.id && org.entitlements.compliancePack) {
+    throw new ApiError(
+      ErrorCodes.Conflict,
+      "Org already has the Compliance Pack entitlement",
+    );
+  }
+
   await ensureStripeProducts();
   const e = env();
   if (!e.STRIPE_PUBLISHABLE_KEY) {
@@ -83,19 +100,29 @@ billingRoute.post("/payment-intents", async (c) => {
     );
   }
 
+  const baseAmount = TIER_AMOUNT_CENTS[sku] ?? COMPLIANCE_PACK.amountUsdCents;
+  const { amount: amountUsdCents, coupon } = applyCoupon(baseAmount, couponCode);
+
   try {
     const intent = await stripe().paymentIntents.create({
-      amount: COMPLIANCE_PACK.amountUsdCents,
+      amount: amountUsdCents,
       currency: COMPLIANCE_PACK.currency,
       automatic_payment_methods: { enabled: true },
-      metadata: { orgId, sku: COMPLIANCE_PACK.id },
+      metadata: {
+        orgId,
+        sku,
+        coupon: coupon?.code ?? "",
+        addOns: addOns?.join(",") ?? "",
+      },
     });
     return c.json({
       paymentIntentId: intent.id,
       clientSecret: intent.client_secret,
-      amountUsdCents: COMPLIANCE_PACK.amountUsdCents,
+      amountUsdCents,
+      originalAmountUsdCents: baseAmount,
       currency: COMPLIANCE_PACK.currency,
       publishableKey: e.STRIPE_PUBLISHABLE_KEY,
+      coupon: coupon ? { code: coupon.code, percentOff: coupon.percentOff, label: coupon.label } : undefined,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "stripe error";
@@ -103,6 +130,41 @@ billingRoute.post("/payment-intents", async (c) => {
       provider: "stripe",
     });
   }
+});
+
+// Coupon validation endpoint — used by the modal to show "valid coupon"
+// feedback without round-tripping a full payment intent.
+billingRoute.get("/coupons/:code", (c) => {
+  const code = c.req.param("code");
+  const result = applyCoupon(100, code);
+  if (!result.coupon) {
+    throw new ApiError(ErrorCodes.NotFound, "Invalid coupon");
+  }
+  return c.json({
+    code: result.coupon.code,
+    percentOff: result.coupon.percentOff,
+    label: result.coupon.label,
+  });
+});
+
+billingRoute.get("/invoices", (c) => {
+  // Demo: synthetic invoice history. A real implementation would page through
+  // Stripe invoices for the org's customer id.
+  const now = new Date();
+  const invoices = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const period = d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    const id = `INV-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    return {
+      id,
+      period,
+      amountUsdCents: i === 5 ? 150_000 : 1_899_900,
+      status: "paid",
+      issuedAt: d.toISOString(),
+      pdfUrl: `/v1/billing/invoices/${id}/pdf`,
+    };
+  });
+  return c.json({ invoices });
 });
 
 // Runbook F5 fallback: when Stripe Elements fails on stage, the modal's hidden

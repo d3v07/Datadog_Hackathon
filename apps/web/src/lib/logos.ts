@@ -1,6 +1,64 @@
 const SIMPLE_ICONS_CDN = "https://cdn.simpleicons.org";
 const BRANDFETCH_LOGO_API = "https://cdn.brandfetch.io";
 
+// Brand color + simpleicons slug per seeded vendor id. Keys are vendor.id from
+// seed/vendors.json (36 entries). The hex drives the colored CDN logo on the
+// Portfolio cards/table; on 404 the VendorLogo component falls back to a
+// monogram circle.
+export interface VendorBrand {
+  slug: string;
+  hex: string;
+}
+
+export const VENDOR_BRAND: Record<string, VendorBrand> = {
+  vnd_notion: { slug: "notion", hex: "000000" },
+  vnd_stripe: { slug: "stripe", hex: "635BFF" },
+  vnd_datadog: { slug: "datadog", hex: "632CA6" },
+  vnd_okta: { slug: "okta", hex: "007DC1" },
+  vnd_github: { slug: "github", hex: "181717" },
+  vnd_cloudflare: { slug: "cloudflare", hex: "F38020" },
+  vnd_snowflake: { slug: "snowflake", hex: "29B5E8" },
+  vnd_auth0: { slug: "auth0", hex: "EB5424" },
+  vnd_figma: { slug: "figma", hex: "F24E1E" },
+  vnd_linear: { slug: "linear", hex: "5E6AD2" },
+  vnd_vercel: { slug: "vercel", hex: "000000" },
+  vnd_asana: { slug: "asana", hex: "F06A6A" },
+  vnd_jira: { slug: "jira", hex: "0052CC" },
+  vnd_hubspot: { slug: "hubspot", hex: "FF7A59" },
+  vnd_intercom: { slug: "intercom", hex: "1F8DED" },
+  vnd_zendesk: { slug: "zendesk", hex: "03363D" },
+  vnd_mixpanel: { slug: "mixpanel", hex: "7856FF" },
+  vnd_zoom: { slug: "zoom", hex: "0B5CFF" },
+  vnd_dropbox: { slug: "dropbox", hex: "0061FF" },
+  vnd_sentry: { slug: "sentry", hex: "362D59" },
+  vnd_pagerduty: { slug: "pagerduty", hex: "06AC38" },
+  vnd_mongodb: { slug: "mongodb", hex: "47A248" },
+  vnd_1password: { slug: "1password", hex: "0572EC" },
+  vnd_airtable: { slug: "airtable", hex: "18BFFF" },
+  vnd_posthog: { slug: "posthog", hex: "1D4AFF" },
+  vnd_sketch: { slug: "sketch", hex: "F7B500" },
+  vnd_framer: { slug: "framer", hex: "0055FF" },
+  vnd_miro: { slug: "miro", hex: "F7C922" },
+  vnd_loom: { slug: "loom", hex: "625DF5" },
+  vnd_calendly: { slug: "calendly", hex: "006BFF" },
+  vnd_bitwarden: { slug: "bitwarden", hex: "175DDC" },
+  vnd_discord: { slug: "discord", hex: "5865F2" },
+  vnd_salesforce: { slug: "salesforce", hex: "00A1E0" },
+  vnd_slack: { slug: "slack", hex: "4A154B" },
+  vnd_aws: { slug: "amazonwebservices", hex: "FF9900" },
+  vnd_adobe: { slug: "adobecreativecloud", hex: "DA1F26" },
+};
+
+export function brandForId(vendorId: string): VendorBrand | undefined {
+  return VENDOR_BRAND[vendorId];
+}
+
+export function simpleIconsUrlForId(vendorId: string): string | undefined {
+  const brand = VENDOR_BRAND[vendorId];
+  if (!brand) return undefined;
+  return `${SIMPLE_ICONS_CDN}/${brand.slug}/${brand.hex}`;
+}
+
 // Known SaaS vendor slug overrides where the name doesn't match Simple Icons slug
 const SLUG_OVERRIDES: Record<string, string> = {
   "microsoft 365": "microsoft",

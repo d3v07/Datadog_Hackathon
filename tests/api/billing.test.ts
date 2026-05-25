@@ -134,4 +134,89 @@ describe("POST /v1/billing/payment-intents", () => {
     const body = (await resp.json()) as { error: { code: string } };
     expect(body.error.code).toBe("upstream-failed");
   });
+
+  it("applies a known coupon and discounts the charged amount", async () => {
+    const fake = buildFakeStripe();
+    setStripeInstance(fake);
+    const resp = await buildApp().request("/v1/billing/payment-intents", {
+      method: "POST",
+      headers: { Authorization: BEARER, "Content-Type": "application/json" },
+      body: JSON.stringify({ sku: "growth", coupon: "FOUNDER50" }),
+    });
+    expect(resp.status).toBe(200);
+    const body = (await resp.json()) as {
+      amountUsdCents: number;
+      originalAmountUsdCents: number;
+      coupon: { code: string; percentOff: number };
+    };
+    expect(body.originalAmountUsdCents).toBe(150_000);
+    expect(body.amountUsdCents).toBe(75_000);
+    expect(body.coupon.code).toBe("FOUNDER50");
+    expect(body.coupon.percentOff).toBe(50);
+  });
+
+  it("ignores an unknown coupon (no discount, no error)", async () => {
+    setStripeInstance(buildFakeStripe());
+    const resp = await buildApp().request("/v1/billing/payment-intents", {
+      method: "POST",
+      headers: { Authorization: BEARER, "Content-Type": "application/json" },
+      body: JSON.stringify({ sku: "starter", coupon: "NOPE" }),
+    });
+    expect(resp.status).toBe(200);
+    const body = (await resp.json()) as {
+      amountUsdCents: number;
+      coupon?: unknown;
+    };
+    expect(body.amountUsdCents).toBe(30_000);
+    expect(body.coupon).toBeUndefined();
+  });
+
+  it("accepts the new tier SKUs (starter/growth/scale)", async () => {
+    setStripeInstance(buildFakeStripe());
+    for (const sku of ["starter", "growth", "scale"]) {
+      const resp = await buildApp().request("/v1/billing/payment-intents", {
+        method: "POST",
+        headers: { Authorization: BEARER, "Content-Type": "application/json" },
+        body: JSON.stringify({ sku }),
+      });
+      expect(resp.status).toBe(200);
+    }
+  });
+});
+
+describe("GET /v1/billing/coupons/:code", () => {
+  it("returns the coupon for a known code", async () => {
+    const resp = await buildApp().request("/v1/billing/coupons/HACKATHON25", {
+      headers: { Authorization: BEARER },
+    });
+    expect(resp.status).toBe(200);
+    const body = (await resp.json()) as { code: string; percentOff: number };
+    expect(body.code).toBe("HACKATHON25");
+    expect(body.percentOff).toBe(25);
+  });
+
+  it("returns 404 for an unknown coupon", async () => {
+    const resp = await buildApp().request("/v1/billing/coupons/NOPE", {
+      headers: { Authorization: BEARER },
+    });
+    expect(resp.status).toBe(404);
+  });
+});
+
+describe("GET /v1/billing/invoices", () => {
+  it("returns a list of synthetic invoices", async () => {
+    const resp = await buildApp().request("/v1/billing/invoices", {
+      headers: { Authorization: BEARER },
+    });
+    expect(resp.status).toBe(200);
+    const body = (await resp.json()) as {
+      invoices: Array<{ id: string; amountUsdCents: number; status: string }>;
+    };
+    expect(body.invoices.length).toBeGreaterThan(0);
+    for (const inv of body.invoices) {
+      expect(inv.id).toMatch(/^INV-/);
+      expect(inv.status).toBe("paid");
+      expect(inv.amountUsdCents).toBeGreaterThan(0);
+    }
+  });
 });

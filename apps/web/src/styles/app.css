@@ -263,3 +263,18 @@ body.app-mode #root {
     color: #6b7280;
   }
 }
+
+/* Settings — connector card status dot + spinner */
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(63,207,142,0.55); }
+  70% { box-shadow: 0 0 0 6px rgba(63,207,142,0); }
+  100% { box-shadow: 0 0 0 0 rgba(63,207,142,0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}

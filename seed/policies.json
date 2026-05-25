@@ -14,6 +14,7 @@
     "id": "pol_price_hike_near_renewal",
     "orgId": "org_acme",
     "name": "Price increase >10% within 90d of renewal",
+    "description": "Detect material pricing changes ahead of renewal so procurement can negotiate.",
     "version": 2,
     "createdBy": "usr_priya",
     "isActive": true,
@@ -24,10 +25,88 @@
     "id": "pol_subprocessor_added_restricted",
     "orgId": "org_acme",
     "name": "Sub-processor added in non-adequate jurisdiction",
+    "description": "New sub-processor in a country without EU adequacy decision requires customer notice.",
     "version": 1,
     "createdBy": "usr_marcus",
     "isActive": true,
     "severity": "P1",
     "route": ["slack:#privacy", "draft:customer-notification-30d"]
+  },
+  {
+    "id": "pol_soc2_expired",
+    "orgId": "org_acme",
+    "name": "SOC 2 Type II expired or expiring",
+    "description": "Vendor SOC 2 attestation lapsed or expires within 60 days.",
+    "version": 1,
+    "createdBy": "usr_lin",
+    "isActive": true,
+    "severity": "P2",
+    "route": ["slack:#sec-grc", "jira:SEC", "email:ciso@acme.dev"]
+  },
+  {
+    "id": "pol_sla_degradation",
+    "orgId": "org_acme",
+    "name": "SLA uptime degradation > 5%",
+    "description": "Vendor uptime SLA dropped more than 5 percentage points from posted commitment.",
+    "version": 1,
+    "createdBy": "usr_devon",
+    "isActive": true,
+    "severity": "P2",
+    "route": ["slack:#it-ops", "jira:IT", "email:procurement@acme.dev"]
+  },
+  {
+    "id": "pol_ai_training_optin",
+    "orgId": "org_acme",
+    "name": "AI training opt-in default added",
+    "description": "DPA updated to permit using customer data to train ML models by default.",
+    "version": 1,
+    "createdBy": "usr_lin",
+    "isActive": true,
+    "severity": "P1",
+    "route": ["slack:#privacy", "jira:LEGAL", "email:ciso@acme.dev"]
+  },
+  {
+    "id": "pol_price_hike_renewal_severe",
+    "orgId": "org_acme",
+    "name": "Price hike > 15% on renewal",
+    "description": "Severe variant of price hike policy; triggers escalation to finance.",
+    "version": 1,
+    "createdBy": "usr_priya",
+    "isActive": true,
+    "severity": "P1",
+    "route": ["slack:#finance", "jira:PROC", "email:cfo@acme.dev"]
+  },
+  {
+    "id": "pol_seat_overage",
+    "orgId": "org_acme",
+    "name": "Seat overage detected (>20%)",
+    "description": "Active seats exceed provisioned licenses by more than 20%.",
+    "version": 1,
+    "createdBy": "usr_priya",
+    "isActive": true,
+    "severity": "P3",
+    "route": ["slack:#procurement", "jira:PROC"]
+  },
+  {
+    "id": "pol_dpa_version_bumped",
+    "orgId": "org_acme",
+    "name": "DPA version bumped",
+    "description": "Vendor DPA revision posted without breaking changes.",
+    "version": 1,
+    "createdBy": "usr_lin",
+    "isActive": true,
+    "severity": "P3",
+    "route": ["jira:LEGAL"]
+  },
+  {
+    "id": "pol_terms_material_change",
+    "orgId": "org_acme",
+    "name": "Terms of service material change",
+    "description": "Vendor terms changed in a way that affects customer liability or rights.",
+    "version": 1,
+    "createdBy": "usr_lin",
+    "isActive": true,
+    "severity": "P2",
+    "route": ["slack:#legal", "jira:LEGAL"]
   }
 ]

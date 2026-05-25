@@ -766,5 +766,101 @@
       "annualSpendUsd": 3600,
       "seatCount": 60
     }
+  },
+  {
+    "id": "vnd_salesforce",
+    "orgId": "org_acme",
+    "name": "Salesforce",
+    "category": "crm",
+    "tier": 1,
+    "posture": "watch",
+    "dataClasses": ["financial", "pii"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://salesforce.com",
+      "terms": "https://salesforce.com/company/legal/agreements",
+      "pricing": "https://salesforce.com/editions-pricing/sales-cloud",
+      "dpa": "https://salesforce.com/company/legal/agreements/data-processing-addendum",
+      "subProcessors": "https://salesforce.com/company/legal/sub-processors",
+      "security": "https://trust.salesforce.com/en/security",
+      "sla": "https://salesforce.com/company/legal/agreements/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-07-10",
+      "annualSpendUsd": 240000,
+      "seatCount": 850
+    }
+  },
+  {
+    "id": "vnd_slack",
+    "orgId": "org_acme",
+    "name": "Slack",
+    "category": "communication",
+    "tier": 1,
+    "posture": "ok",
+    "dataClasses": ["content", "pii"],
+    "ownerId": "usr_priya",
+    "urls": {
+      "homepage": "https://slack.com",
+      "terms": "https://slack.com/terms-of-service",
+      "pricing": "https://slack.com/pricing",
+      "dpa": "https://slack.com/dpa",
+      "subProcessors": "https://slack.com/subprocessors",
+      "security": "https://slack.com/security",
+      "sla": "https://slack.com/sla"
+    },
+    "contract": {
+      "renewsAt": "2026-08-12",
+      "annualSpendUsd": 120000,
+      "seatCount": 400
+    }
+  },
+  {
+    "id": "vnd_aws",
+    "orgId": "org_acme",
+    "name": "Amazon Web Services",
+    "category": "infrastructure",
+    "tier": 1,
+    "posture": "watch",
+    "dataClasses": ["content", "pii"],
+    "ownerId": "usr_devon",
+    "urls": {
+      "homepage": "https://aws.amazon.com",
+      "terms": "https://aws.amazon.com/agreement",
+      "pricing": "https://aws.amazon.com/pricing",
+      "dpa": "https://aws.amazon.com/compliance/gdpr-center",
+      "subProcessors": "https://aws.amazon.com/compliance/sub-processors",
+      "security": "https://aws.amazon.com/security",
+      "sla": "https://aws.amazon.com/legal/service-level-agreements"
+    },
+    "contract": {
+      "renewsAt": "2027-01-15",
+      "annualSpendUsd": 480000,
+      "seatCount": 1
+    }
+  },
+  {
+    "id": "vnd_adobe",
+    "orgId": "org_acme",
+    "name": "Adobe Creative Cloud",
+    "category": "design",
+    "tier": 2,
+    "posture": "ok",
+    "dataClasses": ["content"],
+    "ownerId": "usr_jordan",
+    "urls": {
+      "homepage": "https://adobe.com",
+      "terms": "https://adobe.com/legal/terms.html",
+      "pricing": "https://adobe.com/creativecloud/plans.html",
+      "dpa": "https://adobe.com/privacy/data-processing-addendum.html",
+      "subProcessors": "https://adobe.com/legal/sub-processors.html",
+      "security": "https://adobe.com/trust/security.html",
+      "sla": "https://adobe.com/legal/service-commitments.html"
+    },
+    "contract": {
+      "renewsAt": "2026-09-01",
+      "annualSpendUsd": 48000,
+      "seatCount": 200
+    }
   }
 ]

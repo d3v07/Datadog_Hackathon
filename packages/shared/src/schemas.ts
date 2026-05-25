@@ -55,6 +55,38 @@ export const resolveChangeRequestSchema = z
   })
   .strict();
 
+export const lensSchema = z.enum([
+  "procurement",
+  "legal",
+  "security",
+  "finance",
+  "it",
+  "audit",
+]);
+
+export const escalateChangeRequestSchema = z
+  .object({
+    toRole: lensSchema,
+    note: noteSchema.optional(),
+  })
+  .strict();
+
+export type EscalateChangeRequest = z.infer<typeof escalateChangeRequestSchema>;
+
+export interface EscalationRecord {
+  toRole: z.infer<typeof lensSchema>;
+  byUserId: string;
+  note?: string;
+  escalatedAt: string;
+  slackChannel: string;
+  jiraKey: string;
+}
+
+export interface EscalateChangeResponse {
+  id: string;
+  escalation: EscalationRecord;
+}
+
 export const VendorContractSchema = z.object({
   renewsAt: IsoDateSchema,
   annualSpendUsd: z.number().int().nonnegative(),

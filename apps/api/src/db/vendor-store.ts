@@ -39,6 +39,14 @@ export class VendorStore {
     return [...this.byId.values()].filter((v) => v.orgId === orgId);
   }
 
+  update(id: string, patch: Partial<Vendor>): Vendor | undefined {
+    const current = this.byId.get(id);
+    if (!current) return undefined;
+    const next: Vendor = { ...current, ...patch, id: current.id, orgId: current.orgId };
+    this.byId.set(id, next);
+    return next;
+  }
+
   findByHomepage(orgId: string, homepageUrl: string): Vendor | undefined {
     const key = normalizeHomepage(homepageUrl);
     const id = this.idByNormalizedHomepage.get(key);

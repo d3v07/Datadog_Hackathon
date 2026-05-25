@@ -1,0 +1,406 @@
+[
+  {
+    "id": "int_google_workspace",
+    "name": "Google Workspace",
+    "slug": "google-workspace",
+    "category": "inbound",
+    "description": "Discover vendors from email headers, calendar attachments, and Drive share links.",
+    "authType": "oauth",
+    "iconSlug": "google",
+    "iconColor": "#4285F4",
+    "requiredFields": [
+      { "key": "workspaceDomain", "label": "Workspace domain", "placeholder": "acme.dev" }
+    ],
+    "defaultScopes": ["directory.read", "gmail.metadata", "calendar.read"],
+    "connected": true
+  },
+  {
+    "id": "int_microsoft365",
+    "name": "Microsoft 365",
+    "slug": "microsoft-365",
+    "category": "inbound",
+    "description": "Discover vendors from Outlook, Teams attachments, and SharePoint sharing.",
+    "authType": "oauth",
+    "iconSlug": "microsoft365",
+    "iconColor": "#D83B01",
+    "requiredFields": [
+      { "key": "tenantId", "label": "Microsoft 365 tenant ID", "placeholder": "00000000-0000-0000-0000-000000000000" }
+    ],
+    "defaultScopes": ["Directory.Read.All", "Mail.ReadBasic", "Calendars.Read"],
+    "connected": false
+  },
+  {
+    "id": "int_okta_saml",
+    "name": "Okta SAML",
+    "slug": "okta-saml",
+    "category": "inbound",
+    "description": "Pull SSO app catalog and usage telemetry from Okta.",
+    "authType": "saml",
+    "iconSlug": "okta",
+    "iconColor": "#007DC1",
+    "requiredFields": [
+      { "key": "oktaDomain", "label": "Okta domain", "placeholder": "acme.okta.com" },
+      { "key": "metadataUrl", "label": "SAML metadata URL", "placeholder": "https://acme.okta.com/app/.../sso/saml/metadata" }
+    ],
+    "defaultScopes": ["apps.read", "logs.read"],
+    "connected": false
+  },
+  {
+    "id": "int_azure_ad",
+    "name": "Azure AD",
+    "slug": "azure-ad",
+    "category": "inbound",
+    "description": "Discover Azure AD SaaS apps and sign-in activity.",
+    "authType": "oauth",
+    "iconSlug": "microsoftazure",
+    "iconColor": "#0078D4",
+    "requiredFields": [
+      { "key": "tenantId", "label": "Azure tenant ID", "placeholder": "00000000-0000-0000-0000-000000000000" }
+    ],
+    "defaultScopes": ["Application.Read.All", "AuditLog.Read.All"],
+    "connected": false
+  },
+  {
+    "id": "int_brex",
+    "name": "Brex",
+    "slug": "brex",
+    "category": "inbound",
+    "description": "Sync expense, card, and vendor invoice data from Brex.",
+    "authType": "api-key",
+    "iconSlug": "brex",
+    "iconColor": "#000000",
+    "requiredFields": [
+      { "key": "apiKey", "label": "Brex API token", "placeholder": "brex_token_...", "sensitive": true }
+    ],
+    "defaultScopes": ["expenses.read", "vendors.read"],
+    "connected": false
+  },
+  {
+    "id": "int_ramp",
+    "name": "Ramp",
+    "slug": "ramp",
+    "category": "inbound",
+    "description": "Pull card transactions and bill-pay history from Ramp.",
+    "authType": "api-key",
+    "iconSlug": "ramp",
+    "iconColor": "#FFD600",
+    "requiredFields": [
+      { "key": "apiKey", "label": "Ramp API key", "placeholder": "ramp_...", "sensitive": true },
+      { "key": "businessId", "label": "Ramp business ID", "placeholder": "biz_...", "optional": true }
+    ],
+    "defaultScopes": ["transactions.read", "bills.read"],
+    "connected": false
+  },
+  {
+    "id": "int_netsuite",
+    "name": "NetSuite",
+    "slug": "netsuite",
+    "category": "inbound",
+    "description": "Read vendor records, POs, and invoices from NetSuite ERP.",
+    "authType": "oauth",
+    "iconSlug": "netsuite",
+    "iconColor": "#127BC4",
+    "requiredFields": [
+      { "key": "accountId", "label": "NetSuite account ID", "placeholder": "1234567" }
+    ],
+    "defaultScopes": ["vendor.read", "transaction.read"],
+    "connected": false
+  },
+  {
+    "id": "int_quickbooks",
+    "name": "QuickBooks",
+    "slug": "quickbooks",
+    "category": "inbound",
+    "description": "Sync vendor bills and payments from QuickBooks Online.",
+    "authType": "oauth",
+    "iconSlug": "quickbooks",
+    "iconColor": "#2CA01C",
+    "requiredFields": [
+      { "key": "realmId", "label": "QuickBooks realm ID", "placeholder": "1234567890" }
+    ],
+    "defaultScopes": ["accounting.read"],
+    "connected": false
+  },
+  {
+    "id": "int_xero",
+    "name": "Xero",
+    "slug": "xero",
+    "category": "inbound",
+    "description": "Pull vendor bills and invoices from Xero accounting.",
+    "authType": "oauth",
+    "iconSlug": "xero",
+    "iconColor": "#13B5EA",
+    "requiredFields": [
+      { "key": "organizationId", "label": "Xero organization ID", "placeholder": "00000000-..." }
+    ],
+    "defaultScopes": ["accounting.contacts.read", "accounting.transactions.read"],
+    "connected": false
+  },
+  {
+    "id": "int_workday",
+    "name": "Workday",
+    "slug": "workday",
+    "category": "inbound",
+    "description": "Pull headcount and seat-eligibility data from Workday.",
+    "authType": "oauth",
+    "iconSlug": "workday",
+    "iconColor": "#FF6D00",
+    "requiredFields": [
+      { "key": "tenant", "label": "Workday tenant", "placeholder": "acme_corp" },
+      { "key": "host", "label": "Workday host", "placeholder": "https://wd5.myworkday.com" }
+    ],
+    "defaultScopes": ["worker.read"],
+    "connected": false
+  },
+  {
+    "id": "int_bamboohr",
+    "name": "BambooHR",
+    "slug": "bamboohr",
+    "category": "inbound",
+    "description": "Sync headcount and department mapping from BambooHR.",
+    "authType": "api-key",
+    "iconSlug": "bamboohr",
+    "iconColor": "#7ED321",
+    "requiredFields": [
+      { "key": "subdomain", "label": "BambooHR subdomain", "placeholder": "acme" },
+      { "key": "apiKey", "label": "BambooHR API key", "sensitive": true }
+    ],
+    "defaultScopes": ["employees.read"],
+    "connected": false
+  },
+  {
+    "id": "int_lattice",
+    "name": "Lattice",
+    "slug": "lattice",
+    "category": "inbound",
+    "description": "Pull employee directory for tool ownership mapping.",
+    "authType": "api-key",
+    "iconSlug": "lattice",
+    "iconColor": "#5E5CE6",
+    "requiredFields": [
+      { "key": "apiKey", "label": "Lattice API key", "sensitive": true }
+    ],
+    "defaultScopes": ["users.read"],
+    "connected": false
+  },
+  {
+    "id": "int_stripe",
+    "name": "Stripe",
+    "slug": "stripe",
+    "category": "inbound",
+    "description": "Pull vendor charges and subscription lifecycle from Stripe billing.",
+    "authType": "api-key",
+    "iconSlug": "stripe",
+    "iconColor": "#635BFF",
+    "requiredFields": [
+      { "key": "apiKey", "label": "Stripe restricted API key", "placeholder": "rk_live_...", "sensitive": true }
+    ],
+    "defaultScopes": ["charges.read", "subscriptions.read"],
+    "connected": false
+  },
+  {
+    "id": "int_datadog",
+    "name": "Datadog",
+    "slug": "datadog",
+    "category": "inbound",
+    "description": "Ingest vendor usage metrics from Datadog dashboards.",
+    "authType": "api-key",
+    "iconSlug": "datadog",
+    "iconColor": "#632CA6",
+    "requiredFields": [
+      { "key": "apiKey", "label": "Datadog API key", "sensitive": true },
+      { "key": "appKey", "label": "Datadog application key", "sensitive": true },
+      { "key": "site", "label": "Datadog site", "placeholder": "datadoghq.com" }
+    ],
+    "defaultScopes": ["metrics.read", "logs.read"],
+    "connected": false
+  },
+  {
+    "id": "int_snowflake",
+    "name": "Snowflake",
+    "slug": "snowflake",
+    "category": "inbound",
+    "description": "Read warehouse credit usage and vendor cost attribution from Snowflake.",
+    "authType": "api-key",
+    "iconSlug": "snowflake",
+    "iconColor": "#29B5E8",
+    "requiredFields": [
+      { "key": "accountUrl", "label": "Snowflake account URL", "placeholder": "acme.snowflakecomputing.com" },
+      { "key": "user", "label": "Snowflake user" },
+      { "key": "privateKey", "label": "Snowflake private key", "sensitive": true }
+    ],
+    "defaultScopes": ["warehouse.usage.read"],
+    "connected": false
+  },
+  {
+    "id": "int_aws_cost_explorer",
+    "name": "AWS Cost Explorer",
+    "slug": "aws-cost-explorer",
+    "category": "inbound",
+    "description": "Ingest AWS cost-and-usage report into spend attribution.",
+    "authType": "api-key",
+    "iconSlug": "amazonaws",
+    "iconColor": "#FF9900",
+    "requiredFields": [
+      { "key": "accountId", "label": "AWS account ID", "placeholder": "123456789012" },
+      { "key": "roleArn", "label": "Cross-account role ARN", "placeholder": "arn:aws:iam::..." },
+      { "key": "region", "label": "Default region", "placeholder": "us-east-1" }
+    ],
+    "defaultScopes": ["ce:GetCostAndUsage"],
+    "connected": false
+  },
+  {
+    "id": "int_gcp_billing",
+    "name": "GCP Billing",
+    "slug": "gcp-billing",
+    "category": "inbound",
+    "description": "Ingest GCP billing export into spend attribution.",
+    "authType": "oauth",
+    "iconSlug": "googlecloud",
+    "iconColor": "#4285F4",
+    "requiredFields": [
+      { "key": "billingAccountId", "label": "Billing account ID", "placeholder": "000000-000000-000000" },
+      { "key": "bigQueryDataset", "label": "BigQuery dataset", "optional": true }
+    ],
+    "defaultScopes": ["billing.accounts.get", "bigquery.read"],
+    "connected": false
+  },
+  {
+    "id": "int_carta",
+    "name": "Carta",
+    "slug": "carta",
+    "category": "inbound",
+    "description": "Pull cap-table-related vendor agreements from Carta.",
+    "authType": "oauth",
+    "iconSlug": "carta",
+    "iconColor": "#0078FF",
+    "requiredFields": [
+      { "key": "companyId", "label": "Carta company ID", "placeholder": "comp_..." }
+    ],
+    "defaultScopes": ["docs.read"],
+    "connected": false
+  },
+  {
+    "id": "int_vendr",
+    "name": "Vendr",
+    "slug": "vendr",
+    "category": "inbound",
+    "description": "Sync contract metadata and renewal calendar from Vendr.",
+    "authType": "api-key",
+    "iconSlug": "vendr",
+    "iconColor": "#FF7A59",
+    "requiredFields": [
+      { "key": "apiKey", "label": "Vendr API key", "sensitive": true }
+    ],
+    "defaultScopes": ["contracts.read", "vendors.read"],
+    "connected": false
+  },
+  {
+    "id": "int_zip",
+    "name": "Zip",
+    "slug": "zip",
+    "category": "inbound",
+    "description": "Pull intake requests and procurement workflow status from Zip.",
+    "authType": "api-key",
+    "iconSlug": "zip",
+    "iconColor": "#FF7A00",
+    "requiredFields": [
+      { "key": "apiKey", "label": "Zip API key", "sensitive": true }
+    ],
+    "defaultScopes": ["requests.read"],
+    "connected": false
+  },
+  {
+    "id": "int_coupa",
+    "name": "Coupa",
+    "slug": "coupa",
+    "category": "inbound",
+    "description": "Sync supplier records, contracts, and POs from Coupa.",
+    "authType": "oauth",
+    "iconSlug": "coupa",
+    "iconColor": "#00A4E0",
+    "requiredFields": [
+      { "key": "instanceUrl", "label": "Coupa instance URL", "placeholder": "https://acme.coupahost.com" }
+    ],
+    "defaultScopes": ["suppliers.read", "contracts.read"],
+    "connected": false
+  },
+  {
+    "id": "int_slack",
+    "name": "Slack",
+    "slug": "slack",
+    "category": "outbound",
+    "description": "Post change alerts, renewal nudges, and digest summaries to Slack.",
+    "authType": "oauth",
+    "iconSlug": "slack",
+    "iconColor": "#611F69",
+    "requiredFields": [
+      { "key": "workspaceUrl", "label": "Slack workspace URL", "placeholder": "acme.slack.com" },
+      { "key": "defaultChannel", "label": "Default channel", "placeholder": "#vendor-changes" }
+    ],
+    "defaultScopes": ["chat:write", "channels:read"],
+    "connected": true
+  },
+  {
+    "id": "int_jira",
+    "name": "Jira",
+    "slug": "jira",
+    "category": "outbound",
+    "description": "Open issues for material changes routed to engineering or security.",
+    "authType": "oauth",
+    "iconSlug": "jira",
+    "iconColor": "#0052CC",
+    "requiredFields": [
+      { "key": "siteUrl", "label": "Jira site URL", "placeholder": "https://acme.atlassian.net" },
+      { "key": "defaultProjectKey", "label": "Default project key", "placeholder": "PROC" }
+    ],
+    "defaultScopes": ["write:jira-work"],
+    "connected": false
+  },
+  {
+    "id": "int_linear",
+    "name": "Linear",
+    "slug": "linear",
+    "category": "outbound",
+    "description": "Open Linear issues with attached evidence brief.",
+    "authType": "oauth",
+    "iconSlug": "linear",
+    "iconColor": "#5E6AD2",
+    "requiredFields": [
+      { "key": "workspaceSlug", "label": "Linear workspace slug", "placeholder": "acme" }
+    ],
+    "defaultScopes": ["issues:create"],
+    "connected": false
+  },
+  {
+    "id": "int_microsoft_teams",
+    "name": "Microsoft Teams",
+    "slug": "microsoft-teams",
+    "category": "outbound",
+    "description": "Post change alerts to Teams channels.",
+    "authType": "oauth",
+    "iconSlug": "microsoftteams",
+    "iconColor": "#4B53BC",
+    "requiredFields": [
+      { "key": "tenantId", "label": "Microsoft 365 tenant ID" },
+      { "key": "webhookUrl", "label": "Incoming webhook URL", "optional": true }
+    ],
+    "defaultScopes": ["ChannelMessage.Send"],
+    "connected": false
+  },
+  {
+    "id": "int_vanta",
+    "name": "Vanta",
+    "slug": "vanta",
+    "category": "outbound",
+    "description": "Push evidence and posture changes into Vanta compliance.",
+    "authType": "api-key",
+    "iconSlug": "vanta",
+    "iconColor": "#1B5E20",
+    "requiredFields": [
+      { "key": "apiKey", "label": "Vanta API key", "sensitive": true }
+    ],
+    "defaultScopes": ["evidence.write"],
+    "connected": false
+  }
+]

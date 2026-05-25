@@ -3,12 +3,14 @@ import { createPortal } from "react-dom";
 import { X, AlertCircle, CheckCircle, Clock, ArrowUpRight } from "lucide-react";
 import type { InboxItem, EvidenceBriefResponse, Severity } from "@unsyphn/shared";
 import { ApiError, DEMO_BEARER_TOKEN } from "../lib/api.js";
+import { ROLES, ROLE_LABELS, type Role } from "../lib/role.js";
 import { DiffViewer } from "./DiffViewer.js";
 
 export interface ChangeDrawerProps {
   open: boolean;
   onClose: () => void;
   item: InboxItem | null;
+  onEscalated?: (id: string, toRole: Role) => void;
 }
 
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -83,12 +85,18 @@ function Toast({ message, variant }: { message: string; variant: ToastVariant })
   );
 }
 
-function DrawerBody({ item, evidence, escalate, onEscalate, onClose }: {
+function DrawerBody({ item, evidence, escalate, onEscalate, onSubmitEscalate, escalateBusy, escalateError, escalateRole, escalateNote, onChangeRole, onChangeNote }: {
   item: InboxItem;
   evidence: EvidenceBriefResponse | null;
   escalate: EscalateState;
   onEscalate: (s: EscalateState) => void;
-  onClose: () => void;
+  onSubmitEscalate: () => void;
+  escalateBusy: boolean;
+  escalateError: string | null;
+  escalateRole: Role;
+  escalateNote: string;
+  onChangeRole: (r: Role) => void;
+  onChangeNote: (n: string) => void;
 }): JSX.Element {
   const changes = evidence?.changeReport?.changes ?? [];
   const isChange = item.kind === "change";
@@ -141,15 +149,72 @@ function DrawerBody({ item, evidence, escalate, onEscalate, onClose }: {
       )}
 
       {escalate === "confirming" && (
-        <div role="alert" style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-          <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text)", fontWeight: 500 }}>
-            Route this to Legal? Generates Evidence Bundle.
+        <div
+          role="region"
+          aria-label="Escalation form"
+          style={{
+            background: "var(--surface-2)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-4)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-3)",
+          }}
+        >
+          <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text)", fontWeight: 600 }}>
+            Escalate this change
           </p>
+          <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--text-2)", fontWeight: 500 }}>Route to</span>
+            <select
+              value={escalateRole}
+              onChange={(e) => onChangeRole(e.target.value as Role)}
+              className="input"
+              style={{ height: 32, fontSize: "var(--text-sm)" }}
+              aria-label="Escalation target role"
+            >
+              {ROLES.map((r) => (
+                <option key={r} value={r}>{ROLE_LABELS[r]}</option>
+              ))}
+            </select>
+          </label>
+          <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--text-2)", fontWeight: 500 }}>Note (optional)</span>
+            <textarea
+              value={escalateNote}
+              onChange={(e) => onChangeNote(e.target.value)}
+              className="input"
+              rows={3}
+              maxLength={500}
+              placeholder="Context for the receiving team…"
+              style={{ fontSize: "var(--text-sm)", resize: "vertical", padding: 8 }}
+              aria-label="Escalation note"
+            />
+          </label>
+          {escalateError && (
+            <span className="badge badge-danger" style={{ alignSelf: "flex-start" }}>
+              {escalateError}
+            </span>
+          )}
           <div style={{ display: "flex", gap: "var(--space-2)" }}>
-            <button type="button" className="btn btn-primary" style={{ height: 32 }} onClick={() => { alert(`Routed to Legal. Bundle generated → /evidence/${item.id}`); onEscalate("idle"); onClose(); }}>
-              Confirm
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ height: 32 }}
+              onClick={onSubmitEscalate}
+              disabled={escalateBusy}
+              aria-busy={escalateBusy}
+            >
+              Confirm Escalation
             </button>
-            <button type="button" className="btn btn-ghost" style={{ height: 32 }} onClick={() => onEscalate("idle")}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ height: 32 }}
+              onClick={() => onEscalate("idle")}
+              disabled={escalateBusy}
+            >
               Cancel
             </button>
           </div>
@@ -159,12 +224,16 @@ function DrawerBody({ item, evidence, escalate, onEscalate, onClose }: {
   );
 }
 
-export function ChangeDrawer({ open, onClose, item }: ChangeDrawerProps): JSX.Element | null {
+export function ChangeDrawer({ open, onClose, item, onEscalated }: ChangeDrawerProps): JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
   const [evidence, setEvidence] = useState<EvidenceBriefResponse | null>(null);
   const [toast, setToast] = useState<{ message: string; variant: ToastVariant } | null>(null);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [escalate, setEscalate] = useState<EscalateState>("idle");
+  const [escalateRole, setEscalateRole] = useState<Role>("legal");
+  const [escalateNote, setEscalateNote] = useState<string>("");
+  const [escalateBusy, setEscalateBusy] = useState(false);
+  const [escalateError, setEscalateError] = useState<string | null>(null);
 
   useFocusTrap(open, panelRef, onClose);
 
@@ -178,7 +247,15 @@ export function ChangeDrawer({ open, onClose, item }: ChangeDrawerProps): JSX.El
     return () => { cancelled = true; };
   }, [open, item]);
 
-  useEffect(() => { if (!open) setEscalate("idle"); }, [open]);
+  useEffect(() => {
+    if (!open) {
+      setEscalate("idle");
+      setEscalateRole("legal");
+      setEscalateNote("");
+      setEscalateError(null);
+      setEscalateBusy(false);
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!toast) return;
@@ -199,6 +276,27 @@ export function ChangeDrawer({ open, onClose, item }: ChangeDrawerProps): JSX.El
       showToast("Action failed", "error");
     } finally {
       setActionBusy(null);
+    }
+  };
+
+  const handleSubmitEscalate = async (): Promise<void> => {
+    if (!item) return;
+    setEscalateBusy(true);
+    setEscalateError(null);
+    try {
+      const trimmed = escalateNote.trim();
+      const body: Record<string, unknown> = { toRole: escalateRole };
+      if (trimmed.length > 0) body.note = trimmed;
+      await postChange(`/v1/changes/${item.id}/escalate`, body);
+      showToast(`Escalated to ${escalateRole} — Slack + Jira sent`);
+      onEscalated?.(item.id, escalateRole);
+      setEscalate("idle");
+      onClose();
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Escalation failed";
+      setEscalateError(msg);
+    } finally {
+      setEscalateBusy(false);
     }
   };
 
@@ -233,7 +331,21 @@ export function ChangeDrawer({ open, onClose, item }: ChangeDrawerProps): JSX.El
         </div>
 
         {/* Body */}
-        {item && <DrawerBody item={item} evidence={evidence} escalate={escalate} onEscalate={setEscalate} onClose={onClose} />}
+        {item && (
+          <DrawerBody
+            item={item}
+            evidence={evidence}
+            escalate={escalate}
+            onEscalate={setEscalate}
+            onSubmitEscalate={() => void handleSubmitEscalate()}
+            escalateBusy={escalateBusy}
+            escalateError={escalateError}
+            escalateRole={escalateRole}
+            escalateNote={escalateNote}
+            onChangeRole={setEscalateRole}
+            onChangeNote={setEscalateNote}
+          />
+        )}
 
         {/* Action row */}
         {item && (
@@ -241,10 +353,10 @@ export function ChangeDrawer({ open, onClose, item }: ChangeDrawerProps): JSX.El
             <button type="button" className="btn btn-primary" onClick={() => handleAction("acknowledge", undefined, "Acknowledged")} aria-busy={actionBusy === "acknowledge"} disabled={actionBusy !== null}>
               <CheckCircle size={14} aria-hidden="true" />Acknowledge
             </button>
-            <button type="button" className="btn btn-secondary" onClick={() => handleAction("snooze", { untilIso: new Date(Date.now() + 48 * 3600 * 1000).toISOString() }, "Snoozed 48h")} aria-busy={actionBusy === "snooze"} disabled={actionBusy !== null}>
+            <button type="button" className="btn btn-secondary" onClick={() => handleAction("snooze", { untilAt: new Date(Date.now() + 48 * 3600 * 1000).toISOString() }, "Snoozed 48h")} aria-busy={actionBusy === "snooze"} disabled={actionBusy !== null}>
               <Clock size={14} aria-hidden="true" />Snooze 48h
             </button>
-            <button type="button" className="btn btn-secondary" onClick={() => handleAction("resolve", undefined, "Resolved")} aria-busy={actionBusy === "resolve"} disabled={actionBusy !== null}>
+            <button type="button" className="btn btn-secondary" onClick={() => handleAction("resolve", { resolution: "accepted" }, "Resolved")} aria-busy={actionBusy === "resolve"} disabled={actionBusy !== null}>
               Resolve
             </button>
             <button type="button" className="btn btn-ghost" onClick={() => setEscalate(escalate === "confirming" ? "idle" : "confirming")} disabled={actionBusy !== null} aria-expanded={escalate === "confirming"}>

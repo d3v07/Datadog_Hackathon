@@ -5,10 +5,13 @@
     "vendorId": "vnd_notion",
     "runId": "run_seed_notion",
     "detectedAt": "2026-05-22T18:42:18Z",
+    "updatedAt": "2026-05-22T18:42:18Z",
+    "version": 1,
     "severity": "P1",
     "state": "new",
     "policyFiredId": "pol_data_retention_pii_shrink",
     "policyAlsoMatched": ["pol_price_hike_near_renewal"],
+    "headline": "Data retention shrunk 90 to 30 days",
     "changes": [
       {
         "id": "d1",
@@ -21,7 +24,7 @@
           {
             "url": "https://notion.so/terms",
             "quote": "User content is retained for thirty (30) days after account deletion.",
-            "section": "§7.2 — Data Retention",
+            "section": "Section 7.2 - Data Retention",
             "fetchedAt": "2026-05-22T18:42:11Z"
           }
         ]
@@ -38,7 +41,7 @@
           {
             "url": "https://notion.so/pricing",
             "quote": "Team plan: $19 per user / month, billed annually.",
-            "section": "Pricing · Team plan",
+            "section": "Pricing - Team plan",
             "fetchedAt": "2026-05-22T18:42:13Z"
           }
         ]
@@ -46,10 +49,11 @@
     ],
     "recommendation": {
       "action": "renegotiate",
-      "copy": "Open renewal conversation; cite §7.2 retention shortfall as material change."
+      "copy": "Open renewal conversation; cite Section 7.2 retention shortfall as material change."
     },
     "sensoUrl": "https://senso.com/r/notion-2026-05-22-retention",
-    "ownerId": "usr_priya"
+    "ownerId": "usr_priya",
+    "lensTags": ["security", "legal", "audit"]
   },
   {
     "id": "chg_seed_stripe_subprocessor",
@@ -57,11 +61,14 @@
     "vendorId": "vnd_stripe",
     "runId": "run_seed_stripe",
     "detectedAt": "2026-05-15T13:08:02Z",
+    "updatedAt": "2026-05-15T16:21:00Z",
+    "version": 2,
     "severity": "P1",
     "state": "acknowledged",
     "acknowledgedAt": "2026-05-15T16:21:00Z",
     "policyFiredId": "pol_subprocessor_added_restricted",
     "policyAlsoMatched": [],
+    "headline": "New sub-processor in India",
     "changes": [
       {
         "id": "d1",
@@ -73,7 +80,7 @@
         "citations": [
           {
             "url": "https://stripe.com/legal/subprocessors",
-            "quote": "TextRecognize Ltd — India — OCR text extraction for identity document validation.",
+            "quote": "TextRecognize Ltd - India - OCR text extraction for identity document validation.",
             "section": "Active sub-processors",
             "fetchedAt": "2026-05-15T13:07:42Z",
             "country": "IN"
@@ -85,6 +92,1100 @@
       "action": "escalate",
       "copy": "Notify Privacy and DPO; assess transfer mechanism for non-adequate jurisdiction."
     },
-    "ownerId": "usr_lin"
+    "ownerId": "usr_lin",
+    "lensTags": ["legal", "security", "audit"]
+  },
+  {
+    "id": "chg_datadog_subprocessor_india",
+    "orgId": "org_acme",
+    "vendorId": "vnd_datadog",
+    "runId": "run_datadog_2026_05_21",
+    "detectedAt": "2026-05-21T09:00:00Z",
+    "updatedAt": "2026-05-21T09:00:00Z",
+    "version": 1,
+    "severity": "P1",
+    "state": "new",
+    "policyFiredId": "pol_subprocessor_added_restricted",
+    "policyAlsoMatched": [],
+    "headline": "Sub-processor added in India",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "subprocessor",
+        "summary": "Sub-processor added: Datadog India Pvt. Ltd (non-adequate jurisdiction)",
+        "before": "Sub-processors are located in: United States, Germany, Ireland.",
+        "after": "Sub-processors are located in: United States, Germany, Ireland, India (Datadog India Pvt. Ltd.).",
+        "materiality": "material",
+        "citations": [
+          {
+            "url": "https://datadoghq.com/legal/sub-processors",
+            "quote": "Datadog India Pvt. Ltd.",
+            "fetchedAt": "2026-05-21T09:00:00Z",
+            "country": "IN"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "escalate",
+      "copy": "Notify customers under 30-day DPA clause; assess transfer mechanism for India."
+    },
+    "ownerId": "usr_devon",
+    "lensTags": ["legal", "security"]
+  },
+  {
+    "id": "chg_salesforce_renewal_seats",
+    "orgId": "org_acme",
+    "vendorId": "vnd_salesforce",
+    "runId": "run_salesforce_2026_05_24",
+    "detectedAt": "2026-05-24T10:00:00Z",
+    "updatedAt": "2026-05-24T10:00:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "new",
+    "policyFiredId": "pol_seat_overage",
+    "policyAlsoMatched": ["pol_price_hike_near_renewal"],
+    "headline": "Renewal in 47 days, 412 unused of 850 seats",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "412 of 850 seats unused; benchmark shows 12% above market rate",
+        "before": "Current contract: 850 seats at $815,000/yr, renews 2026-07-10.",
+        "after": "Renewal window open. 412 seats idle >90 days. Benchmark: 12% above market rate.",
+        "materiality": "material",
+        "dollarImpact": { "annualUsd": 84000, "pctChange": 12 },
+        "citations": [
+          {
+            "url": "https://salesforce.com/pricing",
+            "quote": "Enterprise Edition seat pricing",
+            "fetchedAt": "2026-05-24T10:00:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Right-size to 500 seats and negotiate 22% reduction citing utilization data."
+    },
+    "ownerId": "usr_jordan",
+    "lensTags": ["procurement", "finance"]
+  },
+  {
+    "id": "chg_stripe_paymentintent_fee",
+    "orgId": "org_acme",
+    "vendorId": "vnd_stripe",
+    "runId": "run_stripe_2026_05_20",
+    "detectedAt": "2026-05-20T16:30:00Z",
+    "updatedAt": "2026-05-20T16:30:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "new",
+    "policyFiredId": "pol_price_hike_near_renewal",
+    "policyAlsoMatched": [],
+    "headline": "New $0.30/PaymentIntent fee added",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "Stripe pricing page added a per-PaymentIntent fee",
+        "before": "2.9% + 30c per successful card charge.",
+        "after": "2.9% + 30c per successful card charge. Additionally, $0.30 per PaymentIntent created regardless of outcome.",
+        "materiality": "material",
+        "dollarImpact": { "annualUsd": 12000, "pctChange": 19 },
+        "citations": [
+          {
+            "url": "https://stripe.com/pricing",
+            "quote": "$0.30 per PaymentIntent created",
+            "fetchedAt": "2026-05-20T16:30:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Engage AE to negotiate waiver of per-intent fee given $250k+ volume tier."
+    },
+    "ownerId": "usr_lin",
+    "lensTags": ["finance", "procurement"]
+  },
+  {
+    "id": "chg_figma_unused_seats",
+    "orgId": "org_acme",
+    "vendorId": "vnd_figma",
+    "runId": "run_figma_2026_05_23",
+    "detectedAt": "2026-05-23T08:15:00Z",
+    "updatedAt": "2026-05-23T08:15:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "new",
+    "policyFiredId": "pol_seat_overage",
+    "policyAlsoMatched": [],
+    "headline": "18 unused Figma Enterprise seats",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "18 seats with zero sessions in 60 days; $1.8k recoverable",
+        "before": "68 active Figma Enterprise seats across design and product teams.",
+        "after": "50 active / 18 seats with no login activity in 60+ days.",
+        "materiality": "minor",
+        "dollarImpact": { "annualUsd": 1800 }
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Right-size at next billing cycle; surface to design lead."
+    },
+    "ownerId": "usr_jordan",
+    "lensTags": ["finance", "it"]
+  },
+  {
+    "id": "chg_slack_ai_training",
+    "orgId": "org_acme",
+    "vendorId": "vnd_slack",
+    "runId": "run_slack_2026_05_19",
+    "detectedAt": "2026-05-19T11:00:00Z",
+    "updatedAt": "2026-05-19T11:00:00Z",
+    "version": 1,
+    "severity": "P1",
+    "state": "new",
+    "policyFiredId": "pol_ai_training_optin",
+    "policyAlsoMatched": ["pol_terms_material_change"],
+    "headline": "DPA updated: AI training clause added",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "terms",
+        "summary": "Slack DPA now permits using customer message data to train Slack AI by default",
+        "before": "Slack will not use Customer Data to train machine learning models.",
+        "after": "Slack may use aggregated, de-identified Customer Data to improve Slack AI features. Customers may opt out via Admin settings.",
+        "materiality": "material",
+        "citations": [
+          {
+            "url": "https://slack.com/dpa",
+            "quote": "Slack may use aggregated, de-identified Customer Data to improve Slack AI features",
+            "fetchedAt": "2026-05-19T11:00:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "escalate",
+      "copy": "Toggle opt-out in admin settings; notify Privacy team and document in DPA register."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["legal", "security"]
+  },
+  {
+    "id": "chg_github_copilot_seats",
+    "orgId": "org_acme",
+    "vendorId": "vnd_github",
+    "runId": "run_github_2026_05_19",
+    "detectedAt": "2026-05-19T11:00:00Z",
+    "updatedAt": "2026-05-19T11:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "new",
+    "policyFiredId": "pol_seat_overage",
+    "policyAlsoMatched": [],
+    "headline": "Copilot Enterprise auto-add: 41 unintended seats",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "GitHub auto-enrolled 41 seats in Copilot Enterprise via policy change",
+        "before": "GitHub Copilot Business: 87 seats (engineering org only).",
+        "after": "GitHub Copilot Enterprise: 128 seats (auto-enrolled all org members via policy change).",
+        "materiality": "minor",
+        "dollarImpact": { "annualUsd": 5000 }
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Roll back auto-add; downgrade to Business tier; request credit for overage."
+    },
+    "ownerId": "usr_devon",
+    "lensTags": ["finance", "procurement", "it"]
+  },
+  {
+    "id": "chg_aws_ec2_price",
+    "orgId": "org_acme",
+    "vendorId": "vnd_aws",
+    "runId": "run_aws_2026_05_18",
+    "detectedAt": "2026-05-18T14:00:00Z",
+    "updatedAt": "2026-05-18T14:00:00Z",
+    "version": 1,
+    "severity": "P1",
+    "state": "new",
+    "policyFiredId": "pol_price_hike_renewal_severe",
+    "policyAlsoMatched": ["pol_price_hike_near_renewal"],
+    "headline": "EC2 On-Demand price up 11.2% in us-east-1",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "m6i family On-Demand prices increased 11.2% effective June 1, 2026",
+        "before": "m6i.xlarge On-Demand: $0.192/hr in us-east-1.",
+        "after": "m6i.xlarge On-Demand: $0.2136/hr in us-east-1 (effective June 1, 2026).",
+        "materiality": "material",
+        "dollarImpact": { "annualUsd": 42000, "pctChange": 11.2 },
+        "citations": [
+          {
+            "url": "https://aws.amazon.com/ec2/pricing/on-demand",
+            "quote": "$0.2136 per On-Demand Linux m6i.xlarge Instance Hour",
+            "fetchedAt": "2026-05-18T14:00:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Negotiate EDP and increase RI coverage to 70% before June 1 increase lands."
+    },
+    "ownerId": "usr_devon",
+    "lensTags": ["finance", "procurement"]
+  },
+  {
+    "id": "chg_vercel_subprocessor_de",
+    "orgId": "org_acme",
+    "vendorId": "vnd_vercel",
+    "runId": "run_vercel_2026_05_17",
+    "detectedAt": "2026-05-17T10:00:00Z",
+    "updatedAt": "2026-05-17T11:30:00Z",
+    "version": 2,
+    "severity": "P3",
+    "state": "acknowledged",
+    "acknowledgedAt": "2026-05-17T11:30:00Z",
+    "policyFiredId": "pol_subprocessor_added_restricted",
+    "policyAlsoMatched": [],
+    "headline": "Sub-processor added in Germany (EU-adequate)",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "subprocessor",
+        "summary": "Vercel added Hetzner GmbH (Germany) as a sub-processor",
+        "before": "Infrastructure sub-processors: AWS (US), Google Cloud (US/EU).",
+        "after": "Infrastructure sub-processors: AWS (US), Google Cloud (US/EU), Hetzner GmbH (Germany, EU).",
+        "materiality": "minor",
+        "citations": [
+          {
+            "url": "https://vercel.com/legal/sub-processors",
+            "quote": "Hetzner GmbH, Germany",
+            "fetchedAt": "2026-05-17T10:00:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "EU-adequate; no customer notification required. Log in sub-processor registry."
+    },
+    "ownerId": "usr_devon",
+    "lensTags": ["legal", "security"]
+  },
+  {
+    "id": "chg_okta_soc2_expiring",
+    "orgId": "org_acme",
+    "vendorId": "vnd_okta",
+    "runId": "run_okta_2026_05_24",
+    "detectedAt": "2026-05-24T08:00:00Z",
+    "updatedAt": "2026-05-24T08:00:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "new",
+    "policyFiredId": "pol_soc2_expired",
+    "policyAlsoMatched": [],
+    "headline": "SOC 2 Type II expires in 60 days",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "security",
+        "summary": "Okta SOC 2 cert expires 2026-07-23; renewal audit in progress",
+        "before": "Okta SOC 2 Type II (Period: 2025-07-24 to 2026-07-23) - Valid.",
+        "after": "Okta SOC 2 Type II - Expires in 60 days (2026-07-23). Renewal audit in progress.",
+        "materiality": "material",
+        "citations": [
+          {
+            "url": "https://trust.okta.com",
+            "quote": "SOC 2 Type II report valid through July 23, 2026",
+            "fetchedAt": "2026-05-24T08:00:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "escalate",
+      "copy": "Confirm renewal timeline with Okta TAM; flag for auditor compliance review."
+    },
+    "ownerId": "usr_marcus",
+    "lensTags": ["security", "audit", "legal"]
+  },
+  {
+    "id": "chg_hubspot_renewal",
+    "orgId": "org_acme",
+    "vendorId": "vnd_hubspot",
+    "runId": "run_hubspot_2026_05_24",
+    "detectedAt": "2026-05-24T10:00:00Z",
+    "updatedAt": "2026-05-24T10:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "new",
+    "policyFiredId": "pol_price_hike_near_renewal",
+    "policyAlsoMatched": [],
+    "headline": "Renewal in 89 days, negotiate before Q3 freeze",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "Marketing Hub Professional renewal window opens; HubSpot Q3 price hike pattern",
+        "before": "HubSpot Marketing Hub Professional: $116,000/yr, renews 2026-10-22.",
+        "after": "Renewal window open. HubSpot historically increases prices in Q3; negotiate now.",
+        "materiality": "minor",
+        "dollarImpact": { "annualUsd": 24000 }
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Lock pre-freeze rate; offer 2-year commit for stability."
+    },
+    "ownerId": "usr_jordan",
+    "lensTags": ["procurement", "finance"]
+  },
+  {
+    "id": "chg_adobe_duplicate_figma",
+    "orgId": "org_acme",
+    "vendorId": "vnd_adobe",
+    "runId": "run_adobe_2026_05_16",
+    "detectedAt": "2026-05-16T08:00:00Z",
+    "updatedAt": "2026-05-16T08:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "new",
+    "policyFiredId": "pol_seat_overage",
+    "policyAlsoMatched": [],
+    "headline": "24 Adobe CC seats redundant with Figma",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "24 Adobe seats overlap with Figma assignments; $8.4k recoverable",
+        "before": "Adobe Creative Cloud All Apps: 24 seats in design team.",
+        "after": "24 seats unused >90 days; team fully migrated to Figma. Duplicate tool overlap detected.",
+        "materiality": "minor",
+        "dollarImpact": { "annualUsd": 8400 }
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Drop overlap seats at next renewal; consolidate on Figma."
+    },
+    "ownerId": "usr_jordan",
+    "lensTags": ["finance", "it", "procurement"]
+  },
+  {
+    "id": "chg_cloudflare_sla_drop",
+    "orgId": "org_acme",
+    "vendorId": "vnd_cloudflare",
+    "runId": "run_cloudflare_2026_05_14",
+    "detectedAt": "2026-05-14T09:00:00Z",
+    "updatedAt": "2026-05-14T09:00:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "snoozed",
+    "snoozedUntil": "2026-06-01T00:00:00Z",
+    "policyFiredId": "pol_sla_degradation",
+    "policyAlsoMatched": [],
+    "headline": "Workers SLA reduced from 99.99% to 99.9%",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "sla",
+        "summary": "Workers monthly uptime SLA dropped 0.09 percentage points",
+        "before": "Workers monthly uptime SLA: 99.99%.",
+        "after": "Workers monthly uptime SLA: 99.9%.",
+        "materiality": "minor",
+        "citations": [
+          {
+            "url": "https://cloudflare.com/business-sla",
+            "quote": "99.9% monthly uptime",
+            "fetchedAt": "2026-05-14T09:00:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Document; monitor real-world uptime over next 90 days before escalating."
+    },
+    "ownerId": "usr_devon",
+    "lensTags": ["it", "procurement"]
+  },
+  {
+    "id": "chg_snowflake_storage_price",
+    "orgId": "org_acme",
+    "vendorId": "vnd_snowflake",
+    "runId": "run_snowflake_2026_05_12",
+    "detectedAt": "2026-05-12T15:00:00Z",
+    "updatedAt": "2026-05-12T15:00:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "new",
+    "policyFiredId": "pol_price_hike_near_renewal",
+    "policyAlsoMatched": [],
+    "headline": "Storage credit price up 8%",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "On-demand storage price per credit increased 8%",
+        "before": "On-demand storage: $40/TB/month",
+        "after": "On-demand storage: $43.20/TB/month (effective Jul 1, 2026)",
+        "materiality": "minor",
+        "dollarImpact": { "annualUsd": 18500, "pctChange": 8 }
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Lock pre-increase rate via 3-year capacity commit; reduce cold storage footprint."
+    },
+    "ownerId": "usr_devon",
+    "lensTags": ["finance", "procurement"]
+  },
+  {
+    "id": "chg_auth0_pricing_tier",
+    "orgId": "org_acme",
+    "vendorId": "vnd_auth0",
+    "runId": "run_auth0_2026_05_10",
+    "detectedAt": "2026-05-10T11:15:00Z",
+    "updatedAt": "2026-05-12T14:30:00Z",
+    "version": 2,
+    "severity": "P2",
+    "state": "acknowledged",
+    "acknowledgedAt": "2026-05-12T14:30:00Z",
+    "policyFiredId": "pol_terms_material_change",
+    "policyAlsoMatched": [],
+    "headline": "B2C MAU pricing tier added",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "New MAU-based pricing band introduced above 7,500 MAU",
+        "before": "B2C tier flat at $228/mo up to 10,000 MAU.",
+        "after": "B2C tier: $228/mo up to 7,500 MAU; $0.04/MAU above 7,500.",
+        "materiality": "minor",
+        "dollarImpact": { "annualUsd": 4800, "pctChange": 6.7 }
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Current usage below threshold; monitor monthly MAU and revisit if breaches band."
+    },
+    "ownerId": "usr_marcus",
+    "lensTags": ["finance"]
+  },
+  {
+    "id": "chg_linear_terms",
+    "orgId": "org_acme",
+    "vendorId": "vnd_linear",
+    "runId": "run_linear_2026_05_08",
+    "detectedAt": "2026-05-08T10:00:00Z",
+    "updatedAt": "2026-05-08T10:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "new",
+    "policyFiredId": "pol_dpa_version_bumped",
+    "policyAlsoMatched": [],
+    "headline": "DPA bumped to v2.4",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "terms",
+        "summary": "Linear DPA revision adds clarification on sub-processor change notice",
+        "before": "Linear DPA v2.3 (2024-09-12).",
+        "after": "Linear DPA v2.4 (2026-05-08) - sub-processor change notice clarified to 30 days.",
+        "materiality": "cosmetic",
+        "citations": [
+          {
+            "url": "https://linear.app/dpa",
+            "quote": "v2.4 (2026-05-08)",
+            "fetchedAt": "2026-05-08T10:00:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Replace stored DPA version; no other action needed."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["legal"]
+  },
+  {
+    "id": "chg_zoom_subprocessor_cn",
+    "orgId": "org_acme",
+    "vendorId": "vnd_zoom",
+    "runId": "run_zoom_2026_05_07",
+    "detectedAt": "2026-05-07T13:45:00Z",
+    "updatedAt": "2026-05-09T16:00:00Z",
+    "version": 3,
+    "severity": "P1",
+    "state": "resolved",
+    "resolvedAt": "2026-05-09T16:00:00Z",
+    "resolution": "renegotiated",
+    "policyFiredId": "pol_subprocessor_added_restricted",
+    "policyAlsoMatched": [],
+    "headline": "China engineering retained as sub-processor",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "subprocessor",
+        "summary": "Zoom retained China-based engineering team as sub-processor for R&D",
+        "before": "R&D sub-processors: United States, India.",
+        "after": "R&D sub-processors: United States, India, China (Zoom China Engineering).",
+        "materiality": "material",
+        "citations": [
+          {
+            "url": "https://zoom.us/subprocessors",
+            "quote": "Zoom China Engineering",
+            "fetchedAt": "2026-05-07T13:45:00Z",
+            "country": "CN"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Confirmed customer data routed only via US; negotiated regional contract terms."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["legal", "security", "audit"]
+  },
+  {
+    "id": "chg_zendesk_subprocessor_vn",
+    "orgId": "org_acme",
+    "vendorId": "vnd_zendesk",
+    "runId": "run_zendesk_2026_04_02",
+    "detectedAt": "2026-04-02T10:00:00Z",
+    "updatedAt": "2026-04-02T10:00:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "snoozed",
+    "snoozedUntil": "2026-06-15T00:00:00Z",
+    "policyFiredId": "pol_subprocessor_added_restricted",
+    "policyAlsoMatched": [],
+    "headline": "Sub-processor added: Vietnam BPO",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "subprocessor",
+        "summary": "Zendesk added Bluestar BPO Vietnam for tier-2 support",
+        "before": "Support sub-processors: US, Ireland, Philippines.",
+        "after": "Support sub-processors: US, Ireland, Philippines, Vietnam (Bluestar BPO).",
+        "materiality": "material",
+        "citations": [
+          {
+            "url": "https://zendesk.com/subprocessors",
+            "quote": "Bluestar BPO Vietnam",
+            "fetchedAt": "2026-04-02T10:00:00Z",
+            "country": "VN"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "escalate",
+      "copy": "Schedule customer notice draft; verify SCCs in current Zendesk DPA."
+    },
+    "ownerId": "usr_jordan",
+    "lensTags": ["legal", "security"]
+  },
+  {
+    "id": "chg_intercom_terms_dispute",
+    "orgId": "org_acme",
+    "vendorId": "vnd_intercom",
+    "runId": "run_intercom_2026_05_06",
+    "detectedAt": "2026-05-06T09:30:00Z",
+    "updatedAt": "2026-05-06T09:30:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "new",
+    "policyFiredId": "pol_terms_material_change",
+    "policyAlsoMatched": [],
+    "headline": "Arbitration venue moved to Dublin",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "terms",
+        "summary": "Dispute resolution venue moved from Delaware to Dublin, Ireland",
+        "before": "All disputes resolved through arbitration in Wilmington, Delaware.",
+        "after": "All disputes resolved through arbitration in Dublin, Ireland under Irish law.",
+        "materiality": "minor",
+        "citations": [
+          {
+            "url": "https://intercom.com/terms",
+            "quote": "Dublin, Ireland",
+            "fetchedAt": "2026-05-06T09:30:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "escalate",
+      "copy": "Legal review required; assess venue cost and procedural impact."
+    },
+    "ownerId": "usr_lin",
+    "lensTags": ["legal"]
+  },
+  {
+    "id": "chg_mongodb_sla_credits",
+    "orgId": "org_acme",
+    "vendorId": "vnd_mongodb",
+    "runId": "run_mongodb_2026_05_05",
+    "detectedAt": "2026-05-05T16:00:00Z",
+    "updatedAt": "2026-05-05T16:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "new",
+    "policyFiredId": "pol_sla_degradation",
+    "policyAlsoMatched": [],
+    "headline": "SLA credit cap reduced to 25% MRC",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "sla",
+        "summary": "Maximum monthly SLA credit cap reduced from 50% to 25% of MRC",
+        "before": "Maximum monthly credit: 50% of monthly recurring charges.",
+        "after": "Maximum monthly credit: 25% of monthly recurring charges.",
+        "materiality": "minor",
+        "citations": [
+          {
+            "url": "https://mongodb.com/legal/sla",
+            "quote": "25%",
+            "fetchedAt": "2026-05-05T16:00:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Document new cap in vendor risk register; monitor over next cycle."
+    },
+    "ownerId": "usr_devon",
+    "lensTags": ["it", "legal"]
+  },
+  {
+    "id": "chg_mixpanel_data_use",
+    "orgId": "org_acme",
+    "vendorId": "vnd_mixpanel",
+    "runId": "run_mixpanel_2026_05_04",
+    "detectedAt": "2026-05-04T08:00:00Z",
+    "updatedAt": "2026-05-04T08:00:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "new",
+    "policyFiredId": "pol_ai_training_optin",
+    "policyAlsoMatched": ["pol_terms_material_change"],
+    "headline": "Customer event data may train Mixpanel AI",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "data",
+        "summary": "Mixpanel terms now permit using aggregated event data to train internal AI models",
+        "before": "Customer event data used only to provide analytics services.",
+        "after": "Mixpanel may use aggregated event data to train internal AI models. Opt-out available via Account Settings.",
+        "materiality": "material"
+      }
+    ],
+    "recommendation": {
+      "action": "escalate",
+      "copy": "Toggle opt-out; review PII fields in event payload before opt-in default applies."
+    },
+    "ownerId": "usr_jordan",
+    "lensTags": ["legal", "security"]
+  },
+  {
+    "id": "chg_dropbox_security_disclosure",
+    "orgId": "org_acme",
+    "vendorId": "vnd_dropbox",
+    "runId": "run_dropbox_2026_05_03",
+    "detectedAt": "2026-05-03T12:00:00Z",
+    "updatedAt": "2026-05-04T09:00:00Z",
+    "version": 2,
+    "severity": "P2",
+    "state": "acknowledged",
+    "acknowledgedAt": "2026-05-04T09:00:00Z",
+    "policyFiredId": "pol_terms_material_change",
+    "policyAlsoMatched": [],
+    "headline": "Encryption-at-rest now AES-256-GCM",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "security",
+        "summary": "Default encryption-at-rest upgraded from AES-128 to AES-256-GCM",
+        "before": "Files at rest encrypted with AES-128.",
+        "after": "Files at rest encrypted with AES-256-GCM. Existing files migrated by 2026-06-01.",
+        "materiality": "minor"
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Acknowledge improvement; reference in security register."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["security", "audit"]
+  },
+  {
+    "id": "chg_sentry_subprocessor",
+    "orgId": "org_acme",
+    "vendorId": "vnd_sentry",
+    "runId": "run_sentry_2026_05_02",
+    "detectedAt": "2026-05-02T10:30:00Z",
+    "updatedAt": "2026-05-02T10:30:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "acknowledged",
+    "acknowledgedAt": "2026-05-02T15:00:00Z",
+    "policyFiredId": "pol_subprocessor_added_restricted",
+    "policyAlsoMatched": [],
+    "headline": "Added Datadog as sub-processor",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "subprocessor",
+        "summary": "Sentry added Datadog (US) for observability — EU-adequate by SCCs",
+        "before": "Observability sub-processors: New Relic.",
+        "after": "Observability sub-processors: New Relic, Datadog.",
+        "materiality": "cosmetic",
+        "citations": [
+          {
+            "url": "https://sentry.io/legal/subprocessors",
+            "quote": "Datadog",
+            "fetchedAt": "2026-05-02T10:30:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Log in sub-processor register; no customer notification required."
+    },
+    "ownerId": "usr_devon",
+    "lensTags": ["legal", "security"]
+  },
+  {
+    "id": "chg_pagerduty_sla_change",
+    "orgId": "org_acme",
+    "vendorId": "vnd_pagerduty",
+    "runId": "run_pagerduty_2026_05_01",
+    "detectedAt": "2026-05-01T11:00:00Z",
+    "updatedAt": "2026-05-01T11:00:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "snoozed",
+    "snoozedUntil": "2026-07-01T00:00:00Z",
+    "policyFiredId": "pol_sla_degradation",
+    "policyAlsoMatched": [],
+    "headline": "Notification delivery SLA reduced",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "sla",
+        "summary": "Median notification delivery target relaxed from 5s to 8s",
+        "before": "Median notification delivery target: 5 seconds.",
+        "after": "Median notification delivery target: 8 seconds.",
+        "materiality": "minor"
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Document for IT; not material for current paging volume."
+    },
+    "ownerId": "usr_devon",
+    "lensTags": ["it"]
+  },
+  {
+    "id": "chg_asana_renewal_terms",
+    "orgId": "org_acme",
+    "vendorId": "vnd_asana",
+    "runId": "run_asana_2026_04_28",
+    "detectedAt": "2026-04-28T09:00:00Z",
+    "updatedAt": "2026-04-28T09:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "resolved",
+    "resolvedAt": "2026-05-02T14:00:00Z",
+    "resolution": "accepted",
+    "policyFiredId": "pol_terms_material_change",
+    "policyAlsoMatched": [],
+    "headline": "Auto-renewal default flipped to ON",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "terms",
+        "summary": "Master agreement auto-renewal default flipped to ON for new subscriptions",
+        "before": "Subscriptions do not auto-renew unless customer opts in.",
+        "after": "Subscriptions auto-renew unless customer opts out in writing 30 days prior.",
+        "materiality": "minor"
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Existing contract unaffected; flag for renewal cycle review."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["legal", "procurement"]
+  },
+  {
+    "id": "chg_jira_pricing_band",
+    "orgId": "org_acme",
+    "vendorId": "vnd_jira",
+    "runId": "run_jira_2026_04_27",
+    "detectedAt": "2026-04-27T16:30:00Z",
+    "updatedAt": "2026-04-27T16:30:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "new",
+    "policyFiredId": "pol_price_hike_near_renewal",
+    "policyAlsoMatched": [],
+    "headline": "Premium tier seat price up 12%",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "Premium per-user price moves from $14.50 to $16.25/mo",
+        "before": "Premium per-user: $14.50/mo (51-100 users).",
+        "after": "Premium per-user: $16.25/mo (51-100 users).",
+        "materiality": "material",
+        "dollarImpact": { "annualUsd": 10080, "pctChange": 12 }
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Lock current rate via 2-year commit; downgrade non-PMs to Standard."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["procurement", "finance"]
+  },
+  {
+    "id": "chg_airtable_data_residency",
+    "orgId": "org_acme",
+    "vendorId": "vnd_airtable",
+    "runId": "run_airtable_2026_04_25",
+    "detectedAt": "2026-04-25T10:00:00Z",
+    "updatedAt": "2026-04-25T10:00:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "new",
+    "policyFiredId": "pol_terms_material_change",
+    "policyAlsoMatched": [],
+    "headline": "EU data residency removed from Business tier",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "data",
+        "summary": "Business tier no longer guarantees EU data residency; moved to Enterprise tier",
+        "before": "EU data residency available on Business and Enterprise tiers.",
+        "after": "EU data residency available on Enterprise tier only.",
+        "materiality": "material",
+        "citations": [
+          {
+            "url": "https://airtable.com/security",
+            "quote": "EU residency available on Enterprise plan only",
+            "fetchedAt": "2026-04-25T10:00:00Z"
+          }
+        ]
+      }
+    ],
+    "recommendation": {
+      "action": "escalate",
+      "copy": "EU customers affected; assess upgrade cost vs. alternate vendor."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["legal", "security", "audit"]
+  },
+  {
+    "id": "chg_1password_renewal_terms",
+    "orgId": "org_acme",
+    "vendorId": "vnd_1password",
+    "runId": "run_1password_2026_04_22",
+    "detectedAt": "2026-04-22T09:00:00Z",
+    "updatedAt": "2026-04-22T09:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "acknowledged",
+    "acknowledgedAt": "2026-04-22T14:30:00Z",
+    "policyFiredId": "pol_dpa_version_bumped",
+    "policyAlsoMatched": [],
+    "headline": "DPA bumped to v3.1 (FedRAMP additions)",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "terms",
+        "summary": "DPA revision adds FedRAMP-aligned controls language",
+        "before": "1Password DPA v3.0.",
+        "after": "1Password DPA v3.1 (adds FedRAMP-aligned controls).",
+        "materiality": "cosmetic"
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Replace stored DPA version; no further action."
+    },
+    "ownerId": "usr_marcus",
+    "lensTags": ["legal", "audit"]
+  },
+  {
+    "id": "chg_zoom_pricing_video",
+    "orgId": "org_acme",
+    "vendorId": "vnd_zoom",
+    "runId": "run_zoom_2026_04_20",
+    "detectedAt": "2026-04-20T10:00:00Z",
+    "updatedAt": "2026-04-20T10:00:00Z",
+    "version": 1,
+    "severity": "P2",
+    "state": "new",
+    "policyFiredId": "pol_price_hike_near_renewal",
+    "policyAlsoMatched": [],
+    "headline": "Workspace plan price up 7.5%",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "pricing",
+        "summary": "Workspace plan moves from $26.99 to $29/mo per host",
+        "before": "Workspace plan: $26.99/mo per host.",
+        "after": "Workspace plan: $29/mo per host (effective Jul 1, 2026).",
+        "materiality": "minor",
+        "dollarImpact": { "annualUsd": 7200, "pctChange": 7.5 }
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Lock current price via 2-year commit ahead of Jul 1 increase."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["finance", "procurement"]
+  },
+  {
+    "id": "chg_calendly_sso_required",
+    "orgId": "org_acme",
+    "vendorId": "vnd_calendly",
+    "runId": "run_calendly_2026_04_18",
+    "detectedAt": "2026-04-18T11:00:00Z",
+    "updatedAt": "2026-04-18T11:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "new",
+    "policyFiredId": "pol_terms_material_change",
+    "policyAlsoMatched": [],
+    "headline": "SSO moves to Teams tier",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "security",
+        "summary": "SAML SSO restricted to Teams tier; legacy SSO users grandfathered for 90 days",
+        "before": "SAML SSO available on Pro and above.",
+        "after": "SAML SSO available on Teams and above; existing Pro SSO customers grandfathered until 2026-07-18.",
+        "materiality": "minor"
+      }
+    ],
+    "recommendation": {
+      "action": "renegotiate",
+      "copy": "Upgrade to Teams or migrate SSO-locked users; assess cost delta."
+    },
+    "ownerId": "usr_jordan",
+    "lensTags": ["security", "it"]
+  },
+  {
+    "id": "chg_posthog_eu_hosting",
+    "orgId": "org_acme",
+    "vendorId": "vnd_posthog",
+    "runId": "run_posthog_2026_04_15",
+    "detectedAt": "2026-04-15T10:00:00Z",
+    "updatedAt": "2026-04-15T10:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "resolved",
+    "resolvedAt": "2026-04-17T10:00:00Z",
+    "resolution": "accepted",
+    "policyFiredId": "pol_terms_material_change",
+    "policyAlsoMatched": [],
+    "headline": "EU hosting region added",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "data",
+        "summary": "PostHog launched EU cloud region; opt-in via dashboard",
+        "before": "PostHog Cloud hosted in US only.",
+        "after": "PostHog Cloud available in US and EU regions; data residency selectable per project.",
+        "materiality": "cosmetic"
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Migrate EU customer projects to EU region; document residency policy."
+    },
+    "ownerId": "usr_jordan",
+    "lensTags": ["legal", "security"]
+  },
+  {
+    "id": "chg_miro_sla_uptime",
+    "orgId": "org_acme",
+    "vendorId": "vnd_miro",
+    "runId": "run_miro_2026_04_12",
+    "detectedAt": "2026-04-12T09:00:00Z",
+    "updatedAt": "2026-04-12T09:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "new",
+    "policyFiredId": "pol_sla_degradation",
+    "policyAlsoMatched": [],
+    "headline": "Uptime SLA cap on planned maintenance",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "sla",
+        "summary": "Planned maintenance hours now excluded from uptime SLA calculation",
+        "before": "All downtime counted toward 99.9% monthly uptime target.",
+        "after": "Planned maintenance (up to 4 hours/month) excluded from uptime calculation.",
+        "materiality": "minor"
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Track maintenance windows; flag any breach pattern."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["it"]
+  },
+  {
+    "id": "chg_loom_dpa_update",
+    "orgId": "org_acme",
+    "vendorId": "vnd_loom",
+    "runId": "run_loom_2026_04_10",
+    "detectedAt": "2026-04-10T16:00:00Z",
+    "updatedAt": "2026-04-10T16:00:00Z",
+    "version": 1,
+    "severity": "P3",
+    "state": "new",
+    "policyFiredId": "pol_dpa_version_bumped",
+    "policyAlsoMatched": [],
+    "headline": "DPA revised, adds AI transcription clause",
+    "changes": [
+      {
+        "id": "d1",
+        "category": "terms",
+        "summary": "DPA revision introduces transcription processing language",
+        "before": "Loom DPA v1.4.",
+        "after": "Loom DPA v1.5 - adds AI transcription processing language with opt-out.",
+        "materiality": "cosmetic"
+      }
+    ],
+    "recommendation": {
+      "action": "accept",
+      "copy": "Configure transcription opt-out at workspace level; document."
+    },
+    "ownerId": "usr_priya",
+    "lensTags": ["legal"]
   }
 ]

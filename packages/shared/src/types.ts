@@ -415,6 +415,7 @@ export interface InboxItem {
   ownerEmail: string;
   occurredAt: Iso8601;
   lensTags: Lens[];
+  state: ChangeState;
 }
 
 export interface Renewal {
@@ -425,8 +426,12 @@ export interface Renewal {
   daysOut: number;
   annualValueUsd: number;
   ownerEmail: string;
+  ownerId?: UserId;
   status: RenewalStatus;
   benchmarkDelta: number | null;
+  declined?: boolean;
+  autoRenewed?: boolean;
+  lensTags?: Lens[];
 }
 
 export interface IntakeRequest {

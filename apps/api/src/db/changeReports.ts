@@ -1,10 +1,17 @@
-import type { ChangeReport, ChangeReportId, OrgId } from "@unsyphn/shared";
+import type {
+  ChangeReport,
+  ChangeReportId,
+  EscalationRecord,
+  OrgId,
+} from "@unsyphn/shared";
 
 export interface ChangeReportRepository {
   getLatest(orgId: OrgId, id: ChangeReportId): Promise<ChangeReport | null>;
   insertVersion(report: ChangeReport): Promise<void>;
   listVersions(orgId: OrgId, id: ChangeReportId): Promise<ChangeReport[]>;
   findById(id: ChangeReportId): Promise<ChangeReport | null>;
+  addEscalation(id: ChangeReportId, escalation: EscalationRecord): Promise<void>;
+  listEscalations(id: ChangeReportId): Promise<EscalationRecord[]>;
 }
 
 function copyReport(report: ChangeReport): ChangeReport {
@@ -17,6 +24,7 @@ function key(orgId: OrgId, id: ChangeReportId): string {
 
 export class InMemoryChangeReportRepository implements ChangeReportRepository {
   private readonly rows = new Map<string, ChangeReport[]>();
+  private readonly escalations = new Map<ChangeReportId, EscalationRecord[]>();
 
   constructor(seed: ChangeReport[] = []) {
     for (const report of seed) {
@@ -62,5 +70,14 @@ export class InMemoryChangeReportRepository implements ChangeReportRepository {
       if (match) return copyReport(match);
     }
     return null;
+  }
+
+  async addEscalation(id: ChangeReportId, escalation: EscalationRecord): Promise<void> {
+    const existing = this.escalations.get(id) ?? [];
+    this.escalations.set(id, [...existing, { ...escalation }]);
+  }
+
+  async listEscalations(id: ChangeReportId): Promise<EscalationRecord[]> {
+    return (this.escalations.get(id) ?? []).map((e) => ({ ...e }));
   }
 }

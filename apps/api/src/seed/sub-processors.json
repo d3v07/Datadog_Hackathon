@@ -4,9 +4,10 @@
     "subProcessors": [
       { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2023-01-15" },
       { "name": "Cloudflare", "jurisdiction": "US", "purpose": "CDN + DDoS protection", "adequate": true, "addedAt": "2022-06-10" },
-      { "name": "Stripe", "jurisdiction": "US", "purpose": "Payment processing", "adequate": true, "addedAt": "2022-06-10" }
+      { "name": "Stripe", "jurisdiction": "US", "purpose": "Payment processing", "adequate": true, "addedAt": "2022-06-10" },
+      { "name": "TextRecognize Ltd", "jurisdiction": "IN", "purpose": "OCR text extraction for identity validation", "adequate": false, "addedAt": "2026-05-12", "flagged": true, "flagReason": "India lacks EU adequacy decision; transfer requires SCCs" }
     ],
-    "lastChangeAt": "2023-01-15T10:00:00Z"
+    "lastChangeAt": "2026-05-12T10:00:00Z"
   },
   "vnd_datadog": {
     "vendorName": "Datadog",
@@ -76,5 +77,115 @@
       { "name": "Salesforce", "jurisdiction": "US", "purpose": "CRM + support platform", "adequate": true, "addedAt": "2020-08-01" }
     ],
     "lastChangeAt": "2021-06-01T10:00:00Z"
+  },
+  "vnd_aws": {
+    "vendorName": "Amazon Web Services",
+    "subProcessors": [
+      { "name": "Akamai Technologies", "jurisdiction": "US", "purpose": "DNS resilience", "adequate": true, "addedAt": "2020-01-01" },
+      { "name": "Splunk", "jurisdiction": "US", "purpose": "Internal observability", "adequate": true, "addedAt": "2019-04-01" },
+      { "name": "Workday", "jurisdiction": "US", "purpose": "Internal HR records", "adequate": true, "addedAt": "2018-06-01" }
+    ],
+    "lastChangeAt": "2020-01-01T10:00:00Z"
+  },
+  "vnd_adobe": {
+    "vendorName": "Adobe Creative Cloud",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Asset storage", "adequate": true, "addedAt": "2020-01-01" },
+      { "name": "Microsoft Azure", "jurisdiction": "US", "purpose": "Asset compute", "adequate": true, "addedAt": "2021-04-01" },
+      { "name": "Cloudflare", "jurisdiction": "US", "purpose": "CDN delivery", "adequate": true, "addedAt": "2019-06-01" },
+      { "name": "Tata Consultancy Services", "jurisdiction": "IN", "purpose": "Customer support tier-2", "adequate": false, "addedAt": "2026-02-14", "flagged": true, "flagReason": "India non-adequate; SCCs required for EU support data" }
+    ],
+    "lastChangeAt": "2026-02-14T10:00:00Z"
+  },
+  "vnd_cloudflare": {
+    "vendorName": "Cloudflare",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Storage + backup", "adequate": true, "addedAt": "2020-02-01" },
+      { "name": "Google Cloud Platform", "jurisdiction": "US", "purpose": "Workers compute", "adequate": true, "addedAt": "2021-03-01" }
+    ],
+    "lastChangeAt": "2021-03-01T10:00:00Z"
+  },
+  "vnd_snowflake": {
+    "vendorName": "Snowflake",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Primary cloud platform", "adequate": true, "addedAt": "2015-01-01" },
+      { "name": "Microsoft Azure", "jurisdiction": "US", "purpose": "Secondary cloud platform", "adequate": true, "addedAt": "2020-01-01" },
+      { "name": "Google Cloud Platform", "jurisdiction": "US", "purpose": "Tertiary cloud platform", "adequate": true, "addedAt": "2021-06-01" }
+    ],
+    "lastChangeAt": "2021-06-01T10:00:00Z"
+  },
+  "vnd_auth0": {
+    "vendorName": "Auth0",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2018-01-01" },
+      { "name": "Twilio", "jurisdiction": "US", "purpose": "SMS delivery for MFA", "adequate": true, "addedAt": "2019-05-01" },
+      { "name": "Datadog", "jurisdiction": "US", "purpose": "Observability", "adequate": true, "addedAt": "2020-09-01" }
+    ],
+    "lastChangeAt": "2020-09-01T10:00:00Z"
+  },
+  "vnd_vercel": {
+    "vendorName": "Vercel",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Build + serverless compute", "adequate": true, "addedAt": "2019-01-01" },
+      { "name": "Google Cloud Platform", "jurisdiction": "US", "purpose": "Edge regions", "adequate": true, "addedAt": "2021-06-01" },
+      { "name": "Hetzner GmbH", "jurisdiction": "DE", "purpose": "EU compute capacity", "adequate": true, "addedAt": "2026-04-22" }
+    ],
+    "lastChangeAt": "2026-04-22T10:00:00Z"
+  },
+  "vnd_hubspot": {
+    "vendorName": "HubSpot",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2018-01-01" },
+      { "name": "Salesforce", "jurisdiction": "US", "purpose": "CRM integration", "adequate": true, "addedAt": "2020-05-01" },
+      { "name": "Twilio", "jurisdiction": "US", "purpose": "SMS marketing", "adequate": true, "addedAt": "2019-11-01" },
+      { "name": "Acme Outsource Pte (Manila)", "jurisdiction": "PH", "purpose": "Customer support", "adequate": false, "addedAt": "2026-01-18", "flagged": true, "flagReason": "Philippines non-adequate; SCCs required" }
+    ],
+    "lastChangeAt": "2026-01-18T10:00:00Z"
+  },
+  "vnd_zendesk": {
+    "vendorName": "Zendesk",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2018-01-01" },
+      { "name": "Twilio", "jurisdiction": "US", "purpose": "SMS + voice channels", "adequate": true, "addedAt": "2020-04-01" },
+      { "name": "Datadog", "jurisdiction": "US", "purpose": "Observability", "adequate": true, "addedAt": "2021-08-01" },
+      { "name": "Bluestar BPO Vietnam", "jurisdiction": "VN", "purpose": "Tier-2 support", "adequate": false, "addedAt": "2026-04-02", "flagged": true, "flagReason": "Vietnam lacks adequacy decision; transfer requires SCCs" }
+    ],
+    "lastChangeAt": "2026-04-02T10:00:00Z"
+  },
+  "vnd_intercom": {
+    "vendorName": "Intercom",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2019-01-01" },
+      { "name": "Stripe", "jurisdiction": "US", "purpose": "Billing", "adequate": true, "addedAt": "2018-04-01" },
+      { "name": "Datadog", "jurisdiction": "US", "purpose": "Observability", "adequate": true, "addedAt": "2021-02-01" }
+    ],
+    "lastChangeAt": "2021-02-01T10:00:00Z"
+  },
+  "vnd_zoom": {
+    "vendorName": "Zoom",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Media routing", "adequate": true, "addedAt": "2017-01-01" },
+      { "name": "Oracle Cloud", "jurisdiction": "US", "purpose": "Meeting infrastructure", "adequate": true, "addedAt": "2020-04-01" },
+      { "name": "Zoom China Engineering", "jurisdiction": "CN", "purpose": "R&D + ML engineering", "adequate": false, "addedAt": "2025-09-15", "flagged": true, "flagReason": "China engineering team retained; non-adequate jurisdiction" }
+    ],
+    "lastChangeAt": "2025-09-15T10:00:00Z"
+  },
+  "vnd_mongodb": {
+    "vendorName": "MongoDB",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Atlas managed clusters", "adequate": true, "addedAt": "2017-01-01" },
+      { "name": "Google Cloud Platform", "jurisdiction": "US", "purpose": "Atlas managed clusters", "adequate": true, "addedAt": "2019-01-01" },
+      { "name": "Microsoft Azure", "jurisdiction": "US", "purpose": "Atlas managed clusters", "adequate": true, "addedAt": "2019-06-01" }
+    ],
+    "lastChangeAt": "2019-06-01T10:00:00Z"
+  },
+  "vnd_jira": {
+    "vendorName": "Jira",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Cloud hosting", "adequate": true, "addedAt": "2018-01-01" },
+      { "name": "Cloudflare", "jurisdiction": "US", "purpose": "CDN + DDoS", "adequate": true, "addedAt": "2020-03-01" },
+      { "name": "Datadog", "jurisdiction": "US", "purpose": "Observability", "adequate": true, "addedAt": "2021-01-01" }
+    ],
+    "lastChangeAt": "2021-01-01T10:00:00Z"
   }
 }

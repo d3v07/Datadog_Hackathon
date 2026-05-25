@@ -1,14 +1,14 @@
 import { Hono, type Context } from "hono";
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   acknowledgeChangeRequestSchema,
+  escalateChangeRequestSchema,
   resolveChangeRequestSchema,
   snoozeChangeRequestSchema,
   type AcknowledgeChangeResponse,
   type ChangeReport,
   type ChangeReportId,
+  type EscalateChangeResponse,
+  type EscalationRecord,
   type ResolveChangeResponse,
   type SnoozeChangeResponse,
   type UserId,
@@ -16,9 +16,9 @@ import {
 import type { ZodType } from "zod";
 import type { ChangeReportRepository } from "../db/changeReports.js";
 import { errorResponse } from "../errors.js";
+import { toFeedChange } from "../lib/change-report-views.js";
+import { getSeededChangeReports } from "../seed/loader.js";
 import type { EventBroker } from "../stream/broker.js";
-
-const CHANGES_DIR = dirname(fileURLToPath(import.meta.url));
 
 export interface ChangesRouteDeps {
   reports: ChangeReportRepository;
@@ -150,24 +150,17 @@ export function createChangesRouter(deps: ChangesRouteDeps): Hono {
     const vendorId = c.req.query("vendorId");
     const category = c.req.query("category");
 
-    const feedPath = resolve(CHANGES_DIR, "../seed/material-changes.json");
-    const all = JSON.parse(readFileSync(feedPath, "utf8")) as Array<Record<string, unknown>>;
-
-    let changes = all.slice();
+    let changes = getSeededChangeReports().map(toFeedChange);
 
     if (vendorId) {
-      changes = changes.filter((ch) => ch["vendorId"] === vendorId);
+      changes = changes.filter((ch) => ch.vendorId === vendorId);
     }
 
     if (category && category !== "all") {
-      changes = changes.filter((ch) => ch["category"] === category);
+      changes = changes.filter((ch) => ch.category === category);
     }
 
-    changes.sort((a, b) => {
-      const aDate = String(a["occurredAt"] ?? "");
-      const bDate = String(b["occurredAt"] ?? "");
-      return bDate.localeCompare(aDate);
-    });
+    changes.sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
 
     return c.json({ changes });
   });
@@ -223,6 +216,53 @@ export function createChangesRouter(deps: ChangesRouteDeps): Hono {
       }),
     });
   });
+
+  router.post("/:id/escalate", async (c) => {
+    const auth = c.get("auth");
+    const parsed = escalateChangeRequestSchema.safeParse(await readJsonBody(c));
+    if (!parsed.success) {
+      return errorResponse(c, 422, "unprocessable", "Request body is invalid", parsed.error.flatten());
+    }
+
+    const id = c.req.param("id") as ChangeReportId;
+    const current = await deps.reports.getLatest(auth.orgId, id);
+    if (!current) {
+      return errorResponse(c, 404, "not-found", "Change id not in org");
+    }
+
+    const at = (deps.now ?? (() => new Date()))();
+    const { toRole, note } = parsed.data;
+    const jiraKey = `UNS-${Math.floor(1000 + Math.random() * 9000)}`;
+    const escalation: EscalationRecord = {
+      toRole,
+      byUserId: auth.userId,
+      ...(note ? { note } : {}),
+      escalatedAt: at.toISOString(),
+      slackChannel: `#${toRole}-channel`,
+      jiraKey,
+    };
+
+    await deps.reports.addEscalation(id, escalation);
+
+    const response: EscalateChangeResponse = { id, escalation };
+    return c.json(response);
+  });
+
+  router.get("/:id/escalations", async (c) => {
+    const auth = c.get("auth");
+    const id = c.req.param("id") as ChangeReportId;
+    const current = await deps.reports.getLatest(auth.orgId, id);
+    if (!current) {
+      return errorResponse(c, 404, "not-found", "Change id not in org");
+    }
+    const escalations = await deps.reports.listEscalations(id);
+    return c.json({ id, escalations });
+  });
+
+  // TODO(phase-2-E): comment thread endpoints
+  //   POST /:id/comments  body { body: string }
+  //   GET  /:id/comments  -> { comments: Array<{ id, userId, body, postedAt }> }
+  // In-memory map analogous to escalations on the repo. Deferred from Phase 2.
 
   return router;
 }

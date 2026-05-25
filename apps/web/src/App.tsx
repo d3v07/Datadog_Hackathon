@@ -10,6 +10,8 @@ import { Inbox } from "./screens/Inbox.js";
 import { VendorDetail } from "./screens/VendorDetail.js";
 import { Requests } from "./screens/Requests.js";
 import { Renewals } from "./screens/Renewals.js";
+import { Findings } from "./screens/Findings.js";
+import { Reports } from "./screens/Reports.js";
 import { Pricing } from "./screens/Pricing.js";
 import { AuditorMode } from "./screens/AuditorMode.js";
 import { Settings } from "./screens/Settings.js";
@@ -67,13 +69,23 @@ function parseChangeId(pathname: string): string | undefined {
   return match?.[1];
 }
 
-type ActiveNav = "inbox" | "vendors" | "renewals" | "requests" | "settings" | null;
+type ActiveNav =
+  | "inbox"
+  | "vendors"
+  | "renewals"
+  | "requests"
+  | "findings"
+  | "reports"
+  | "settings"
+  | null;
 
 function currentNav(pathname: string): ActiveNav {
   if (pathname === "/app" || pathname === "/app/" || pathname.startsWith("/app/inbox")) return "inbox";
   if (pathname.startsWith("/app/vendors")) return "vendors";
   if (pathname.startsWith("/app/renewals")) return "renewals";
   if (pathname.startsWith("/app/requests")) return "requests";
+  if (pathname.startsWith("/app/findings")) return "findings";
+  if (pathname.startsWith("/app/reports")) return "reports";
   if (pathname.startsWith("/app/settings")) return "settings";
   return null;
 }
@@ -133,6 +145,10 @@ export function App(): JSX.Element | null {
           <Renewals />
         ) : pathname.startsWith("/app/requests") ? (
           <Requests />
+        ) : pathname.startsWith("/app/findings") ? (
+          <Findings />
+        ) : pathname.startsWith("/app/reports") ? (
+          <Reports />
         ) : pathname.startsWith("/app/policies") ? (
           <PoliciesPlaceholder />
         ) : pathname.startsWith("/app/onboarding") ? (
@@ -210,6 +226,8 @@ function TopBar({ activeNav }: TopBarProps): JSX.Element {
             ["vendors", "Vendors", "/app/vendors"],
             ["renewals", "Renewals", "/app/renewals"],
             ["requests", "Requests", "/app/requests"],
+            ["findings", "Findings", "/app/findings"],
+            ["reports", "Reports", "/app/reports"],
             ["settings", "Settings", "/app/settings"],
           ] as const
         ).map(([key, label, href]) => (

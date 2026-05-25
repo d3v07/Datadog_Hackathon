@@ -1,0 +1,184 @@
+[
+  {
+    "id": "req_linear_extra",
+    "orgId": "org_acme",
+    "requesterId": "usr_devon",
+    "vendorName": "Linear",
+    "category": "productivity",
+    "expectedSpendUsd": 18000,
+    "justification": "Engineering wants Linear for project tracking; Jira is too heavyweight for squads.",
+    "similarTools": ["Jira", "Asana", "Monday.com"],
+    "status": "pending",
+    "submittedAt": "2026-05-20T09:30:00Z",
+    "comments": []
+  },
+  {
+    "id": "req_loom",
+    "orgId": "org_acme",
+    "requesterId": "usr_jordan",
+    "vendorName": "Loom",
+    "category": "communication",
+    "expectedSpendUsd": 6000,
+    "justification": "Async video messaging for design reviews and stakeholder demos.",
+    "similarTools": ["Zoom Clips", "Slack Clips"],
+    "status": "approved",
+    "submittedAt": "2026-05-15T11:00:00Z",
+    "approverId": "usr_priya",
+    "decidedAt": "2026-05-17T14:30:00Z",
+    "comments": [
+      { "id": "cmt_001", "by": "usr_priya", "at": "2026-05-17T14:30:00Z", "text": "Approved with $6k cap; revisit at 90d if seat count exceeds 30." }
+    ]
+  },
+  {
+    "id": "req_miro",
+    "orgId": "org_acme",
+    "requesterId": "usr_priya",
+    "vendorName": "Miro",
+    "category": "productivity",
+    "expectedSpendUsd": 12000,
+    "justification": "Whiteboarding for cross-team product planning.",
+    "similarTools": ["FigJam", "Lucidchart", "Mural"],
+    "status": "rejected",
+    "submittedAt": "2026-05-10T14:00:00Z",
+    "approverId": "usr_priya",
+    "decidedAt": "2026-05-13T10:00:00Z",
+    "comments": [
+      { "id": "cmt_002", "by": "usr_priya", "at": "2026-05-13T10:00:00Z", "text": "FigJam already covered under Figma Enterprise contract; close as duplicate." }
+    ]
+  },
+  {
+    "id": "req_retool",
+    "orgId": "org_acme",
+    "requesterId": "usr_devon",
+    "vendorName": "Retool",
+    "category": "devtools",
+    "expectedSpendUsd": 36000,
+    "justification": "Internal tooling platform to replace custom admin dashboards we maintain ad-hoc.",
+    "similarTools": ["Airplane", "Internal.io"],
+    "status": "pending",
+    "submittedAt": "2026-05-22T16:45:00Z",
+    "comments": []
+  },
+  {
+    "id": "req_amplitude",
+    "orgId": "org_acme",
+    "requesterId": "usr_jordan",
+    "vendorName": "Amplitude",
+    "category": "analytics",
+    "expectedSpendUsd": 42000,
+    "justification": "Growth team needs cohort analysis; Mixpanel reports lack flexibility.",
+    "similarTools": ["Mixpanel", "PostHog", "Heap"],
+    "status": "pending",
+    "submittedAt": "2026-05-21T10:15:00Z",
+    "comments": [
+      { "id": "cmt_003", "by": "usr_priya", "at": "2026-05-23T11:00:00Z", "text": "Flagging duplicate with Mixpanel; growth lead to sync this week." }
+    ]
+  },
+  {
+    "id": "req_vanta",
+    "orgId": "org_acme",
+    "requesterId": "usr_marcus",
+    "vendorName": "Vanta",
+    "category": "security",
+    "expectedSpendUsd": 24000,
+    "justification": "SOC 2 readiness automation ahead of Q3 audit.",
+    "similarTools": ["Drata", "Tugboat Logic"],
+    "status": "approved",
+    "submittedAt": "2026-05-11T08:00:00Z",
+    "approverId": "usr_devon",
+    "decidedAt": "2026-05-12T13:00:00Z",
+    "comments": [
+      { "id": "cmt_004", "by": "usr_devon", "at": "2026-05-12T13:00:00Z", "text": "Approved; CISO sponsor confirmed." }
+    ]
+  },
+  {
+    "id": "req_segment",
+    "orgId": "org_acme",
+    "requesterId": "usr_jordan",
+    "vendorName": "Segment",
+    "category": "analytics",
+    "expectedSpendUsd": 30000,
+    "justification": "Customer data pipeline to feed Mixpanel, Snowflake, and marketing tools.",
+    "similarTools": ["Rudderstack", "PostHog CDP"],
+    "status": "routed",
+    "submittedAt": "2026-05-09T13:30:00Z",
+    "comments": [
+      { "id": "cmt_005", "by": "usr_priya", "at": "2026-05-09T15:00:00Z", "text": "Routing to data team for architecture review before approval." }
+    ]
+  },
+  {
+    "id": "req_tableau",
+    "orgId": "org_acme",
+    "requesterId": "usr_jordan",
+    "vendorName": "Tableau",
+    "category": "analytics",
+    "expectedSpendUsd": 56000,
+    "justification": "Self-serve BI for finance and ops teams; current Looker license expensive.",
+    "similarTools": ["Looker", "Metabase", "Mode"],
+    "status": "pending",
+    "submittedAt": "2026-05-23T11:30:00Z",
+    "comments": []
+  },
+  {
+    "id": "req_clickup",
+    "orgId": "org_acme",
+    "requesterId": "usr_priya",
+    "vendorName": "ClickUp",
+    "category": "productivity",
+    "expectedSpendUsd": 14000,
+    "justification": "PM wants unified docs+tasks; competes with existing Notion+Linear stack.",
+    "similarTools": ["Notion", "Linear", "Asana"],
+    "status": "rejected",
+    "submittedAt": "2026-05-05T09:00:00Z",
+    "approverId": "usr_priya",
+    "decidedAt": "2026-05-06T16:00:00Z",
+    "comments": [
+      { "id": "cmt_006", "by": "usr_priya", "at": "2026-05-06T16:00:00Z", "text": "Overlap with Notion+Linear; reject and document stack standard." }
+    ]
+  },
+  {
+    "id": "req_jira_addon",
+    "orgId": "org_acme",
+    "requesterId": "usr_devon",
+    "vendorName": "Atlassian Bitbucket Pipelines",
+    "category": "devtools",
+    "expectedSpendUsd": 9600,
+    "justification": "Faster CI for monorepo; would replace GitHub Actions for repos under Bitbucket.",
+    "similarTools": ["GitHub Actions", "CircleCI", "Buildkite"],
+    "status": "pending",
+    "submittedAt": "2026-05-19T12:00:00Z",
+    "comments": []
+  },
+  {
+    "id": "req_browserstack",
+    "orgId": "org_acme",
+    "requesterId": "usr_devon",
+    "vendorName": "BrowserStack",
+    "category": "devtools",
+    "expectedSpendUsd": 21600,
+    "justification": "Cross-browser device farm for end-to-end testing.",
+    "similarTools": ["Sauce Labs", "LambdaTest"],
+    "status": "approved",
+    "submittedAt": "2026-05-06T15:00:00Z",
+    "approverId": "usr_devon",
+    "decidedAt": "2026-05-07T10:00:00Z",
+    "comments": [
+      { "id": "cmt_007", "by": "usr_devon", "at": "2026-05-07T10:00:00Z", "text": "Approved; pre-existing pilot data supports value." }
+    ]
+  },
+  {
+    "id": "req_pagerduty_add",
+    "orgId": "org_acme",
+    "requesterId": "usr_marcus",
+    "vendorName": "PagerDuty Process Automation",
+    "category": "observability",
+    "expectedSpendUsd": 18000,
+    "justification": "Runbook automation tied to PagerDuty incident triggers.",
+    "similarTools": ["Rundeck", "Tines"],
+    "status": "routed",
+    "submittedAt": "2026-05-17T09:15:00Z",
+    "comments": [
+      { "id": "cmt_008", "by": "usr_devon", "at": "2026-05-18T14:00:00Z", "text": "Routing to platform team for stack review." }
+    ]
+  }
+]
