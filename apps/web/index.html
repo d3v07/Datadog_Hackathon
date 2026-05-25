@@ -92,7 +92,7 @@ body{
 }
 .nav .brand{display:flex;align-items:center;gap:10px}
 .nav .brand .mark{
-  display:block;width:22px;height:16px;object-fit:contain;
+  display:block;width:28px;height:20px;object-fit:contain;
 }
 .nav ul{list-style:none;display:flex;gap:28px}
 .nav a{color:#334155;text-decoration:none;opacity:.85;transition:opacity .2s}
@@ -328,6 +328,20 @@ h1.title em{
     inset 0 0 0 1px rgba(255,255,255,0.9),
     inset 0 -24px 60px rgba(15,23,42,0.04);
   opacity: 1;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+/* the brand mark sits centered on each face, behind the tiles.
+   tiles fly away on scroll → mark gradually reveals. */
+.face .face-logo{
+  width: 64%;
+  height: 64%;
+  object-fit: contain;
+  opacity: 0.95;
+  filter: drop-shadow(0 2px 6px rgba(99, 91, 255, 0.12));
+  pointer-events:none;
+  user-select:none;
 }
 .face.f-front  { transform: translateZ(calc(var(--S) /  2)); }
 .face.f-back   { transform: rotateY(180deg) translateZ(calc(var(--S) /  2)); }
@@ -511,7 +525,7 @@ body[data-density="marks"]   .tile > svg.tile-svg { display:none; }
   .footer .footer-top{grid-template-columns:1fr 1fr;gap:24px;}
 }
 .footer .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
-.footer .footer-brand img{width:22px;height:16px;object-fit:contain;}
+.footer .footer-brand img{width:28px;height:20px;object-fit:contain;}
 .footer .footer-brand span{font-family:var(--font-premium);font-size:13px;font-weight:600;color:#0f172a;letter-spacing:-0.005em;text-transform:none;}
 .footer .footer-tagline{font-size:11.5px;line-height:1.6;color:#64748b;max-width:22ch;font-family:var(--font-premium);}
 .footer h5{
@@ -539,7 +553,7 @@ body[data-density="marks"]   .tile > svg.tile-svg { display:none; }
 <div class="grain"></div>
 
 <nav class="nav">
-  <div class="brand"><img class="mark" src="/logo.png" alt="Unsyphn" width="22" height="16"><span>UNSYPHN / Subscription OS</span></div>
+  <div class="brand"><img class="mark" src="/unsyphn-mark.png" alt="Unsyphn" width="28" height="20"><span>UNSYPHN / Subscription OS</span></div>
   <ul>
     <li><a href="#product">Product</a></li>
   </ul>
@@ -695,11 +709,19 @@ body[data-density="marks"]   .tile > svg.tile-svg { display:none; }
     return isFinite(v) && v > 0 ? v : 420;
   }
 
-  // create face backdrops (wordmark removed — vendor logos render on the tiles instead)
+  // create face backdrops with the brand mark centered behind the tiles —
+  // as tiles disperse on scroll, the logo emerges.
   FACES.forEach(([cls, N, R, U], fi)=>{
     const f = document.createElement('div');
     f.className = 'face ' + cls;
     f.style.setProperty('--glow', AURORA[fi % AURORA.length]);
+    const logo = document.createElement('img');
+    logo.className = 'face-logo';
+    logo.src = '/unsyphn-mark.png';
+    logo.alt = '';
+    logo.setAttribute('aria-hidden', 'true');
+    logo.loading = 'lazy';
+    f.appendChild(logo);
     cube.appendChild(f);
   });
 
@@ -793,9 +815,10 @@ body[data-density="marks"]   .tile > svg.tile-svg { display:none; }
         `rotateX(${t.baseRx}deg) rotateY(${t.baseRy}deg) ` +
         `rotateX(${sxR.toFixed(2)}deg) rotateY(${syR.toFixed(2)}deg) rotateZ(${szR.toFixed(2)}deg)`;
     }
-    // dim the backdrop faces as tiles fly off
-    const faceOpacity = (1 - sp * 0.85).toFixed(3);
-    document.querySelectorAll('.face').forEach(f => f.style.opacity = faceOpacity);
+    // face stays solid white — as tiles fly off, the centered brand mark is revealed.
+    // the .face-logo opacity ramps from 0.55 → 1 to make the reveal feel intentional.
+    const logoOpacity = (0.55 + sp * 0.45).toFixed(3);
+    document.querySelectorAll('.face-logo').forEach(l => l.style.opacity = logoOpacity);
   }
 
   computeSizing();
@@ -889,7 +912,7 @@ body[data-density="marks"]   .tile > svg.tile-svg { display:none; }
     <div class="footer-top">
       <div>
         <div class="footer-brand">
-          <img src="/logo.png" alt="Unsyphn" width="22" height="16">
+          <img src="/unsyphn-mark.png" alt="Unsyphn" width="28" height="20">
           <span>UNSYPHN</span>
         </div>
         <p class="footer-tagline">One vault for every subscription. Built for the modern ops team.</p>

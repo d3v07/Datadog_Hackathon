@@ -157,18 +157,38 @@ function TopBar({ activeNav }: TopBarProps): JSX.Element {
         zIndex: 100,
       }}
     >
-      <span
+      <a
+        href="/"
         style={{
-          fontFamily: "var(--font-display)",
-          fontWeight: 500,
-          fontSize: "var(--text-sm)",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          textDecoration: "none",
           color: "var(--text-strong)",
-          letterSpacing: "-0.01em",
           userSelect: "none",
         }}
+        aria-label="Unsyphn home"
       >
-        Unsyphn
-      </span>
+        <img
+          src="/unsyphn-mark.png"
+          alt=""
+          aria-hidden="true"
+          width={26}
+          height={18}
+          style={{ display: "block", objectFit: "contain" }}
+        />
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 500,
+            fontSize: "var(--text-sm)",
+            color: "var(--text-strong)",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Unsyphn
+        </span>
+      </a>
 
       <nav
         aria-label="Main navigation"
