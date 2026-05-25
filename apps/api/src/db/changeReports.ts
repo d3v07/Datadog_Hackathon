@@ -1,4 +1,4 @@
-import type { ChangeReport, ChangeReportId, OrgId } from "@redline/shared";
+import type { ChangeReport, ChangeReportId, OrgId } from "@unsyphn/shared";
 
 export interface ChangeReportRepository {
   getLatest(orgId: OrgId, id: ChangeReportId): Promise<ChangeReport | null>;

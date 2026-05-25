@@ -397,3 +397,69 @@ export interface ApiErrorEnvelope {
     requestId?: string;
   };
 }
+
+export type Lens = "procurement" | "legal" | "security" | "finance" | "it" | "audit";
+export type InboxItemKind = "change" | "renewal" | "unused-seats";
+export type RenewalStatus = "triage" | "negotiate" | "sign";
+export type DiscoveryProvider = "google" | "microsoft";
+
+export interface InboxItem {
+  id: string;
+  kind: InboxItemKind;
+  vendorId: string;
+  vendorName: string;
+  title: string;
+  summary: string;
+  severity: Severity;
+  dollarImpact: number | null;
+  ownerEmail: string;
+  occurredAt: Iso8601;
+  lensTags: Lens[];
+}
+
+export interface Renewal {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  renewsAt: IsoDate;
+  daysOut: number;
+  annualValueUsd: number;
+  ownerEmail: string;
+  status: RenewalStatus;
+  benchmarkDelta: number | null;
+}
+
+export interface IntakeRequest {
+  id: string;
+  vendorName: string;
+  requesterEmail: string;
+  expectedSpendUsd: number;
+  justification: string;
+  status: "pending" | "approved" | "rejected";
+  similarTools: string[];
+  createdAt: Iso8601;
+}
+
+export interface Recoverable {
+  totalUsd: number;
+  breakdown: {
+    unusedSeatsUsd: number;
+    priceHikesUsd: number;
+    duplicateAppsUsd: number;
+    atRiskUsd: number;
+  };
+}
+
+export interface DiscoveryJob {
+  jobId: string;
+  estimatedSeconds: number;
+  expectedVendors: number;
+  discoveredVendors: Array<{
+    id: string;
+    name: string;
+    domain: string;
+    category: string;
+    spendUsd: number;
+    confidence: number;
+  }>;
+}

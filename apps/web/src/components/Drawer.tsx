@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { X } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -139,11 +140,10 @@ export function Drawer({ open, onClose, children, title }: Props): JSX.Element {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "var(--text-lg)",
               borderRadius: "var(--radius-md)",
             }}
           >
-            ×
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
         <div

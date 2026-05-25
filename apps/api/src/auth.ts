@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from "hono";
-import type { OrgId, UserId } from "@redline/shared";
+import type { OrgId, UserId } from "@unsyphn/shared";
 import { errorResponse } from "./errors.js";
 import { resolveBearer } from "./seed/loader.js";
 

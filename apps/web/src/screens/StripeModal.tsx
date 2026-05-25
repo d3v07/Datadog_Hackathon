@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
 import { loadStripe, type Stripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import {
   Elements,
@@ -277,7 +278,7 @@ export function StripeModal({ onClose }: StripeModalProps): JSX.Element {
           </h2>
           {/* UX-1 fix: × calls onClose in all states including already-entitled */}
           <button style={S.closeBtn} type="button" onClick={onClose} aria-label="Close">
-            ×
+            <X size={18} aria-hidden="true" />
           </button>
         </header>
 

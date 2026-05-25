@@ -1,5 +1,5 @@
-import type { ApiErrorEnvelope } from "@redline/shared";
-import { ErrorCodes, type ErrorCode } from "@redline/shared";
+import type { ApiErrorEnvelope } from "@unsyphn/shared";
+import { ErrorCodes, type ErrorCode } from "@unsyphn/shared";
 
 // Maps stable error codes to HTTP status (handoff/API §01).
 const StatusByCode: Record<string, number> = {

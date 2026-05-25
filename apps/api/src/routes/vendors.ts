@@ -6,7 +6,7 @@ import {
   type Vendor,
   type VendorCreateResponse,
   type VendorUrls,
-} from "@redline/shared";
+} from "@unsyphn/shared";
 import { ApiError } from "../lib/errors.js";
 import { newId } from "../lib/ids.js";
 import { discoverUrls, type DiscoveryOptions } from "../lib/discovery.js";

@@ -16,8 +16,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@redline/shared": resolve(__dirname, "packages/shared/src/index.ts"),
-      "@redline/shared/": resolve(__dirname, "packages/shared/src/"),
+      "@unsyphn/shared": resolve(__dirname, "packages/shared/src/index.ts"),
+      "@unsyphn/shared/": resolve(__dirname, "packages/shared/src/"),
     },
   },
 });

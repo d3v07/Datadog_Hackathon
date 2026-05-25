@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import Stripe from "stripe";
-import { ErrorCodes } from "@redline/shared";
+import { ErrorCodes } from "@unsyphn/shared";
 import { ApiError } from "../lib/errors.js";
 import { env } from "../env.js";
 import { stripe } from "../providers/stripe.js";

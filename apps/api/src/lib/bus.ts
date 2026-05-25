@@ -1,4 +1,4 @@
-import type { SseEvent } from "@redline/shared";
+import type { SseEvent } from "@unsyphn/shared";
 
 // Tiny in-process pub/sub. SSE subscribers register here; the stub runner
 // publishes scheduler.tick / run.stage / run.completed. Per-org ring buffer

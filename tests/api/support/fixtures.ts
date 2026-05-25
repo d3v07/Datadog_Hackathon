@@ -1,4 +1,4 @@
-import type { ChangeReport, OrgId, User, UserId, Vendor, VendorId } from "@redline/shared";
+import type { ChangeReport, OrgId, User, UserId, Vendor, VendorId } from "@unsyphn/shared";
 
 export const NOW = "2026-05-23T13:14:42.000Z";
 export const ORG_ID = "org_acme" as OrgId;

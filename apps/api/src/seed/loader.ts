@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { ChangeReport, Org, User, Vendor } from "@redline/shared";
+import type { ChangeReport, Org, User, Vendor } from "@unsyphn/shared";
 import { vendorStore } from "../db/vendor-store.js";
 import { policyStore, type SeededPolicy } from "../db/policy-store.js";
 

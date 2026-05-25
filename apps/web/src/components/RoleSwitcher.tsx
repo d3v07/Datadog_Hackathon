@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronUp, Check } from "lucide-react";
 import { ALL_ROLES, ROLE_LABELS, useRole } from "../lib/role.js";
 import type { Role } from "../lib/role.js";
 
@@ -94,18 +95,11 @@ export function RoleSwitcher(): JSX.Element {
         <span style={{ fontWeight: 400, fontSize: "var(--text-sm)" }}>
           {ROLE_LABELS[role]}
         </span>
-        <span
-          aria-hidden="true"
-          style={{
-            fontSize: "var(--text-xs)",
-            color: "var(--muted)",
-            display: "inline-block",
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform var(--dur-fast) var(--ease-out)",
-          }}
-        >
-          ▾
-        </span>
+        {open ? (
+          <ChevronUp size={14} aria-hidden="true" style={{ color: "var(--muted)", flexShrink: 0 }} />
+        ) : (
+          <ChevronDown size={14} aria-hidden="true" style={{ color: "var(--muted)", flexShrink: 0 }} />
+        )}
       </button>
 
       {open && (
@@ -163,9 +157,7 @@ export function RoleSwitcher(): JSX.Element {
               >
                 <span>{ROLE_LABELS[r]}</span>
                 {isCurrent && (
-                  <span aria-hidden="true" style={{ fontSize: "var(--text-xs)", color: "var(--accent)" }}>
-                    ✓
-                  </span>
+                  <Check size={16} aria-hidden="true" style={{ color: "var(--accent)", flexShrink: 0 }} />
                 )}
               </li>
             );

@@ -3,7 +3,7 @@ import { routeChangeReport } from "../../apps/api/src/agent/router";
 import { createActionRepository } from "../../apps/api/src/db/actions";
 import { createEventBroker } from "../../apps/api/src/stream/broker";
 import { createChangeReport, createUsers, createVendor, NOW, ORG_ID } from "./support/fixtures";
-import type { SlackPayload } from "@redline/shared";
+import type { SlackPayload } from "@unsyphn/shared";
 
 describe("Action routing", () => {
   it("resolves slack:@vendorOwner, delivers the webhook, persists the action, and emits action.delivered", async () => {
@@ -18,7 +18,7 @@ describe("Action routing", () => {
       routes: ["slack:@vendorOwner"],
       actions,
       events,
-      baseUrl: "https://redline.example",
+      baseUrl: "https://unsyphn.example",
       slack: {
         async postAlert(payload) {
           posted.push(payload);
@@ -59,10 +59,10 @@ describe("Action routing", () => {
       changeReport: createChangeReport(),
       vendor: createVendor(),
       users: createUsers(),
-      routes: ["slack:#redline-demo"],
+      routes: ["slack:#unsyphn-demo"],
       actions,
       events,
-      baseUrl: "https://redline.example",
+      baseUrl: "https://unsyphn.example",
       slack: {
         async postAlert() {
           throw new Error("Slack webhook returned 500");
@@ -73,7 +73,7 @@ describe("Action routing", () => {
     expect(routed).toEqual([
       expect.objectContaining({
         kind: "slack",
-        target: "#redline-demo",
+        target: "#unsyphn-demo",
         status: "failed",
         error: "Slack webhook returned 500",
       }),
@@ -102,7 +102,7 @@ describe("Action routing", () => {
       routes: ["jira:SEC", "email:ciso@example.com", "calendar:renewal-prep"],
       actions,
       events,
-      baseUrl: "https://redline.example",
+      baseUrl: "https://unsyphn.example",
       now: () => new Date(NOW),
       slack: {
         async postAlert() {
@@ -121,7 +121,7 @@ describe("Action routing", () => {
         projectKey: "SEC",
         issueType: "Task",
         priority: "P1",
-        labels: ["redline", "vendor-risk", "notion"],
+        labels: ["unsyphn", "vendor-risk", "notion"],
         assigneeUserId: "usr_priya",
       },
     });
@@ -130,7 +130,7 @@ describe("Action routing", () => {
       target: "ciso@example.com",
       payload: {
         to: "ciso@example.com",
-        subject: "P1 Redline alert: Notion",
+        subject: "P1 Unsyphn alert: Notion",
         html: expect.stringContaining('<a href="https://notion.so/terms">Nimble capture</a>'),
       },
     });
@@ -138,7 +138,7 @@ describe("Action routing", () => {
     expect(routed[2]).toMatchObject({
       target: "renewal-prep",
       payload: {
-        title: "Redline renewal-prep: Notion",
+        title: "Unsyphn renewal-prep: Notion",
         startsAt: "2026-05-24T13:14:42.000Z",
         endsAt: "2026-05-24T13:44:42.000Z",
         attendees: ["priya@example.com"],
@@ -177,14 +177,14 @@ describe("Action routing", () => {
       routes: ["jira:SEC"],
       actions,
       events,
-      baseUrl: "https://redline.example",
+      baseUrl: "https://unsyphn.example",
       now: () => new Date(NOW),
     });
 
     expect(routed).toMatchObject({
       kind: "jira",
       payload: {
-        labels: ["redline", "vendor-risk", "cafe"],
+        labels: ["unsyphn", "vendor-risk", "cafe"],
       },
     });
   });

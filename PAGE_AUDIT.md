@@ -1,4 +1,4 @@
-# Page Audit — Redline B2B SaaS
+# Page Audit — Unsyphn B2B SaaS
 
 Generated: 2026-05-24 · Branch: production
 Status legend: `[ok]` working · `[brk]` broken/dead · `[wrn]` works but ugly/inconsistent · `[na]` not in scope
@@ -46,7 +46,7 @@ flows route to `/app/` (the static Babel-JSX demo).
 
 ### A.1 Nav
 - A.1.1 [wrn] Brand mark `.nav .brand .mark` — conic-gradient circle, no logo image — **fix**: replace with `<img src="/logo.png">` from `unsyphlogo.png`
-- A.1.2 [ok] Brand text "REDLINE / Subscription OS"
+- A.1.2 [ok] Brand text "UNSYPHN / Subscription OS"
 - A.1.3 [brk] Product link — `href="#"` dead
 - A.1.4 [brk] Vault link — `href="#"` dead
 - A.1.5 [brk] Pricing link — `href="#"` dead
@@ -148,14 +148,14 @@ flows route to `/app/` (the static Babel-JSX demo).
 ## K. React app — App.tsx routing/header
 
 - **K.0** [**CRITICAL**] `apps/web/index.html` missing `#root` + main.tsx script — entire React tree unreachable
-- K.1 [brk] Default route "/" falls to `<RedlineApp />` = Add Vendor (not a dashboard)
-- K.4 [brk] Header brand text `.app__mark` says **"Redline"** — mismatch with landing "REDLINE"
+- K.1 [brk] Default route "/" falls to `<UnsyphnApp />` = Add Vendor (not a dashboard)
+- K.4 [brk] Header brand text `.app__mark` says **"Unsyphn"** — mismatch with landing "UNSYPHN"
 - K.5 [ok] Header nav buttons wired
 - K.7 [wrn] Breadcrumb is `<span>`, should be `<nav aria-label="breadcrumb">`
 
 ## L. Brand inconsistency (cross-app)
 
-- L.1 [brk] **Landing: "REDLINE"**, **App: "Redline"** — same product, two names
+- L.1 [brk] **Landing: "UNSYPHN"**, **App: "Unsyphn"** — same product, two names
 - L.2 [brk] No logo image asset referenced anywhere — only CSS gradient marks
 - L.3 [ok] Dark theme palette consistent
 - L.4 [ok] Brief light theme is print-friendly
@@ -167,7 +167,7 @@ flows route to `/app/` (the static Babel-JSX demo).
 | # | Pri | Item | File | Fix |
 |---|---|---|---|---|
 | 1 | **P0** | React app has no mount point | `apps/web/index.html` | Add `<div id="root">` + `<script type="module" src="/src/main.tsx">` |
-| 2 | **P0** | Brand split "Redline" vs "REDLINE" | `apps/web/src/App.tsx` + styles.css | Replace text mark with logo, rename "Redline" → "Redline" everywhere |
+| 2 | **P0** | Brand split "Unsyphn" vs "UNSYPHN" | `apps/web/src/App.tsx` + styles.css | Replace text mark with logo, rename "Unsyphn" → "Unsyphn" everywhere |
 | 3 | **P0** | No logo on any surface | All 3 surfaces | Distribute `unsyphlogo.png` (198x144 RGBA) → favicons + nav marks |
 | 4 | **P0** | Static demo dead file ref kills Babel pipeline | `public/app/index.html:43` | Remove `<script src="screen-onboarding.jsx">` |
 | 5 | **P1** | Static demo `live.js` 401s | `public/app/live.js` | Use seed token; add SSE subscription to `/v1/stream` |
@@ -188,6 +188,6 @@ flows route to `/app/` (the static Babel-JSX demo).
 
 - **Agent α — Halo landing** (P0/P1 items: #1 logo, #6 nav, #7 walkthrough, #9 footer, #10 mobile nav, #11 grid)
 - **Agent β — Static demo** (P0 #3 logo, #4 dead ref, #5 live.js auth+SSE, #8 button handlers — wire or remove)
-- **Agent γ — React app** (P0 #1 mount point, #2 brand→Redline+logo, #12 tier param, #13 required indicators, #14 toast dismiss, #15 breadcrumb a11y)
+- **Agent γ — React app** (P0 #1 mount point, #2 brand→Unsyphn+logo, #12 tier param, #13 required indicators, #14 toast dismiss, #15 breadcrumb a11y)
 
 Logo distribution (Phase 3) runs FIRST so Agent α/β/γ can reference `/logo.png` and the sized favicons.

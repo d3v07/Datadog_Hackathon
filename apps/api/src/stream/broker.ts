@@ -1,4 +1,4 @@
-import type { OrgId, StoredStreamEvent, StreamEventDataMap, StreamEventName } from "@redline/shared";
+import type { OrgId, StoredStreamEvent, StreamEventDataMap, StreamEventName } from "@unsyphn/shared";
 import { validateStreamEvent, compareEventIds } from "./events.js";
 
 export interface EventBrokerOptions {

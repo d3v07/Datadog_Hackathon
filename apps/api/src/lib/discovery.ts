@@ -1,4 +1,4 @@
-import type { VendorUrls } from "@redline/shared";
+import type { VendorUrls } from "@unsyphn/shared";
 
 // Discover the six monitored URLs from a homepage. For each URL kind we probe
 // a short list of common paths under the homepage origin via HEAD; the first

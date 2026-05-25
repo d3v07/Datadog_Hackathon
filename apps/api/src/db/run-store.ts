@@ -1,4 +1,4 @@
-import type { AgentRun, RunStatus, RunStage } from "@redline/shared";
+import type { AgentRun, RunStatus, RunStage } from "@unsyphn/shared";
 import { clickhouse } from "./client.js";
 
 // AgentRun persistence. ClickHouse-backed in prod (per handoff/Data Model §04);

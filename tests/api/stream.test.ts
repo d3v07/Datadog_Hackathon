@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createApp } from "../../apps/api/src/app";
 import { EventBroker, createEventBroker } from "../../apps/api/src/stream/broker";
-import type { OrgId, StoredStreamEvent, StreamEventName, UserId } from "@redline/shared";
+import type { OrgId, StoredStreamEvent, StreamEventName, UserId } from "@unsyphn/shared";
 
 const TOKEN = "demo_token_acme_corp_2026";
 const OTHER_TOKEN = "demo_token_other_org";

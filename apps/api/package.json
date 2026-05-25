@@ -1,5 +1,5 @@
 {
-  "name": "@redline/api",
+  "name": "@unsyphn/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
   "dependencies": {
     "@clickhouse/client": "^1.8.0",
     "@hono/node-server": "^1.19.6",
-    "@redline/shared": "workspace:*",
+    "@unsyphn/shared": "workspace:*",
     "hono": "^4.10.7",
     "pino": "^10.3.1",
     "stripe": "^17.4.0",

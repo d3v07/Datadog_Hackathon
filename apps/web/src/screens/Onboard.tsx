@@ -6,7 +6,7 @@ import {
   type VendorCreateInput,
   type VendorCreateResponse,
   type DataClass,
-} from "@redline/shared";
+} from "@unsyphn/shared";
 import { ApiError, createVendor } from "../lib/api.js";
 import { useFirstScan } from "../lib/stream.js";
 
@@ -94,7 +94,7 @@ export function Onboard({ prefillTier }: OnboardProps = {}): JSX.Element {
     <form className="card" onSubmit={handleSubmit(onSubmit)} noValidate>
       <h1 className="card__title">Add a vendor</h1>
       <p className="card__sub">
-        Redline will discover the monitored URLs and queue an immediate first scan.
+        Unsyphn will discover the monitored URLs and queue an immediate first scan.
       </p>
 
       {submission.status === "error" && submission.error && (

@@ -7,7 +7,7 @@ import {
   type ActionStatus,
   type ChangeReportId,
   type OrgId,
-} from "@redline/shared";
+} from "@unsyphn/shared";
 import { clickhouse } from "./client.js";
 
 export interface ActionRepositoryOptions {

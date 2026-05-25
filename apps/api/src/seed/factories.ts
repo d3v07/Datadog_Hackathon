@@ -1,4 +1,4 @@
-import type { ChangeReport, ChangeReportId, ChangeState, OrgId, RunId, Severity, UserId, VendorId } from "@redline/shared";
+import type { ChangeReport, ChangeReportId, ChangeState, OrgId, RunId, Severity, UserId, VendorId } from "@unsyphn/shared";
 import type { SeedToken } from "../auth.js";
 
 export interface SeedOrg {

@@ -1,4 +1,4 @@
-import type { Org } from "@redline/shared";
+import type { Org } from "@unsyphn/shared";
 import { bus } from "./bus.js";
 import { getOrg } from "../seed/loader.js";
 

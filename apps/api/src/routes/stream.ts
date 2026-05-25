@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { StoredStreamEvent } from "@redline/shared";
+import type { StoredStreamEvent } from "@unsyphn/shared";
 import type { EventBroker } from "../stream/broker.js";
 import { formatHeartbeat, formatSseEvent } from "../stream/events.js";
 

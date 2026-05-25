@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 
-export type Role = "procurement" | "legal" | "security" | "finance";
+export type Role = "procurement" | "legal" | "security" | "finance" | "it" | "audit";
 
 export function parseRole(search: string): Role {
   const r = new URLSearchParams(search).get("role");
-  if (r === "legal" || r === "security" || r === "finance") return r;
+  if (r === "legal" || r === "security" || r === "finance" || r === "it" || r === "audit") return r;
   return "procurement";
 }
 
@@ -29,6 +29,10 @@ export const ROLE_LABELS: Record<Role, string> = {
   legal: "Legal",
   security: "Security",
   finance: "Finance",
+  it: "IT",
+  audit: "Audit",
 };
 
 export const ALL_ROLES: Role[] = ["procurement", "legal", "security", "finance"];
+
+export const ROLES: Role[] = ["procurement", "legal", "security", "finance", "it", "audit"];

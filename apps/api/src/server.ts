@@ -5,7 +5,7 @@ import { InMemoryChangeReportRepository } from "./db/changeReports.js";
 import { logger } from "./logger.js";
 import { createSeedChangeReport } from "./seed/factories.js";
 import { getSeededChangeReports } from "./seed/loader.js";
-import type { ChangeReport, User, Vendor } from "@redline/shared";
+import type { ChangeReport, User, Vendor } from "@unsyphn/shared";
 
 const port = Number(process.env.PORT ?? 3005);
 export const DEV_SEED_CHANGE_ID = "chg_seed_notion_yesterday";
@@ -73,7 +73,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       port,
     },
     (info) => {
-      logger.info({ port: info.port, seeded, ...(seeded ? { seedChangeId: DEV_SEED_CHANGE_ID } : {}) }, "Redline API listening");
+      logger.info({ port: info.port, seeded, ...(seeded ? { seedChangeId: DEV_SEED_CHANGE_ID } : {}) }, "Unsyphn API listening");
     },
   );
 }

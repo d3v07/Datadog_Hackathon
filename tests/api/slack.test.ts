@@ -8,17 +8,17 @@ describe("Slack provider", () => {
       changeReport: createChangeReport(),
       vendor: createVendor(),
       target: "@U010PRIYA",
-      baseUrl: "https://redline.example",
+      baseUrl: "https://unsyphn.example",
     });
     const rendered = JSON.stringify(payload);
 
-    expect(payload.changeReportUrl).toBe("https://redline.example/changes/chg_notion_001");
+    expect(payload.changeReportUrl).toBe("https://unsyphn.example/changes/chg_notion_001");
     expect(payload.evidenceUrl).toBe("https://senso.example/evidence/chg_notion_001");
-    expect(rendered).toContain("P1 · Notion · Redline alert");
+    expect(rendered).toContain("P1 · Notion · Unsyphn alert");
     expect(rendered).toContain("Data retention for PII vendors");
     expect(rendered).toContain("$28,400/yr");
     expect(rendered).toContain("Nimble capture");
-    expect(rendered).toContain("Open in Redline");
+    expect(rendered).toContain("Open in Unsyphn");
     expect(rendered).toContain("View evidence");
     expect(rendered).toContain("<@U010PRIYA>");
   });
@@ -35,8 +35,8 @@ describe("Slack provider", () => {
     const payload = renderSlackAlert({
       changeReport: createChangeReport(),
       vendor: createVendor(),
-      target: "#redline-demo",
-      baseUrl: "https://redline.example",
+      target: "#unsyphn-demo",
+      baseUrl: "https://unsyphn.example",
     });
 
     await expect(
@@ -51,7 +51,7 @@ describe("Slack provider", () => {
     expect(calls[0]?.url).toBe("https://hooks.slack.com/services/T000/B000/demo");
     expect(calls[0]?.init.method).toBe("POST");
     expect(JSON.parse(String(calls[0]?.init.body))).toMatchObject({
-      text: expect.stringContaining("Redline alert"),
+      text: expect.stringContaining("Unsyphn alert"),
       blocks: expect.any(Array),
     });
   });
@@ -61,8 +61,8 @@ describe("Slack provider", () => {
     const payload = renderSlackAlert({
       changeReport: createChangeReport(),
       vendor: createVendor(),
-      target: "#redline-demo",
-      baseUrl: "https://redline.example",
+      target: "#unsyphn-demo",
+      baseUrl: "https://unsyphn.example",
     });
 
     await expect(

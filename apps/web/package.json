@@ -1,5 +1,5 @@
 {
-  "name": "@redline/web",
+  "name": "@unsyphn/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,9 +11,10 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
-    "@redline/shared": "workspace:*",
     "@stripe/react-stripe-js": "^3.0.0",
     "@stripe/stripe-js": "^4.10.0",
+    "@unsyphn/shared": "workspace:*",
+    "lucide-react": "^1.16.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-hook-form": "^7.53.0",

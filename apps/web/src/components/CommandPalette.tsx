@@ -406,8 +406,8 @@ export function CommandPalette(): JSX.Element {
 
   useEffect(() => {
     const onOpen = (): void => openPalette();
-    window.addEventListener("redline:openPalette", onOpen);
-    return () => window.removeEventListener("redline:openPalette", onOpen);
+    window.addEventListener("unsyphn:openPalette", onOpen);
+    return () => window.removeEventListener("unsyphn:openPalette", onOpen);
   }, [openPalette]);
 
   useEffect(() => {

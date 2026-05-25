@@ -1,4 +1,4 @@
-import type { RunStage } from "@redline/shared";
+import type { RunStage } from "@unsyphn/shared";
 import { bus } from "../lib/bus.js";
 import { runStore } from "../db/run-store.js";
 import { logger } from "../logger.js";

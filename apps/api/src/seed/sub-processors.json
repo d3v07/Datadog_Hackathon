@@ -1,0 +1,80 @@
+{
+  "vnd_notion": {
+    "vendorName": "Notion",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2023-01-15" },
+      { "name": "Cloudflare", "jurisdiction": "US", "purpose": "CDN + DDoS protection", "adequate": true, "addedAt": "2022-06-10" },
+      { "name": "Stripe", "jurisdiction": "US", "purpose": "Payment processing", "adequate": true, "addedAt": "2022-06-10" }
+    ],
+    "lastChangeAt": "2023-01-15T10:00:00Z"
+  },
+  "vnd_datadog": {
+    "vendorName": "Datadog",
+    "subProcessors": [
+      { "name": "Google Cloud Platform", "jurisdiction": "US", "purpose": "Infrastructure", "adequate": true, "addedAt": "2021-03-01" },
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure", "adequate": true, "addedAt": "2021-03-01" },
+      { "name": "Fastly", "jurisdiction": "US", "purpose": "CDN edge delivery", "adequate": true, "addedAt": "2022-08-15" },
+      { "name": "TCS India Pvt", "jurisdiction": "IN", "purpose": "Support operations", "adequate": false, "addedAt": "2026-05-18", "flagged": true, "flagReason": "Non-adequate jurisdiction added 6d ago; outside EU adequacy decision" }
+    ],
+    "lastChangeAt": "2026-05-18T10:00:00Z"
+  },
+  "vnd_salesforce": {
+    "vendorName": "Salesforce",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2019-06-01" },
+      { "name": "Google Cloud Platform", "jurisdiction": "US", "purpose": "Machine learning infrastructure", "adequate": true, "addedAt": "2021-01-15" },
+      { "name": "Akamai Technologies", "jurisdiction": "US", "purpose": "CDN + security", "adequate": true, "addedAt": "2020-03-10" },
+      { "name": "Alibaba Cloud", "jurisdiction": "CN", "purpose": "APAC regional hosting", "adequate": false, "addedAt": "2025-11-01", "flagged": true, "flagReason": "China lacks EU adequacy decision; data transfer requires SCCs" }
+    ],
+    "lastChangeAt": "2025-11-01T10:00:00Z"
+  },
+  "vnd_stripe": {
+    "vendorName": "Stripe",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2018-04-01" },
+      { "name": "Google Cloud Platform", "jurisdiction": "US", "purpose": "Data analytics", "adequate": true, "addedAt": "2020-09-01" },
+      { "name": "Twilio", "jurisdiction": "US", "purpose": "SMS + communication", "adequate": true, "addedAt": "2019-11-20" }
+    ],
+    "lastChangeAt": "2020-09-01T10:00:00Z"
+  },
+  "vnd_figma": {
+    "vendorName": "Figma",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2020-01-01" },
+      { "name": "Cloudflare", "jurisdiction": "US", "purpose": "CDN + edge security", "adequate": true, "addedAt": "2021-03-15" },
+      { "name": "Datadog", "jurisdiction": "US", "purpose": "Observability + monitoring", "adequate": true, "addedAt": "2022-05-10" },
+      { "name": "Sentry", "jurisdiction": "US", "purpose": "Error tracking", "adequate": true, "addedAt": "2020-06-01" }
+    ],
+    "lastChangeAt": "2022-05-10T10:00:00Z"
+  },
+  "vnd_slack": {
+    "vendorName": "Slack",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2015-01-01" },
+      { "name": "Cloudflare", "jurisdiction": "US", "purpose": "CDN + DDoS protection", "adequate": true, "addedAt": "2018-07-01" },
+      { "name": "Salesforce", "jurisdiction": "US", "purpose": "CRM integration platform", "adequate": true, "addedAt": "2021-07-22" },
+      { "name": "Algolia", "jurisdiction": "US", "purpose": "Full-text search", "adequate": true, "addedAt": "2019-04-01" },
+      { "name": "Wipro Brazil Ltda", "jurisdiction": "BR", "purpose": "LATAM support operations", "adequate": false, "addedAt": "2026-03-10", "flagged": true, "flagReason": "Brazil lacks EU adequacy decision; requires SCCs for EU data transfers" }
+    ],
+    "lastChangeAt": "2026-03-10T10:00:00Z"
+  },
+  "vnd_github": {
+    "vendorName": "GitHub",
+    "subProcessors": [
+      { "name": "Microsoft Azure", "jurisdiction": "US", "purpose": "Primary infrastructure", "adequate": true, "addedAt": "2018-10-26" },
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "CI/CD compute", "adequate": true, "addedAt": "2019-04-01" },
+      { "name": "Cloudflare", "jurisdiction": "US", "purpose": "CDN + DDoS protection", "adequate": true, "addedAt": "2020-01-15" }
+    ],
+    "lastChangeAt": "2020-01-15T10:00:00Z"
+  },
+  "vnd_okta": {
+    "vendorName": "Okta",
+    "subProcessors": [
+      { "name": "Amazon Web Services", "jurisdiction": "US", "purpose": "Infrastructure hosting", "adequate": true, "addedAt": "2018-01-01" },
+      { "name": "Google Cloud Platform", "jurisdiction": "US", "purpose": "Analytics infrastructure", "adequate": true, "addedAt": "2021-06-01" },
+      { "name": "Twilio", "jurisdiction": "US", "purpose": "MFA SMS delivery", "adequate": true, "addedAt": "2019-03-15" },
+      { "name": "Salesforce", "jurisdiction": "US", "purpose": "CRM + support platform", "adequate": true, "addedAt": "2020-08-01" }
+    ],
+    "lastChangeAt": "2021-06-01T10:00:00Z"
+  }
+}

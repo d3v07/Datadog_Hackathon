@@ -1,5 +1,5 @@
 {
-  "name": "redline-datadog-hackathon",
+  "name": "unsyphn-datadog-hackathon",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,15 +8,15 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "dev:api": "pnpm --filter @redline/api dev",
-    "dev:web": "pnpm --filter @redline/web dev",
+    "dev:api": "pnpm --filter @unsyphn/api dev",
+    "dev:web": "pnpm --filter @unsyphn/web dev",
     "dev:static": "npx --yes serve public -l 3000 --no-clipboard",
     "dev": "pnpm -r --parallel --stream dev",
-    "build": "pnpm --filter @redline/shared build && pnpm --filter @redline/api build && pnpm --filter @redline/web build",
-    "typecheck": "pnpm --filter @redline/shared typecheck && pnpm --filter @redline/api typecheck && pnpm --filter @redline/web typecheck",
+    "build": "pnpm --filter @unsyphn/shared build && pnpm --filter @unsyphn/api build && pnpm --filter @unsyphn/web build",
+    "typecheck": "pnpm --filter @unsyphn/shared typecheck && pnpm --filter @unsyphn/api typecheck && pnpm --filter @unsyphn/web typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:migrate": "pnpm --filter @redline/api db:migrate"
+    "db:migrate": "pnpm --filter @unsyphn/api db:migrate"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.5.0",

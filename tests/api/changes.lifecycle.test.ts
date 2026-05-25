@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ChangeReport } from "@redline/shared";
+import type { ChangeReport } from "@unsyphn/shared";
 import { InMemoryChangeReportRepository } from "../../apps/api/src/db/changeReports";
 import { createApp } from "../../apps/api/src/app";
 import { createSeedChangeReport, createSeedToken } from "../../apps/api/src/seed/factories";

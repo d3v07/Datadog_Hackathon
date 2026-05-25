@@ -1,4 +1,4 @@
-import type { Vendor } from "@redline/shared";
+import type { Vendor } from "@unsyphn/shared";
 
 // Vendors live in-memory per handoff/Data Model §05. Seeded at boot; the Add
 // Vendor flow appends to this cache at runtime.

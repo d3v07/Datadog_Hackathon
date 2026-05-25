@@ -14,8 +14,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@redline/shared": ["./packages/shared/src/index.ts"],
-      "@redline/shared/*": ["./packages/shared/src/*"]
+      "@unsyphn/shared": ["./packages/shared/src/index.ts"],
+      "@unsyphn/shared/*": ["./packages/shared/src/*"]
     },
     "types": ["node", "vitest/globals"]
   },

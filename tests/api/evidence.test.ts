@@ -88,7 +88,7 @@ describe("GET /evidence/:id/bundle.html", () => {
     expect(resp.status).toBe(200);
     expect(resp.headers.get("content-type")).toContain("text/html");
     const html = await resp.text();
-    expect(html).toContain("REDLINE EVIDENCE BUNDLE");
+    expect(html).toContain("UNSYPHN EVIDENCE BUNDLE");
     expect(html).toContain("Notion");
   });
 

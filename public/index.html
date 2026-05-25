@@ -7,12 +7,12 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="192x192" href="/logo-192.png">
-<meta property="og:title" content="Redline — Always-on agent for vendor risk">
+<meta property="og:title" content="Unsyphn — Always-on agent for vendor risk">
 <meta property="og:description" content="An autonomous agent that watches your vendors' terms, pricing, DPA, and security pages every 60 seconds. Routes material changes to Slack, Jira, Email, and Calendar.">
 <meta property="og:image" content="/logo-192.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<title>REDLINE — One vault for every subscription.</title>
+<title>UNSYPHN — One vault for every subscription.</title>
 <style>
 /* ─────────────────────────────────────────────
    HALO TOKENS
@@ -388,30 +388,35 @@ h1.title em{
   pointer-events:none;
   mix-blend-mode: screen;
 }
-.tile svg{
+.tile img{
   position:relative;z-index:1;
   width: 54%; height: 54%;
   display:block;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,.5));
-  opacity:.96;
-}
-.tile .letter{
-  position:relative;z-index:1;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 38%;
-  color: #fff;
-  letter-spacing: -0.02em;
-  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 1px 3px rgba(0,0,0,.5));
+  opacity:.90;
 }
 
-/* density modes */
-body[data-density="plain"]   .tile > svg,
-body[data-density="plain"]   .tile > .letter { display:none; }
-body[data-density="letters"] .tile svg { display:none; }
-body[data-density="letters"] .tile .letter { display:inline-block; }
-body[data-density="marks"]   .tile .letter { display:none; }
-body[data-density="marks"]   .tile svg { display:block; }
+/* mobile logo wall — shown only below 720px, cube hidden */
+.cube-mobile-grid{
+  display:none;
+}
+@media (max-width:720px){
+  .stage{ display:none !important; }
+  .cube-mobile-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:12px;
+    padding:20px;
+    max-width:340px;
+    margin:0 auto 32px;
+  }
+  .cube-mobile-grid img{
+    width:48px;height:48px;object-fit:contain;
+    filter: brightness(0) invert(1);
+    opacity:.85;
+  }
+}
 
 /* HUD floaters around the cube */
 .floater{
@@ -498,7 +503,7 @@ body[data-density="marks"]   .tile svg { display:block; }
 <div class="grain"></div>
 
 <nav class="nav">
-  <div class="brand"><img class="mark" src="/logo.png" alt="Redline" width="22" height="16"><span>REDLINE / Subscription OS</span></div>
+  <div class="brand"><img class="mark" src="/logo.png" alt="Unsyphn" width="22" height="16"><span>UNSYPHN / Subscription OS</span></div>
   <ul>
     <li><a href="#product">Product</a></li>
   </ul>
@@ -535,10 +540,10 @@ body[data-density="marks"]   .tile svg { display:block; }
 
   <div class="title-wrap">
     <h1 class="title">Every subscription,<br/><em>one</em> calm surface.</h1>
-    <p class="sub">REDLINE pulls every SaaS seat, invoice, and renewal your company runs into a single <em>liquid</em> vault — so finance, IT, and ops finally see the same picture.</p>
+    <p class="sub">UNSYPHN pulls every SaaS seat, invoice, and renewal your company runs into a single <em>liquid</em> vault — so finance, IT, and ops finally see the same picture.</p>
     <div class="cta-row">
       <button class="btn primary" onclick="location.href='/app/'">Start free trial</button>
-      <button class="btn" onclick="location.href='mailto:hello@redline.com?subject=Book%20a%20walkthrough'">Book a walkthrough <span class="kbd">⌘ K</span></button>
+      <button class="btn" onclick="location.href='mailto:hello@unsyphn.com?subject=Book%20a%20walkthrough'">Book a walkthrough <span class="kbd">⌘ K</span></button>
     </div>
     <div class="rainbow"><i></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
@@ -546,7 +551,7 @@ body[data-density="marks"]   .tile svg { display:block; }
 </section>
 
 <div class="meta">
-  <span>REDLINE / 026 · 2026</span>
+  <span>UNSYPHN / 026 · 2026</span>
   <span>SCROLL ↓ TO DISPERSE</span>
   <span>NEW JERSEY · NYC</span>
 </div>
@@ -554,7 +559,7 @@ body[data-density="marks"]   .tile svg { display:block; }
 <section class="spacer" id="product">
   <div class="panel">
     <h2>One vault. <em>Every</em> renewal.</h2>
-    <p>REDLINE watches the credit card, the SSO logs, and the inbox — then quietly assembles the picture nobody on your team has time to. Cancel duplicate seats with a swipe. Pause renewals with a keypress. Forecast next quarter in a glance.</p>
+    <p>UNSYPHN watches the credit card, the SSO logs, and the inbox — then quietly assembles the picture nobody on your team has time to. Cancel duplicate seats with a swipe. Pause renewals with a keypress. Forecast next quarter in a glance.</p>
     <div class="grid">
       <div><b>312</b>apps under management, on average</div>
       <div><b>$2.4M</b>median annual run-rate visible from day one</div>
@@ -564,32 +569,25 @@ body[data-density="marks"]   .tile svg { display:block; }
 </section>
 </main>
 
-<!-- ─────────────────────────────────────────────
-     TILES — original abstract app marks
-     ───────────────────────────────────────────── -->
-<template id="tiles">
-  <!-- Each svg.tile-svg is one abstract app tile.
-       Single uppercase letter + a unique geometric mark.
-       No real brand reproduction. -->
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="0"><circle cx="50" cy="50" r="22" fill="none" stroke="#fff" stroke-width="4"/><text x="50" y="58" text-anchor="middle" font-family="ui-monospace" font-weight="700" font-size="22" fill="#fff">A</text></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="1"><polygon points="50,18 82,72 18,72" fill="none" stroke="#fff" stroke-width="4"/><text x="50" y="62" text-anchor="middle" font-family="ui-monospace" font-weight="700" font-size="18" fill="#fff">B</text></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="2"><rect x="22" y="22" width="56" height="56" rx="10" fill="none" stroke="#fff" stroke-width="4"/><text x="50" y="58" text-anchor="middle" font-family="ui-monospace" font-weight="700" font-size="22" fill="#fff">C</text></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="3"><polygon points="50,16 84,50 50,84 16,50" fill="none" stroke="#fff" stroke-width="4"/><text x="50" y="58" text-anchor="middle" font-family="ui-monospace" font-weight="700" font-size="22" fill="#fff">D</text></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="4"><circle cx="50" cy="50" r="14" fill="#fff"/><circle cx="50" cy="50" r="30" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="5"><path d="M22 70 L40 40 L52 56 L78 26" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78" cy="26" r="5" fill="#fff"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="6"><rect x="24" y="48" width="9" height="28" fill="#fff"/><rect x="38" y="38" width="9" height="38" fill="#fff" opacity=".8"/><rect x="52" y="28" width="9" height="48" fill="#fff" opacity=".65"/><rect x="66" y="18" width="9" height="58" fill="#fff" opacity=".5"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="7"><polygon points="50,18 80,34 80,66 50,82 20,66 20,34" fill="none" stroke="#fff" stroke-width="4"/><text x="50" y="58" text-anchor="middle" font-family="ui-monospace" font-weight="700" font-size="20" fill="#fff">E</text></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="8"><path d="M30 30 Q50 10 70 30 T70 70 Q50 90 30 70 T30 30" fill="none" stroke="#fff" stroke-width="3.5"/><circle cx="50" cy="50" r="6" fill="#fff"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="9"><path d="M22 30 H78 M22 50 H78 M22 70 H78" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="34" cy="30" r="5" fill="#fff"/><circle cx="60" cy="50" r="5" fill="#fff"/><circle cx="46" cy="70" r="5" fill="#fff"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="10"><path d="M50 18 V82 M18 50 H82" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="50" r="11" fill="#07070D" stroke="#fff" stroke-width="4"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="11"><path d="M22 22 L50 50 L22 78 M50 22 L78 50 L50 78" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="12"><circle cx="36" cy="50" r="18" fill="none" stroke="#fff" stroke-width="4"/><circle cx="64" cy="50" r="18" fill="none" stroke="#fff" stroke-width="4"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="13"><path d="M20 70 Q35 30 50 50 T80 30" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="14"><polygon points="30,22 70,22 78,50 70,78 30,78 22,50" fill="none" stroke="#fff" stroke-width="4"/><circle cx="50" cy="50" r="6" fill="#fff"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="15"><path d="M30 22 V62 a20 20 0 0 0 40 0 V22" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M30 22 H70" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="16"><path d="M22 50 L40 32 L40 42 L78 42 L78 58 L40 58 L40 68 Z" fill="#fff"/></svg>
-  <svg viewBox="0 0 100 100" class="tile-svg" data-i="17"><circle cx="50" cy="50" r="28" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="6 6"/><circle cx="50" cy="50" r="10" fill="#fff"/></svg>
-</template>
+<!-- mobile logo fallback: shown only at max-width 720px via CSS -->
+<div class="cube-mobile-grid" aria-hidden="true">
+  <img src="https://cdn.simpleicons.org/notion/ffffff" alt="Notion" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/slack/ffffff" alt="Slack" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/figma/ffffff" alt="Figma" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/github/ffffff" alt="GitHub" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/salesforce/ffffff" alt="Salesforce" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/stripe/ffffff" alt="Stripe" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/zoom/ffffff" alt="Zoom" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/datadog/ffffff" alt="Datadog" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/googlecloud/ffffff" alt="Google Cloud" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/amazonwebservices/ffffff" alt="AWS" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/microsoftazure/ffffff" alt="Azure" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/hubspot/ffffff" alt="HubSpot" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/jira/ffffff" alt="Jira" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/snowflake/ffffff" alt="Snowflake" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/linear/ffffff" alt="Linear" width="48" height="48">
+  <img src="https://cdn.simpleicons.org/shopify/ffffff" alt="Shopify" width="48" height="48">
+</div>
 
 <!-- Speaker notes etc. omitted intentionally; this is a landing-page hero, not a deck. -->
 
@@ -599,19 +597,85 @@ body[data-density="marks"]   .tile svg { display:block; }
   const cube = document.getElementById('cube');
   const stage = document.getElementById('stage');
 
-  // ─── tile templates ────────────────────────────────────────────
-  const tplTiles = document.getElementById('tiles');
-  const tileNodes = Array.from(tplTiles.content.querySelectorAll('svg.tile-svg'));
-
-  function tileHTML(i, color){
-    const svg = tileNodes[i % tileNodes.length].cloneNode(true);
-    svg.setAttribute('aria-hidden','true');
-    return svg.outerHTML;
-  }
+  // ─── vendor logos per face (Simple Icons CDN) ─────────────────
+  const FACE_VENDORS = [
+    // f-front: productivity
+    [
+      {slug:'notion',      name:'Notion'},
+      {slug:'slack',       name:'Slack'},
+      {slug:'figma',       name:'Figma'},
+      {slug:'asana',       name:'Asana'},
+      {slug:'linear',      name:'Linear'},
+      {slug:'trello',      name:'Trello'},
+      {slug:'miro',        name:'Miro'},
+      {slug:'todoist',     name:'Todoist'},
+      {slug:'evernote',    name:'Evernote'},
+    ],
+    // f-back: engineering
+    [
+      {slug:'github',      name:'GitHub'},
+      {slug:'gitlab',      name:'GitLab'},
+      {slug:'atlassian',   name:'Atlassian'},
+      {slug:'jira',        name:'Jira'},
+      {slug:'confluence',  name:'Confluence'},
+      {slug:'jenkins',     name:'Jenkins'},
+      {slug:'circleci',    name:'CircleCI'},
+      {slug:'sentry',      name:'Sentry'},
+      {slug:'datadog',     name:'Datadog'},
+    ],
+    // f-right: design
+    [
+      {slug:'figma',            name:'Figma'},
+      {slug:'adobe',            name:'Adobe'},
+      {slug:'adobecreativecloud',name:'Creative Cloud'},
+      {slug:'sketch',           name:'Sketch'},
+      {slug:'framer',           name:'Framer'},
+      {slug:'invision',         name:'InVision'},
+      {slug:'zeplin',           name:'Zeplin'},
+      {slug:'abstract',         name:'Abstract'},
+      {slug:'marvel',           name:'Marvel'},
+    ],
+    // f-left: communication
+    [
+      {slug:'zoom',            name:'Zoom'},
+      {slug:'slack',           name:'Slack'},
+      {slug:'microsoftteams',  name:'MS Teams'},
+      {slug:'googlemeet',      name:'Google Meet'},
+      {slug:'discord',         name:'Discord'},
+      {slug:'intercom',        name:'Intercom'},
+      {slug:'twilio',          name:'Twilio'},
+      {slug:'sendgrid',        name:'SendGrid'},
+      {slug:'mailchimp',       name:'Mailchimp'},
+    ],
+    // f-top: data & cloud
+    [
+      {slug:'amazonwebservices', name:'AWS'},
+      {slug:'googlecloud',       name:'Google Cloud'},
+      {slug:'microsoftazure',    name:'Azure'},
+      {slug:'snowflake',         name:'Snowflake'},
+      {slug:'databricks',        name:'Databricks'},
+      {slug:'mongodb',           name:'MongoDB'},
+      {slug:'redis',             name:'Redis'},
+      {slug:'postgresql',        name:'PostgreSQL'},
+      {slug:'elastic',           name:'Elastic'},
+    ],
+    // f-bottom: revenue & ops
+    [
+      {slug:'salesforce',  name:'Salesforce'},
+      {slug:'hubspot',     name:'HubSpot'},
+      {slug:'stripe',      name:'Stripe'},
+      {slug:'shopify',     name:'Shopify'},
+      {slug:'segment',     name:'Segment'},
+      {slug:'mixpanel',    name:'Mixpanel'},
+      {slug:'amplitude',   name:'Amplitude'},
+      {slug:'looker',      name:'Looker'},
+      {slug:'tableau',     name:'Tableau'},
+    ],
+  ];
 
   // ─── build single 6-face cube with 54 individually-positioned tiles
   // Faces: solid dark backdrops so the cube reads opaque even with tile gaps.
-  // Tiles: 54 glass panels, each positioned in 3D and reshapeable on scroll.
+  // Tiles: 54 glass panels, each with a real SaaS vendor logo.
   const FACES = [
     // [name, normal N, in-plane right R, in-plane up U, baseRx, baseRy]
     ['f-front',  [ 0, 0, 1], [ 1, 0, 0], [ 0,-1, 0],   0,   0],
@@ -621,7 +685,6 @@ body[data-density="marks"]   .tile svg { display:block; }
     ['f-top',    [ 0,-1, 0], [ 1, 0, 0], [ 0, 0,-1],  90,   0],
     ['f-bottom', [ 0, 1, 0], [ 1, 0, 0], [ 0, 0, 1], -90,   0],
   ];
-  const LETTERS = 'AZSNGFLVRMZGDHJAID'.split('');
 
   // helper: cube edge size in px (set on init + resize)
   function getS(){
@@ -629,32 +692,40 @@ body[data-density="marks"]   .tile svg { display:block; }
     return isFinite(v) && v > 0 ? v : 420;
   }
 
-  // create face backdrops, each carrying the REDLINE wordmark
+  // create face backdrops, each carrying the UNSYPHN wordmark
   FACES.forEach(([cls, N, R, U], fi)=>{
     const f = document.createElement('div');
     f.className = 'face ' + cls;
     f.style.setProperty('--glow', AURORA[fi % AURORA.length]);
     const wm = document.createElement('span');
     wm.className = 'wordmark';
-    wm.textContent = 'REDLINE';
+    wm.textContent = 'UNSYPHN';
     f.appendChild(wm);
     cube.appendChild(f);
   });
 
-  // create 54 tiles
+  // create 54 tiles — one vendor logo per tile, 9 per face
   const TILES = [];
-  let tileIdx = 0;
   FACES.forEach(([cls, N, R, U, baseRx, baseRy], fi)=>{
+    const vendors = FACE_VENDORS[fi];
+    let vendorIdx = 0;
     for(let row = 0; row < 3; row++){
       for(let col = 0; col < 3; col++){
         const el = document.createElement('div');
         el.className = 'tile ' + cls;
         const color = AURORA[(fi * 3 + (row + col)) % AURORA.length];
         el.style.setProperty('--glow', color);
-        el.innerHTML =
-          tileHTML(tileIdx) +
-          '<span class="letter">' + LETTERS[tileIdx % LETTERS.length] + '</span>';
+        const v = vendors[vendorIdx % vendors.length];
+        const img = document.createElement('img');
+        img.src = 'https://cdn.simpleicons.org/' + v.slug + '/ffffff';
+        img.alt = v.name;
+        img.width = 40;
+        img.height = 40;
+        img.setAttribute('aria-hidden', 'true');
+        img.setAttribute('loading', 'lazy');
+        el.appendChild(img);
         cube.appendChild(el);
+        vendorIdx++;
 
         // base local 2D offset on the face
         const lx = (col - 1);  // -1, 0, +1  (multiplied by step in updateTilePositions)
@@ -672,8 +743,6 @@ body[data-density="marks"]   .tile svg { display:block; }
           baseRx, baseRy,
           sxA, syA, szA, spinMax, stagger,
         });
-
-        tileIdx++;
       }
     }
   });
@@ -825,8 +894,8 @@ body[data-density="marks"]   .tile svg { display:block; }
     <div class="footer-top">
       <div>
         <div class="footer-brand">
-          <img src="/logo.png" alt="Redline" width="22" height="16">
-          <span>REDLINE</span>
+          <img src="/logo.png" alt="Unsyphn" width="22" height="16">
+          <span>UNSYPHN</span>
         </div>
         <p class="footer-tagline">One vault for every subscription. Built for the modern ops team.</p>
       </div>
@@ -841,9 +910,9 @@ body[data-density="marks"]   .tile svg { display:block; }
       <div>
         <h5>Company</h5>
         <nav aria-label="Company links">
-          <a href="mailto:hello@redline.com">Contact</a>
-          <a href="mailto:privacy@redline.com">Privacy</a>
-          <a href="mailto:legal@redline.com">Terms</a>
+          <a href="mailto:hello@unsyphn.com">Contact</a>
+          <a href="mailto:privacy@unsyphn.com">Privacy</a>
+          <a href="mailto:legal@unsyphn.com">Terms</a>
         </nav>
       </div>
       <div>
@@ -851,12 +920,12 @@ body[data-density="marks"]   .tile svg { display:block; }
         <nav aria-label="Resource links">
           <a href="/app/">Demo</a>
           <a href="https://github.com/d3v07/Datadog_Hackathon" rel="noopener">Source</a>
-          <a href="mailto:hello@redline.com?subject=Documentation">Docs</a>
+          <a href="mailto:hello@unsyphn.com?subject=Documentation">Docs</a>
         </nav>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Redline · All rights reserved</span>
+      <span>© 2026 Unsyphn · All rights reserved</span>
       <span>Built for the Datadog hackathon</span>
     </div>
   </div>

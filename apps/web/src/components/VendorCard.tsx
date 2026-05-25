@@ -1,3 +1,5 @@
+import { VendorLogo } from "./VendorLogo.js";
+
 export type Posture = "fresh" | "expiring" | "stale" | "risk" | "watch" | "ok";
 
 export interface VendorCardData {
@@ -75,15 +77,18 @@ export function VendorCard({ vendor }: VendorCardProps): JSX.Element {
         gap: "var(--space-3)",
       }}
     >
-      {/* Top row: name + tier badge */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-2)" }}>
-        <h3
-          className="h3"
-          style={{ fontSize: "var(--text-base)", fontWeight: 500, color: "var(--text-strong)" }}
-        >
-          {vendor.name}
-        </h3>
-        <span className="badge badge-neutral">{tierLabel(vendor.tier)}</span>
+      {/* Top row: logo + name + tier badge */}
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+        <VendorLogo name={vendor.name} domain={vendor.domain} size={48} />
+        <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "space-between", gap: "var(--space-2)", minWidth: 0 }}>
+          <h3
+            className="h3"
+            style={{ fontSize: "var(--text-base)", fontWeight: 500, color: "var(--text-strong)", margin: 0 }}
+          >
+            {vendor.name}
+          </h3>
+          <span className="badge badge-neutral">{tierLabel(vendor.tier)}</span>
+        </div>
       </div>
 
       {/* Domain */}

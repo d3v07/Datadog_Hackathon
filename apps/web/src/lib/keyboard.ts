@@ -51,3 +51,21 @@ export function useGlobalShortcut(combo: string, handler: () => void): void {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 }
+
+export function useKeyOnce(key: string, handler: () => void): void {
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if (isTextTarget(e.target)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      if (e.key.toLowerCase() === key.toLowerCase()) {
+        e.preventDefault();
+        handlerRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [key]);
+}

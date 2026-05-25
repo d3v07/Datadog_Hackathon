@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import type { EvidenceBriefResponse, Resolution } from "@redline/shared";
+import { ArrowRight } from "lucide-react";
+import type { EvidenceBriefResponse, Resolution } from "@unsyphn/shared";
 import { getEvidence, DEMO_BEARER_TOKEN, ApiError } from "../lib/api.js";
 import { SeverityBadge } from "../components/SeverityBadge.js";
 import { Drawer } from "../components/Drawer.js";
@@ -424,7 +425,7 @@ export function ChangeReport({ changeId }: Props): JSX.Element {
 
       {bundleLink && (
         <p style={{ marginTop: "var(--space-4)", fontSize: "var(--text-sm)", color: "var(--text-2)" }}>
-          Bundle generated →{" "}
+          Bundle generated{" "}<ArrowRight size={14} aria-hidden="true" style={{ display: "inline-block", verticalAlign: "middle" }} />{" "}
           <a href={bundleLink} style={{ color: "var(--accent)" }}>
             /evidence/{changeId}
           </a>

@@ -26,7 +26,7 @@ async function main(): Promise<void> {
   }
   const app = buildApp({ seedChangeReports: getSeededChangeReports() });
   serve({ fetch: app.fetch, port: e.PORT }, (info) => {
-    logger.info({ port: info.port }, "Redline API listening");
+    logger.info({ port: info.port }, "Unsyphn API listening");
   });
 }
 

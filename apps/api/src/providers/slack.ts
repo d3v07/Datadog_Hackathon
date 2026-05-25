@@ -1,5 +1,5 @@
-import type { ChangeReport, SlackPayload, Vendor } from "@redline/shared";
-import { slackPayloadSchema } from "@redline/shared";
+import type { ChangeReport, SlackPayload, Vendor } from "@unsyphn/shared";
+import { slackPayloadSchema } from "@unsyphn/shared";
 
 export interface SlackRenderInput {
   changeReport: ChangeReport;
@@ -68,7 +68,7 @@ export function renderSlackAlert(input: SlackRenderInput): SlackPayload {
   const policyName = input.changeReport.policyFired?.name ?? input.changeReport.policyFiredId;
   const targetPrefix = input.target.startsWith("@") ? `<${input.target}> ` : "";
   const payload: SlackPayload = {
-    text: `${input.changeReport.severity} Redline alert for ${input.vendor.name}: ${headline}`,
+    text: `${input.changeReport.severity} Unsyphn alert for ${input.vendor.name}: ${headline}`,
     recipient: input.target,
     changeReportUrl,
     ...(evidenceUrl ? { evidenceUrl } : {}),
@@ -77,7 +77,7 @@ export function renderSlackAlert(input: SlackRenderInput): SlackPayload {
         type: "header",
         text: {
           type: "plain_text",
-          text: `${input.changeReport.severity} · ${input.vendor.name} · Redline alert`,
+          text: `${input.changeReport.severity} · ${input.vendor.name} · Unsyphn alert`,
           emoji: true,
         },
       },
@@ -111,7 +111,7 @@ export function renderSlackAlert(input: SlackRenderInput): SlackPayload {
         elements: [
           {
             type: "button",
-            text: { type: "plain_text", text: "Open in Redline" },
+            text: { type: "plain_text", text: "Open in Unsyphn" },
             url: changeReportUrl,
             style: "primary",
           },

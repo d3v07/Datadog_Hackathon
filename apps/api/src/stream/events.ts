@@ -6,7 +6,7 @@ import {
   type StoredStreamEvent,
   type StreamEventDataMap,
   type StreamEventName,
-} from "@redline/shared";
+} from "@unsyphn/shared";
 
 export type StreamSubscriber = (event: StoredStreamEvent) => void;
 

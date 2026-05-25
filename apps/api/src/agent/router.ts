@@ -9,7 +9,7 @@ import type {
   SlackPayload,
   User,
   Vendor,
-} from "@redline/shared";
+} from "@unsyphn/shared";
 import type { ActionRepository } from "../db/actions.js";
 import { publishActionDelivered, type EventPublisher } from "../stream/events.js";
 import { createSlackProvider, renderSlackAlert, type SlackProvider } from "../providers/slack.js";
@@ -171,13 +171,13 @@ function createJiraPayload(input: RouteChangeReportInput, projectKey: string): J
     summary: `${input.changeReport.severity}: ${input.vendor.name} - ${headline}`,
     description: createPlainTextBody(input),
     priority: input.changeReport.severity,
-    labels: ["redline", "vendor-risk", jiraLabel(input.vendor.name)],
+    labels: ["unsyphn", "vendor-risk", jiraLabel(input.vendor.name)],
     assigneeUserId: input.vendor.ownerId,
   };
 }
 
 function createEmailPayload(input: RouteChangeReportInput, to: string): EmailPayload {
-  const subject = `${input.changeReport.severity} Redline alert: ${input.vendor.name}`;
+  const subject = `${input.changeReport.severity} Unsyphn alert: ${input.vendor.name}`;
   const text = createPlainTextBody(input);
   const headline = input.changeReport.headline ?? input.changeReport.recommendation.copy;
 
@@ -195,7 +195,7 @@ function createCalendarPayload(input: RouteChangeReportInput, eventKind: string)
   const endsAt = addMinutes(startsAt, 30);
 
   return {
-    title: `Redline ${eventKind}: ${input.vendor.name}`,
+    title: `Unsyphn ${eventKind}: ${input.vendor.name}`,
     startsAt: startsAt.toISOString(),
     endsAt: endsAt.toISOString(),
     attendees: owner?.email ? [owner.email] : [],
@@ -247,7 +247,7 @@ function jiraLabel(value: string): string {
 }
 
 function resolveBaseUrl(input: RouteChangeReportInput): string {
-  return input.baseUrl ?? process.env.REDLINE_BASE_URL ?? "http://localhost:8787";
+  return input.baseUrl ?? process.env.UNSYPHN_BASE_URL ?? "http://localhost:8787";
 }
 
 function addMinutes(date: Date, minutes: number): Date {

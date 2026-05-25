@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ChangeReport, UserId } from "@redline/shared";
+import type { ChangeReport, UserId } from "@unsyphn/shared";
 import { routeChangeReport } from "../../apps/api/src/agent/router";
 import { createApp } from "../../apps/api/src/app";
 import { createActionRepository } from "../../apps/api/src/db/actions";
@@ -98,7 +98,7 @@ describe("integrated API event flow", () => {
       routes: ["jira:SEC"],
       actions,
       events,
-      baseUrl: "https://redline.example",
+      baseUrl: "https://unsyphn.example",
       now: () => new Date(NOW),
     });
 

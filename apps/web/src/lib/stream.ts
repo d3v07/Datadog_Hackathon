@@ -4,7 +4,7 @@ import type {
   RunCompletedEvent,
   SchedulerTickEvent,
   EntitlementsChangedEvent,
-} from "@redline/shared";
+} from "@unsyphn/shared";
 import { DEMO_BEARER_TOKEN } from "./api.js";
 
 // EventSource subscription scoped to a single first-scan runId. EventSource

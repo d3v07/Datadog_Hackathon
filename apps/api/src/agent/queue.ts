@@ -1,4 +1,4 @@
-import type { AgentRun } from "@redline/shared";
+import type { AgentRun } from "@unsyphn/shared";
 import { newId } from "../lib/ids.js";
 import { runStore } from "../db/run-store.js";
 import { runStub, type StubRunnerOptions } from "./stub-runner.js";

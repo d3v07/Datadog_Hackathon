@@ -1,9 +1,9 @@
-# Redline — Build Plan (saasb2b branch)
+# Unsyphn — Build Plan (saasb2b branch)
 
 A clean, minimal B2B SaaS app for **Vendor Change Intelligence (VCI)**.
 Style is a deliberate hybrid: **Slate** layout + **Seven** typography.
 
-> Source: `Redline-Enterprise-Vision.pdf` (the 10-flow product surface).
+> Source: `Unsyphn-Enterprise-Vision.pdf` (the 10-flow product surface).
 > Web research May 2026: B2B dashboards now favor *restraint over density*,
 > progressive disclosure, and role-aware views — Linear, Vercel, Notion lineage.
 
@@ -12,7 +12,7 @@ Style is a deliberate hybrid: **Slate** layout + **Seven** typography.
 ## 0. Constraints I'm honoring
 
 1. **Build on the existing monorepo** — `apps/web`, `apps/api`, `packages/shared`. Don't fork.
-2. **One brand**: "Redline" (drop the legacy "Redline" string everywhere).
+2. **One brand**: "Unsyphn" (drop the legacy "Unsyphn" string everywhere).
 3. **Hero flow first** — Portfolio → Change → Routing → Evidence → Transact → Bundle. Everything else is staged.
 4. **Real where it matters, faked where it doesn't** — one real change run, one real Senso URL, one real Stripe checkout. The rest is seeded.
 5. **No marketing chrome on the app surface** — landing page lives at `/`; product lives at `/app`.
@@ -103,7 +103,7 @@ body {
 
 | Token | Weight | Letter-spacing | Use |
 |---|---|---|---|
-| Hero (landing only) | **100** | -0.045em | "Redline." mark, 96–144px |
+| Hero (landing only) | **100** | -0.045em | "Unsyphn." mark, 96–144px |
 | h1 (in-app) | **200** | -0.035em | screen titles, 36–48px |
 | h2 | **300** | -0.020em | section labels, 20–26px |
 | h3 | **500** | normal | row group titles, 13–15px |
@@ -181,7 +181,7 @@ From PDF §12 "Demo dressing" + my taste pass:
 These are the *changes I'm making* on `saasb2b` — not a rewrite.
 
 ### 5.1 Brand & shell
-- [ ] Rip "Redline" everywhere → "Redline" (text + nav marks + favicon alt + page titles).
+- [ ] Rip "Unsyphn" everywhere → "Unsyphn" (text + nav marks + favicon alt + page titles).
 - [ ] Replace `unsyphlogo.png` references with a new `/logo.png` (mark + wordmark). Keep all favicon sizes.
 - [ ] Rewrite `apps/web/src/styles.css` against the new tokens in §1.1.
 - [ ] One global font load (`Helvetica Neue` system → `Inter` web fallback) — delete the existing Inter `<link>` if Helvetica Neue is local.
@@ -250,7 +250,7 @@ Each screen passes when:
 - `pnpm dev` → both servers up in one command (already wired).
 - A11y: keyboard reaches every interactive element; focus rings visible; landmarks present; contrast ≥ 4.5:1 on the dark theme (periwinkle on `#0A0B0F` = 8.1:1, text on bg = 14.2:1 — both pass AA).
 - No `console.log` in shipped code (Stop hook enforces).
-- No "Redline" / "Redline" string mixing — `grep -rin "redline" apps/` returns zero.
+- No "Unsyphn" / "Unsyphn" string mixing — `grep -rin "unsyphn" apps/` returns zero.
 
 ---
 
@@ -283,7 +283,7 @@ Each step ends with a working demo of *that slice*. No "scaffold everything, wir
 
 ## 10. References
 
-- `Redline-Enterprise-Vision.pdf` — source of truth for what the product *is*.
+- `Unsyphn-Enterprise-Vision.pdf` — source of truth for what the product *is*.
 - `the-kit/seven.html` — Helvetica Neue type discipline + iOS 7 candy palette semantics.
 - `the-kit/slate.html` — dark surfaces, periwinkle accent, command palette, density.
 - `PAGE_AUDIT.md` — what's broken on `main` today.

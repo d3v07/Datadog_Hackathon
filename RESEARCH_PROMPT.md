@@ -14,7 +14,7 @@
 - **CFO / VP Finance** — wants the total SaaS spend number to go down, predictable renewals, no surprise mid-year price hikes.
 - **Head of Procurement** — wants leverage at renewal, benchmark pricing, automated negotiation packets.
 - **CISO / GRC Lead** — wants continuous SOC 2 / sub-processor watch, evidence bundles for audits, no manual sub-processor diff tracking.
-- **General Counsel / Legal Ops** — wants ToS/DPA change alerts with diff, liability creep monitoring, redline-ready clauses.
+- **General Counsel / Legal Ops** — wants ToS/DPA change alerts with diff, liability creep monitoring, unsyphn-ready clauses.
 - **IT Admin / Vendor Owner** — wants one Slack DM when anything material changes, automatic ticket creation, less context-switching.
 - **Internal Audit** — wants chronology + citations + immutable evidence on demand.
 
@@ -28,7 +28,7 @@ Existing app on the saasb2b branch:
 - ⌘K command palette with role switcher (Procurement / Legal / Security / Finance).
 - Dark mode with periwinkle accent ("Slate") + Helvetica Neue ("Seven") — but I want to **switch to a clean LIGHT mode** with a more intuitive layout.
 - Landing page has a 3D Halo cube animation but **cube faces are random colors, not vendor logos** — I want them to show real SaaS vendor logos (Notion, Microsoft 365, Salesforce, Figma, Slack, GitHub, Datadog, Stripe, etc.).
-- The brand should be **Unsyphn** (not Redline — currently mis-branded).
+- The brand should be **Unsyphn** (not Unsyphn — currently mis-branded).
 - The in-app experience **feels empty** — placeholder screens, no real workflows, no inbox/queue, no negotiation copilot UI, no spend visualizations, no vendor logos, no usage charts, no policy editor, no settings depth.
 
 ## 3. What I need from you (the research)

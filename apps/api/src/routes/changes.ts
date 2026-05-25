@@ -1,4 +1,7 @@
 import { Hono, type Context } from "hono";
+import { readFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   acknowledgeChangeRequestSchema,
   resolveChangeRequestSchema,
@@ -9,11 +12,13 @@ import {
   type ResolveChangeResponse,
   type SnoozeChangeResponse,
   type UserId,
-} from "@redline/shared";
+} from "@unsyphn/shared";
 import type { ZodType } from "zod";
 import type { ChangeReportRepository } from "../db/changeReports.js";
 import { errorResponse } from "../errors.js";
 import type { EventBroker } from "../stream/broker.js";
+
+const CHANGES_DIR = dirname(fileURLToPath(import.meta.url));
 
 export interface ChangesRouteDeps {
   reports: ChangeReportRepository;
@@ -139,6 +144,33 @@ async function runMutation<TPayload>(c: Context, deps: ChangesRouteDeps, options
 
 export function createChangesRouter(deps: ChangesRouteDeps): Hono {
   const router = new Hono();
+
+  // /feed must be registered before /:id so it isn't swallowed by the param route
+  router.get("/feed", (c) => {
+    const vendorId = c.req.query("vendorId");
+    const category = c.req.query("category");
+
+    const feedPath = resolve(CHANGES_DIR, "../seed/material-changes.json");
+    const all = JSON.parse(readFileSync(feedPath, "utf8")) as Array<Record<string, unknown>>;
+
+    let changes = all.slice();
+
+    if (vendorId) {
+      changes = changes.filter((ch) => ch["vendorId"] === vendorId);
+    }
+
+    if (category && category !== "all") {
+      changes = changes.filter((ch) => ch["category"] === category);
+    }
+
+    changes.sort((a, b) => {
+      const aDate = String(a["occurredAt"] ?? "");
+      const bDate = String(b["occurredAt"] ?? "");
+      return bDate.localeCompare(aDate);
+    });
+
+    return c.json({ changes });
+  });
 
   router.get("/:id", async (c) => {
     const auth = c.get("auth");

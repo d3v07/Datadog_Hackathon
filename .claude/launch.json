@@ -4,7 +4,7 @@
     {
       "name": "production",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@redline/api", "dev"],
+      "runtimeArgs": ["--filter", "@unsyphn/api", "dev"],
       "port": 3005,
       "env": { "PORT": "3005" },
       "autoPort": false
@@ -12,7 +12,7 @@
     {
       "name": "web",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@redline/web", "dev"],
+      "runtimeArgs": ["--filter", "@unsyphn/web", "dev"],
       "port": 4321,
       "autoPort": false
     }

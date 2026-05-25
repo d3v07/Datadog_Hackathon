@@ -1,4 +1,4 @@
-import type { Severity } from "@redline/shared";
+import type { Severity } from "@unsyphn/shared";
 
 interface Props {
   severity: Severity;

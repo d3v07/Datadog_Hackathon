@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { SensoBrief } from "../../apps/web/src/screens/SensoBrief.js";
-import type { EvidenceBriefResponse } from "@redline/shared";
+import type { EvidenceBriefResponse } from "@unsyphn/shared";
 
 function mockFetch(handler: (path: string) => Response) {
   globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {

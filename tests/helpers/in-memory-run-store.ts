@@ -1,4 +1,4 @@
-import type { AgentRun } from "@redline/shared";
+import type { AgentRun } from "@unsyphn/shared";
 import type { RunStore, RunUpdate } from "../../apps/api/src/db/run-store.js";
 
 // In-memory RunStore for tests. Shaped identically to ClickHouseRunStore so

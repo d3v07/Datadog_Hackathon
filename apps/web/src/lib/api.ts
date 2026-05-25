@@ -3,7 +3,7 @@ import type {
   EvidenceBriefResponse,
   VendorCreateBody,
   VendorCreateResponse,
-} from "@redline/shared";
+} from "@unsyphn/shared";
 
 // Hardcoded for the hackathon — one seeded org, one bearer token. Production
 // would source this from a session cookie or login flow.
