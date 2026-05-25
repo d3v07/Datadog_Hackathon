@@ -1,31 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { loadStripe, type Stripe, type StripeElementsOptions } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 import {
-  Elements,
-  PaymentElement,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
-import {
-  ApiError,
   createPaymentIntent,
   getBillingProducts,
   simulateSuccess,
-  validateCoupon,
   type AppliedCoupon,
   type BillingProduct,
   type PaymentIntentRequest,
   type PaymentIntentResponse,
 } from "../lib/api.js";
 import { useEntitlements } from "../lib/stream.js";
+import { CouponField } from "./pricing/CouponField.js";
+import { PaymentForm } from "./pricing/PaymentForm.js";
+import { SimulateHint } from "./pricing/SimulateButton.js";
 
-// Issue #3 + Phase 8 · Stripe modal. Supports both the legacy one-time
-// Compliance Pack flow (entitlement-bearing, success via SSE) and the new
-// tier subscription flow (success goes straight to /app/settings?tab=billing).
 // States: idle → loading → ready (Elements mounted) → processing → success
 // (driven either by SSE or by stripe.confirmPayment OK) → failure (with retry).
-// Hidden Shift+Enter handler runs the Runbook F5 fallback in dev.
 
 type ModalStatus =
   | "loading-product"
@@ -56,6 +48,10 @@ interface StripeModalProps {
   /** When provided, the modal skips loading the legacy Compliance Pack product
    *  and uses this tier directly. */
   tier?: StripeTier;
+}
+
+function dollars(cents: number): string {
+  return "$" + (cents / 100).toLocaleString("en-US");
 }
 
 const S = {
@@ -150,51 +146,6 @@ const S = {
     color: "var(--success)",
     fontWeight: 700,
   },
-  couponRow: {
-    display: "flex",
-    gap: "var(--space-2)",
-    marginBottom: "var(--space-4)",
-  },
-  couponLabel: {
-    display: "block" as const,
-    fontSize: "var(--text-xs)",
-    color: "var(--text-2)",
-    marginBottom: "var(--space-2)",
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.05em",
-  },
-  couponInput: {
-    flex: 1,
-    height: 36,
-    padding: "0 var(--space-3)",
-    background: "var(--surface-2)",
-    border: "1px solid var(--border)",
-    borderRadius: "var(--radius-md)",
-    color: "var(--text-strong)",
-    fontFamily: "var(--font-mono)",
-    fontSize: "var(--text-sm)",
-    textTransform: "uppercase" as const,
-  },
-  couponBtn: {
-    height: 36,
-    padding: "0 var(--space-4)",
-    background: "var(--surface-2)",
-    color: "var(--text-strong)",
-    border: "1px solid var(--border)",
-    borderRadius: "var(--radius-md)",
-    fontSize: "var(--text-sm)",
-    cursor: "pointer",
-  },
-  couponOk: {
-    fontSize: "var(--text-xs)",
-    color: "var(--success)",
-    marginTop: "var(--space-2)",
-  },
-  couponErr: {
-    fontSize: "var(--text-xs)",
-    color: "var(--danger)",
-    marginTop: "var(--space-2)",
-  },
   btnPrimary: {
     display: "inline-flex",
     alignItems: "center",
@@ -252,10 +203,6 @@ const S = {
   },
 } as const;
 
-function dollars(cents: number): string {
-  return "$" + (cents / 100).toLocaleString("en-US");
-}
-
 export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
   const isTierFlow = Boolean(tier);
   const [status, setStatus] = useState<ModalStatus>(
@@ -266,9 +213,7 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
   const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | undefined>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [alreadyEntitled, setAlreadyEntitled] = useState(false);
-  const [coupon, setCoupon] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | undefined>();
-  const [couponError, setCouponError] = useState<string | undefined>();
   const [showToast, setShowToast] = useState(false);
 
   // Only the legacy Compliance Pack flow waits for the SSE flip.
@@ -309,9 +254,7 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
         setStatus("failure");
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [isTierFlow]);
 
   const displayName = tier?.name ?? product?.name ?? "Compliance Pack";
@@ -323,23 +266,6 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
     : displayCents;
   const addOnCents = tier?.addOnCents ?? 0;
   const totalCents = discountedCents + addOnCents;
-
-  async function applyCouponClick(): Promise<void> {
-    setCouponError(undefined);
-    setAppliedCoupon(undefined);
-    const code = coupon.trim();
-    if (!code) return;
-    try {
-      const result = await validateCoupon(code);
-      setAppliedCoupon(result);
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 404) {
-        setCouponError("Invalid coupon");
-        return;
-      }
-      setCouponError(err instanceof Error ? err.message : "Failed to validate");
-    }
-  }
 
   const beginPayment = useCallback(async () => {
     const sku = tier?.id ?? product?.id;
@@ -357,7 +283,7 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
       setStripePromise(loadStripe(created.publishableKey));
       setStatus("elements-ready");
     } catch (err) {
-      if (err instanceof ApiError && err.code === "conflict") {
+      if (err instanceof Error && (err as { code?: string }).code === "conflict") {
         setAlreadyEntitled(true);
         setStatus("success");
         return;
@@ -371,9 +297,7 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
     setStatus("success");
     setShowToast(true);
     // Brief delay so the toast is visible before redirect.
-    window.setTimeout(() => {
-      window.location.href = "/app/settings?tab=billing";
-    }, 1200);
+    window.setTimeout(() => { window.location.href = "/app/settings?tab=billing"; }, 1200);
   }, []);
 
   const runFallback = useCallback(async () => {
@@ -381,9 +305,7 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
     setErrorMessage(undefined);
     try {
       await simulateSuccess();
-      if (isTierFlow) {
-        finishTierSuccess();
-      }
+      if (isTierFlow) finishTierSuccess();
       // For the legacy Compliance Pack flow, the SSE handler flips to success.
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "fallback failed");
@@ -393,38 +315,23 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.shiftKey && e.key === "Enter") {
-        e.preventDefault();
-        void runFallback();
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-      }
+      if (e.shiftKey && e.key === "Enter") { e.preventDefault(); void runFallback(); }
+      else if (e.key === "Escape") { e.preventDefault(); onClose(); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [runFallback, onClose]);
 
   const onBackdropClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (e.target === e.currentTarget) onClose();
-    },
+    (e: React.MouseEvent<HTMLDivElement>) => { if (e.target === e.currentTarget) onClose(); },
     [onClose],
   );
 
   return (
-    <div
-      style={S.backdrop}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="stripe-modal-title"
-      onClick={onBackdropClick}
-    >
+    <div style={S.backdrop} role="dialog" aria-modal="true" aria-labelledby="stripe-modal-title" onClick={onBackdropClick}>
       <div style={S.modal}>
         <header style={S.header}>
-          <h2 id="stripe-modal-title" style={S.title}>
-            {displayName}
-          </h2>
+          <h2 id="stripe-modal-title" style={S.title}>{displayName}</h2>
           <button style={S.closeBtn} type="button" onClick={onClose} aria-label="Close">
             <X size={18} aria-hidden="true" />
           </button>
@@ -468,38 +375,10 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
               ))}
             </ul>
 
-            <div>
-              <label style={S.couponLabel} htmlFor="coupon-input">Coupon code</label>
-              <div style={S.couponRow}>
-                <input
-                  id="coupon-input"
-                  type="text"
-                  value={coupon}
-                  onChange={(e) => setCoupon(e.target.value)}
-                  placeholder="HACKATHON25"
-                  style={S.couponInput}
-                  aria-describedby="coupon-feedback"
-                />
-                <button
-                  type="button"
-                  onClick={() => void applyCouponClick()}
-                  style={S.couponBtn}
-                  data-testid="apply-coupon"
-                >
-                  Apply
-                </button>
-              </div>
-              {appliedCoupon && (
-                <p id="coupon-feedback" style={S.couponOk} role="status">
-                  {appliedCoupon.code} applied — {appliedCoupon.label}
-                </p>
-              )}
-              {couponError && (
-                <p id="coupon-feedback" style={S.couponErr} role="alert">
-                  {couponError}
-                </p>
-              )}
-            </div>
+            <CouponField
+              appliedCoupon={appliedCoupon}
+              onApply={setAppliedCoupon}
+            />
 
             <button
               style={{ ...S.btnPrimary, marginTop: "var(--space-4)" }}
@@ -524,10 +403,7 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
             <PaymentForm
               intent={intent}
               onProcessing={() => setStatus("processing")}
-              onError={(msg) => {
-                setErrorMessage(msg);
-                setStatus("failure");
-              }}
+              onError={(msg) => { setErrorMessage(msg); setStatus("failure"); }}
               onTierSuccess={isTierFlow ? finishTierSuccess : undefined}
               disabled={status === "processing"}
             />
@@ -537,14 +413,9 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
         {status === "success" && !alreadyEntitled && (
           <div style={S.alertOk} role="status">
             {isTierFlow ? (
-              <>
-                <strong>Subscription active.</strong> Entitlements updated — redirecting…
-              </>
+              <><strong>Subscription active.</strong> Entitlements updated — redirecting…</>
             ) : (
-              <>
-                <strong>Compliance Pack unlocked.</strong> Evidence bundles, auditor
-                portal, and Vanta/Drata push are now available.
-              </>
+              <><strong>Compliance Pack unlocked.</strong> Evidence bundles, auditor portal, and Vanta/Drata push are now available.</>
             )}
           </div>
         )}
@@ -554,20 +425,13 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
             <div style={S.alertErr} role="alert">
               {errorMessage ?? "Payment failed"}
             </div>
-            <button
-              style={S.btnPrimary}
-              type="button"
-              onClick={() => void beginPayment()}
-              data-testid="retry"
-            >
+            <button style={S.btnPrimary} type="button" onClick={() => void beginPayment()} data-testid="retry">
               Retry
             </button>
           </>
         )}
 
-        <p style={S.muted}>
-          On-stage fallback: press <kbd>Shift</kbd> + <kbd>Enter</kbd> to simulate success.
-        </p>
+        <SimulateHint />
       </div>
       {showToast && (
         <div style={S.toast} role="status" aria-live="polite">
@@ -575,74 +439,5 @@ export function StripeModal({ onClose, tier }: StripeModalProps): JSX.Element {
         </div>
       )}
     </div>
-  );
-}
-
-interface PaymentFormProps {
-  intent: PaymentIntentResponse;
-  onProcessing: () => void;
-  onError: (message: string) => void;
-  onTierSuccess?: () => void;
-  disabled: boolean;
-}
-
-function PaymentForm({ intent, onProcessing, onError, onTierSuccess, disabled }: PaymentFormProps): JSX.Element {
-  const stripe = useStripe();
-  const elements = useElements();
-  const submitting = useRef(false);
-
-  async function submit(): Promise<void> {
-    if (!stripe || !elements || submitting.current) return;
-    submitting.current = true;
-    onProcessing();
-    const { error } = await stripe.confirmPayment({
-      elements,
-      clientSecret: intent.clientSecret,
-      confirmParams: { return_url: window.location.href },
-      redirect: "if_required",
-    });
-    submitting.current = false;
-    if (error) {
-      onError(error.message ?? "Payment failed");
-      return;
-    }
-    // Tier subscriptions don't fire an SSE entitlement flip — resolve here.
-    onTierSuccess?.();
-  }
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        void submit();
-      }}
-    >
-      <PaymentElement />
-      <button
-        type="submit"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          height: 40,
-          padding: "0 var(--space-4)",
-          background: "var(--accent)",
-          color: "var(--bg)",
-          border: "1px solid var(--accent)",
-          borderRadius: "var(--radius-md)",
-          fontFamily: "var(--font-text)",
-          fontSize: "var(--text-sm)",
-          fontWeight: 400,
-          cursor: !stripe || disabled ? "not-allowed" : "pointer",
-          opacity: !stripe || disabled ? 0.45 : 1,
-          marginTop: 16,
-        }}
-        disabled={!stripe || disabled}
-        data-testid="confirm-payment"
-      >
-        {disabled ? "Processing…" : `Pay ${dollars(intent.amountUsdCents)}`}
-      </button>
-    </form>
   );
 }

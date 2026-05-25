@@ -4,6 +4,7 @@ import type {
   RunCompletedEvent,
   SchedulerTickEvent,
   EntitlementsChangedEvent,
+  ChangeEscalatedEvent,
 } from "@unsyphn/shared";
 import { DEMO_BEARER_TOKEN } from "./api.js";
 
@@ -152,4 +153,41 @@ export function useEntitlements(
   }, [options.active]);
 
   return latest;
+}
+
+// Subscribe to escalation events so other users' escalations surface in real
+// time. Matches the hook-per-event-family pattern used above.
+
+export interface UseEscalationsOptions {
+  active: boolean;
+  onEscalated: (event: ChangeEscalatedEvent) => void;
+  eventSourceFactory?: (url: string) => EventSource;
+}
+
+export function useEscalations(options: UseEscalationsOptions): void {
+  const factoryRef = useRef(options.eventSourceFactory);
+  factoryRef.current = options.eventSourceFactory;
+  const callbackRef = useRef(options.onEscalated);
+  callbackRef.current = options.onEscalated;
+
+  useEffect(() => {
+    if (!options.active) return;
+    const url = `/v1/stream?token=${encodeURIComponent(DEMO_BEARER_TOKEN)}`;
+    const factory =
+      factoryRef.current ?? ((u: string) => new EventSource(u));
+    const es = factory(url);
+    const handle = (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data) as ChangeEscalatedEvent;
+        callbackRef.current(data);
+      } catch {
+        // ignore malformed
+      }
+    };
+    es.addEventListener("change.escalated", handle as EventListener);
+    return () => {
+      es.removeEventListener("change.escalated", handle as EventListener);
+      es.close();
+    };
+  }, [options.active]);
 }

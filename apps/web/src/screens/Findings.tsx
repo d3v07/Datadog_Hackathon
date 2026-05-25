@@ -11,6 +11,7 @@ import { FindingsFilters, type SeverityFilter } from "../components/findings/Fin
 import { FindingsStats } from "../components/findings/FindingsStats.js";
 import { FindingsTable } from "../components/findings/FindingsTable.js";
 import { FindingDrawer } from "../components/findings/FindingDrawer.js";
+import { LensChips } from "../components/LensChips.js";
 
 function readSearchParam(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -172,6 +173,8 @@ export function Findings(): JSX.Element {
           Every detected risk across vendors, in one place.
         </p>
       </header>
+
+      <LensChips />
 
       {!loading && !error && <FindingsStats findings={findings} />}
 

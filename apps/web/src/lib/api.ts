@@ -138,6 +138,26 @@ export function listInvoices(): Promise<{ invoices: BillingInvoice[] }> {
   return request<{ invoices: BillingInvoice[] }>("/v1/billing/invoices");
 }
 
+export async function downloadInvoicePdf(id: string): Promise<Blob> {
+  const resp = await fetch(`/v1/billing/invoices/${encodeURIComponent(id)}/pdf`, {
+    headers: { Authorization: `Bearer ${DEMO_BEARER_TOKEN}` },
+  });
+  if (!resp.ok) {
+    const text = await resp.text();
+    let envelope: ApiErrorEnvelope | undefined;
+    try {
+      envelope = text ? (JSON.parse(text) as ApiErrorEnvelope) : undefined;
+    } catch {
+      envelope = undefined;
+    }
+    if (envelope?.error) throw new ApiError(resp.status, envelope);
+    throw new ApiError(resp.status, {
+      error: { code: "internal", message: `Failed to download invoice ${id}` },
+    });
+  }
+  return resp.blob();
+}
+
 // Runbook F5 — dev-only fallback path. Server returns 404 in production.
 export function simulateSuccess(): Promise<{ ok: true; paymentIntentId: string }> {
   return request("/v1/billing/simulate-success", { method: "POST" });
@@ -196,6 +216,34 @@ export function uploadVendorContract(
     `/v1/vendors/${encodeURIComponent(id)}/contracts`,
     { method: "POST", body: JSON.stringify(body) },
   );
+}
+
+export async function downloadContract(
+  vendorId: string,
+  contractId: string,
+): Promise<Blob> {
+  const url = `/v1/vendors/${encodeURIComponent(vendorId)}/contracts/${encodeURIComponent(contractId)}/download`;
+  const resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${DEMO_BEARER_TOKEN}` },
+  });
+  if (!resp.ok) {
+    let envelope: ApiErrorEnvelope | undefined;
+    try {
+      envelope = (await resp.json()) as ApiErrorEnvelope;
+    } catch {
+      // Non-JSON body — fall through with a generic envelope below.
+    }
+    throw new ApiError(
+      resp.status,
+      envelope ?? {
+        error: {
+          code: "internal",
+          message: `Download failed with ${resp.status}`,
+        },
+      },
+    );
+  }
+  return resp.blob();
 }
 
 export interface VendorActivityEvent {

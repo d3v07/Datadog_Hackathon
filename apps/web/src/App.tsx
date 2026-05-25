@@ -4,7 +4,6 @@ import { SensoBrief } from "./screens/SensoBrief.js";
 import { Portfolio } from "./screens/Portfolio.js";
 import { ChangeReport } from "./screens/ChangeReport.js";
 import { Onboarding } from "./screens/Onboarding.js";
-import { LensChips } from "./components/LensChips.js";
 import { CommandPalette } from "./components/CommandPalette.js";
 import { Inbox } from "./screens/Inbox.js";
 import { VendorDetail } from "./screens/VendorDetail.js";
@@ -251,10 +250,6 @@ function TopBar({ activeNav }: TopBarProps): JSX.Element {
           </a>
         ))}
       </nav>
-
-      <div className="topbar-slot">
-        <LensChips />
-      </div>
 
       <button
         type="button"

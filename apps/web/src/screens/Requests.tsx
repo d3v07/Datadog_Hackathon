@@ -15,6 +15,7 @@ import type {
   StatusFilter,
 } from "../components/requests/types.js";
 import { useRole } from "../lib/role.js";
+import { LensChips } from "../components/LensChips.js";
 
 const STATUS_FILTERS: ReadonlyArray<{ key: StatusFilter; label: string }> = [
   { key: "pending", label: "Pending" },
@@ -161,15 +162,11 @@ export function Requests(): JSX.Element {
     (id: string) => runDecision(id, { status: "pending" }, "Request recalled"),
     [runDecision],
   );
-  // TODO: stretch. Portfolio doesn't yet read `?vendorName=&fromRequest=` to
-  // prefill the New Vendor drawer (apps/web/src/screens/Portfolio.tsx). For now
-  // we toast the user with a hint instead of routing them to a dead-end form.
-  const onConvert = useCallback(
-    (req: RequestDto) => {
-      showToast(`Open Vendors → New vendor and paste "${req.vendorName}" to convert.`);
-    },
-    [showToast],
-  );
+  // Full-page navigation: Portfolio parses ?fromRequest on mount, fetches the
+  // request, and pre-fills the New Vendor drawer.
+  const onConvert = useCallback((req: RequestDto) => {
+    window.location.href = `/app/vendors?newVendor=true&fromRequest=${encodeURIComponent(req.id)}`;
+  }, []);
   const onComment = useCallback(
     async (id: string, text: string) => {
       try {
@@ -231,6 +228,8 @@ export function Requests(): JSX.Element {
       {allItems.length > 0 && (
         <p className="lead" style={{ marginBottom: "var(--space-5)" }}>{buildLead(allItems)}</p>
       )}
+
+      <LensChips />
 
       <div
         role="tablist"

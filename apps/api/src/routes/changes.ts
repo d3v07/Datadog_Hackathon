@@ -244,6 +244,15 @@ export function createChangesRouter(deps: ChangesRouteDeps): Hono {
 
     await deps.reports.addEscalation(id, escalation);
 
+    deps.events.publish(auth.orgId, "change.escalated", {
+      id,
+      toRole,
+      byUserId: auth.userId,
+      at: escalation.escalatedAt,
+      slackChannel: escalation.slackChannel,
+      jiraKey: escalation.jiraKey,
+    });
+
     const response: EscalateChangeResponse = { id, escalation };
     return c.json(response);
   });

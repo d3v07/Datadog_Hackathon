@@ -6,6 +6,7 @@ import {
   type Report,
   type ReportCategory,
 } from "../lib/api.js";
+import { LensChips } from "../components/LensChips.js";
 
 const CATEGORY_LABEL: Record<ReportCategory, string> = {
   risk: "Risk",
@@ -260,6 +261,8 @@ export function Reports(): JSX.Element {
           Scheduled and on-demand evidence. Generate fresh bundles for auditors, finance, and leadership.
         </p>
       </header>
+
+      <LensChips />
 
       {loading && (
         <div className="card" style={{ padding: "var(--space-7)", textAlign: "center", color: "var(--text-muted)" }} aria-busy="true">

@@ -152,6 +152,18 @@ function matchesLens(record: IntakeRequestRecord, lens: string): boolean {
 
 export const requestsRoute = new Hono();
 
+requestsRoute.get("/:id", (c) => {
+  const auth = c.get("auth");
+  const id = c.req.param("id");
+  const record = requestsStore.get(id);
+  // requestsStore.get does not enforce orgId; verify here so we don't
+  // leak existence across orgs (404 either way, not 403).
+  if (!record || record.orgId !== auth.orgId) {
+    throw new ApiError(ErrorCodes.NotFound, `No request found with id ${id}`);
+  }
+  return c.json({ request: toDto(record) });
+});
+
 requestsRoute.get("/", (c) => {
   const auth = c.get("auth");
   const status = c.req.query("status") ?? "all";

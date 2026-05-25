@@ -33,6 +33,13 @@ export class ContractsStore {
     return (this.byVendor.get(vendorId) ?? []).map((r) => ({ ...r }));
   }
 
+  getById(vendorId: VendorId, contractId: string): ContractRecord | undefined {
+    const found = (this.byVendor.get(vendorId) ?? []).find(
+      (r) => r.id === contractId,
+    );
+    return found ? { ...found } : undefined;
+  }
+
   reset(): void {
     this.byVendor.clear();
     this.sequence = 0;

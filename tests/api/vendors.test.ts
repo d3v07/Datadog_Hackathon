@@ -253,4 +253,46 @@ describe("POST /v1/vendors/:id/contracts", () => {
     });
     expect(resp.status).toBe(422);
   });
+
+  it("downloads an uploaded contract as a binary blob", async () => {
+    const app = buildApp();
+    const original = "hello-world-contract-bytes";
+    const contentBase64 = Buffer.from(original, "utf8").toString("base64");
+
+    const uploadResp = await app.request("/v1/vendors/vnd_notion/contracts", {
+      method: "POST",
+      headers: { Authorization: BEARER, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: "MSA Notion 2026.pdf",
+        sizeBytes: original.length,
+        contentBase64,
+      }),
+    });
+    expect(uploadResp.status).toBe(201);
+    const upload = (await uploadResp.json()) as { id: string };
+
+    const downloadResp = await app.request(
+      `/v1/vendors/vnd_notion/contracts/${upload.id}/download`,
+      { headers: { Authorization: BEARER } },
+    );
+    expect(downloadResp.status).toBe(200);
+    expect(downloadResp.headers.get("content-type")).toBe("application/pdf");
+    const disposition = downloadResp.headers.get("content-disposition") ?? "";
+    expect(disposition).toMatch(/^attachment;/);
+    expect(disposition).toContain("MSA Notion 2026.pdf");
+    expect(downloadResp.headers.get("content-length")).toBe(
+      String(original.length),
+    );
+
+    const bodyBytes = new Uint8Array(await downloadResp.arrayBuffer());
+    expect(Buffer.from(bodyBytes).toString("utf8")).toBe(original);
+  });
+
+  it("returns 404 for an unknown contract id", async () => {
+    const resp = await buildApp().request(
+      "/v1/vendors/vnd_notion/contracts/ctr_999999/download",
+      { headers: { Authorization: BEARER } },
+    );
+    expect(resp.status).toBe(404);
+  });
 });

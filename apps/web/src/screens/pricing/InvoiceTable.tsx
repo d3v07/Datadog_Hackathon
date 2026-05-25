@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Download } from "lucide-react";
-import { listInvoices, type BillingInvoice } from "../../lib/api.js";
+import { Download, Loader2 } from "lucide-react";
+import { downloadInvoicePdf, listInvoices, type BillingInvoice } from "../../lib/api.js";
 
 const S = {
   section: {
@@ -62,6 +62,30 @@ export function InvoiceTable(): JSX.Element | null {
   const [invoices, setInvoices] = useState<BillingInvoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
+  const [downloadingId, setDownloadingId] = useState<string | undefined>();
+  const [downloadError, setDownloadError] = useState<string | undefined>();
+
+  async function handleDownload(inv: BillingInvoice): Promise<void> {
+    setDownloadingId(inv.id);
+    setDownloadError(undefined);
+    try {
+      const blob = await downloadInvoicePdf(inv.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `unsyphn-invoice-${inv.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setDownloadError(
+        err instanceof Error ? err.message : `Could not download ${inv.id}`,
+      );
+    } finally {
+      setDownloadingId(undefined);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -114,6 +138,14 @@ export function InvoiceTable(): JSX.Element | null {
         Total billed YTD:{" "}
         <span style={{ ...S.mono500, color: "var(--text-strong)" }}>{dollars(ytdCents)}</span>
       </p>
+      {downloadError ? (
+        <p
+          role="alert"
+          style={{ ...S.ytd, color: "var(--danger, #b91c1c)" }}
+        >
+          {downloadError}
+        </p>
+      ) : null}
       <div style={S.card}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
           <thead>
@@ -139,22 +171,36 @@ export function InvoiceTable(): JSX.Element | null {
                   <span style={S.badge}>{inv.status}</span>
                 </td>
                 <td style={{ ...S.td, textAlign: "right" }}>
-                  <a
-                    href={inv.pdfUrl}
-                    target="_blank"
-                    rel="noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(inv)}
+                    disabled={downloadingId === inv.id}
                     style={{
+                      background: "none",
+                      border: "none",
+                      cursor: downloadingId === inv.id ? "wait" : "pointer",
                       color: "var(--accent)",
-                      textDecoration: "none",
+                      padding: 0,
                       display: "inline-flex",
                       alignItems: "center",
                       gap: 6,
                       fontSize: "var(--text-sm)",
+                      fontFamily: "inherit",
                     }}
                     aria-label={`Download invoice ${inv.id}`}
+                    aria-busy={downloadingId === inv.id}
                   >
-                    <Download size={14} aria-hidden="true" /> PDF
-                  </a>
+                    {downloadingId === inv.id ? (
+                      <Loader2
+                        size={14}
+                        aria-hidden="true"
+                        style={{ animation: "spin 1s linear infinite" }}
+                      />
+                    ) : (
+                      <Download size={14} aria-hidden="true" />
+                    )}
+                    PDF
+                  </button>
                 </td>
               </tr>
             ))}

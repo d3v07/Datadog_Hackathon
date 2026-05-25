@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Vendor } from "@unsyphn/shared";
-import { Share2, AlertCircle } from "lucide-react";
+import { Share2, AlertCircle, Plus } from "lucide-react";
 import { useRole } from "../lib/role.js";
 import {
   ApiError,
@@ -10,12 +10,18 @@ import {
   patchVendor,
   type TeamMember,
 } from "../lib/api.js";
+import { getRequest } from "../components/requests/api.js";
 import { PortfolioStats } from "../components/portfolio/PortfolioStats.js";
 import { PortfolioFilters } from "../components/portfolio/PortfolioFilters.js";
 import { PortfolioVendorCard } from "../components/portfolio/PortfolioVendorCard.js";
 import { VendorTable } from "../components/portfolio/VendorTable.js";
 import { BulkActionBar } from "../components/portfolio/BulkActionBar.js";
 import { ShareAuditorDrawer } from "../components/portfolio/ShareAuditorDrawer.js";
+import {
+  NewVendorDrawer,
+  type NewVendorDrawerInitial,
+} from "../components/portfolio/NewVendorDrawer.js";
+import { Toast, type ToastState } from "../components/requests/Toast.js";
 import {
   RenegotiationResultsDrawer,
   type PacketResult,
@@ -33,6 +39,35 @@ import {
   applyFilters,
   type PortfolioFilterState,
 } from "../components/portfolio/types.js";
+import { LensChips } from "../components/LensChips.js";
+
+const REQUEST_CATEGORY_TO_VENDOR: Record<string, string> = {
+  productivity: "productivity",
+  communication: "communication",
+  analytics: "analytics",
+  security: "security",
+  observability: "observability",
+  devtools: "devtools",
+  infrastructure: "infrastructure",
+  data: "database",
+  compliance: "security",
+  contracts: "productivity",
+  dpa: "security",
+  payments: "payments",
+  spend: "productivity",
+};
+
+function mapRequestCategory(category: string): string {
+  return REQUEST_CATEGORY_TO_VENDOR[category.toLowerCase()] ?? "productivity";
+}
+
+function stripDrawerQueryParams(): void {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  url.searchParams.delete("newVendor");
+  url.searchParams.delete("fromRequest");
+  window.history.replaceState({}, "", url.toString());
+}
 
 const PAGE_STYLE = `
   .portfolio-card:hover .portfolio-card-check { opacity: 1; }
@@ -53,6 +88,10 @@ export function Portfolio(): JSX.Element {
   const [shareInitial, setShareInitial] = useState<ReadonlyArray<string>>([]);
   const [packetsOpen, setPacketsOpen] = useState(false);
   const [packetResults, setPacketResults] = useState<PacketResult[]>([]);
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [addInitial, setAddInitial] = useState<NewVendorDrawerInitial | undefined>(undefined);
+  const [toast, setToast] = useState<ToastState | null>(null);
 
   // Debounced URL sync (200ms) — deep links work, navigation feels instant.
   const writeRef = useRef<number | null>(null);
@@ -100,6 +139,65 @@ export function Portfolio(): JSX.Element {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  // Parse ?newVendor / ?fromRequest on mount to open the drawer with prefill.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const fromRequestId = params.get("fromRequest");
+    const wantsNew = params.get("newVendor") === "true";
+    if (fromRequestId) {
+      let cancelled = false;
+      getRequest(fromRequestId)
+        .then((req) => {
+          if (cancelled) return;
+          setAddInitial({
+            name: req.vendorName,
+            category: mapRequestCategory(req.category),
+            annualSpendUsd: req.expectedSpendUsd,
+            notes: req.justification,
+          });
+          setAddOpen(true);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          // Request not found — still open the drawer empty so the user can
+          // proceed instead of getting stranded with a stale URL.
+          setAddInitial(undefined);
+          setAddOpen(true);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
+    if (wantsNew) {
+      setAddInitial(undefined);
+      setAddOpen(true);
+    }
+    return undefined;
+  }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = window.setTimeout(() => setToast(null), 3000);
+    return () => window.clearTimeout(t);
+  }, [toast]);
+
+  const handleAddClose = useCallback(() => {
+    setAddOpen(false);
+    setAddInitial(undefined);
+    stripDrawerQueryParams();
+  }, []);
+
+  const handleVendorCreated = useCallback((vendorId: string) => {
+    setAddOpen(false);
+    setAddInitial(undefined);
+    stripDrawerQueryParams();
+    setToast({ message: "Vendor added", variant: "success" });
+    window.setTimeout(() => {
+      window.location.href = `/app/vendors/${encodeURIComponent(vendorId)}`;
+    }, 250);
   }, []);
 
   const ownerMap = useMemo(() => {
@@ -245,6 +343,29 @@ export function Portfolio(): JSX.Element {
           <ViewToggle view={filters.view} onChange={(v) => setFilters({ ...filters, view: v })} />
           <button
             type="button"
+            onClick={() => {
+              setAddInitial(undefined);
+              setAddOpen(true);
+            }}
+            aria-label="Add a new vendor"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "9px 14px",
+              fontSize: 13,
+              fontWeight: 600,
+              background: "#ffffff",
+              color: "#0f172a",
+              border: "1px solid rgba(15,23,42,0.12)",
+              borderRadius: 8,
+              cursor: "pointer",
+            }}
+          >
+            <Plus size={14} aria-hidden="true" /> Add vendor
+          </button>
+          <button
+            type="button"
             onClick={() => handleShareWithAuditor([])}
             style={{
               display: "inline-flex",
@@ -265,6 +386,8 @@ export function Portfolio(): JSX.Element {
           </button>
         </div>
       </header>
+
+      <LensChips />
 
       <PortfolioStats vendors={vendors ?? []} />
 
@@ -345,11 +468,20 @@ export function Portfolio(): JSX.Element {
         vendors={vendors ?? []}
         initiallySelected={shareInitial}
       />
+      <NewVendorDrawer
+        open={addOpen}
+        onClose={handleAddClose}
+        onCreated={handleVendorCreated}
+        members={members}
+        categoryOptions={categoryOptions}
+        initial={addInitial}
+      />
       <RenegotiationResultsDrawer
         open={packetsOpen}
         onClose={() => setPacketsOpen(false)}
         results={packetResults}
       />
+      {toast && <Toast message={toast.message} variant={toast.variant} />}
     </div>
   );
 }

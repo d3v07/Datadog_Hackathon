@@ -393,6 +393,16 @@ export const streamEventSchemas = {
       by: z.string().min(1),
     })
     .strict(),
+  "change.escalated": z
+    .object({
+      id: z.string().min(1),
+      toRole: lensSchema,
+      byUserId: z.string().min(1),
+      at: iso8601Schema,
+      slackChannel: z.string().min(1),
+      jiraKey: z.string().min(1),
+    })
+    .strict(),
   "org.entitlements.changed": z
     .object({
       compliancePack: z.boolean(),

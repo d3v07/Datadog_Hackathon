@@ -46,6 +46,22 @@ const ContractUploadSchema = z.object({
 
 const MAX_CONTRACT_BYTES = 10_000_000;
 
+function contentTypeForFilename(filename: string): string {
+  const ext = filename.toLowerCase().match(/\.[a-z0-9]+$/)?.[0];
+  switch (ext) {
+    case ".pdf":
+      return "application/pdf";
+    case ".docx":
+      return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    case ".doc":
+      return "application/msword";
+    case ".txt":
+      return "text/plain";
+    default:
+      return "application/octet-stream";
+  }
+}
+
 export interface VendorsRouteOverrides {
   discovery?: DiscoveryOptions;
   stubRunner?: { stageDelayMs?: number };
@@ -333,6 +349,44 @@ export function createVendorsRouter(deps: { reports?: ChangeReportRepository } =
       },
       201,
     );
+  });
+
+  // GET /v1/vendors/:id/contracts/:contractId/download — stream the original
+  // file back as a binary download. Filename drives Content-Type via extension.
+  router.get("/:id/contracts/:contractId/download", (c) => {
+    const orgId = c.get("orgId");
+    const id = c.req.param("id");
+    const contractId = c.req.param("contractId");
+
+    const vendor = vendorStore.get(id);
+    if (!vendor || vendor.orgId !== orgId) {
+      throw new ApiError(ErrorCodes.NotFound, `Vendor ${id} not in org`);
+    }
+
+    const record = contractsStore.getById(id, contractId);
+    if (!record) {
+      throw new ApiError(
+        ErrorCodes.NotFound,
+        `Contract ${contractId} not found for vendor ${id}`,
+      );
+    }
+
+    const buf = Buffer.from(record.contentBase64, "base64");
+    // Copy into a fresh ArrayBuffer-backed Uint8Array — Buffer's underlying
+    // SharedArrayBuffer doesn't satisfy Hono's `Uint8Array<ArrayBuffer>` type.
+    const bytes = new Uint8Array(new ArrayBuffer(buf.byteLength));
+    bytes.set(buf);
+
+    const contentType = contentTypeForFilename(record.filename);
+    // RFC 5987 — quote ASCII fallback and add filename* for non-ASCII.
+    const ascii = record.filename.replace(/[^\x20-\x7E]/g, "_");
+    const encoded = encodeURIComponent(record.filename);
+    const disposition = `attachment; filename="${ascii.replace(/"/g, '\\"')}"; filename*=UTF-8''${encoded}`;
+
+    c.header("Content-Type", contentType);
+    c.header("Content-Disposition", disposition);
+    c.header("Content-Length", String(bytes.byteLength));
+    return c.body(bytes);
   });
 
   // GET /v1/vendors/:id/activity — unified audit log for the vendor.

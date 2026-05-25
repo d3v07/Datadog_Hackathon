@@ -303,6 +303,7 @@ export type StreamEventName =
   | "change.detected"
   | "action.delivered"
   | "change.stateChanged"
+  | "change.escalated"
   | "org.entitlements.changed";
 
 export interface SchedulerTickEvent {
@@ -343,6 +344,15 @@ export interface ActionDeliveredEvent {
   externalId?: string;
 }
 
+export interface ChangeEscalatedEvent {
+  id: ChangeReportId | string;
+  toRole: Lens;
+  byUserId: UserId | string;
+  at: Iso8601;
+  slackChannel: string;
+  jiraKey: string;
+}
+
 export interface OrgEntitlementsChangedEvent {
   compliancePack: boolean;
   auditorPortal?: boolean;
@@ -358,6 +368,7 @@ export interface StreamEventDataMap {
   "change.detected": ChangeDetectedEvent;
   "action.delivered": ActionDeliveredEvent;
   "change.stateChanged": ChangeStateChangedEvent;
+  "change.escalated": ChangeEscalatedEvent;
   "org.entitlements.changed": OrgEntitlementsChangedEvent;
 }
 

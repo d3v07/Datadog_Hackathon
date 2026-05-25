@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FileText, Upload, X } from "lucide-react";
+import { Download, FileText, Loader2, Upload, X } from "lucide-react";
 import type { Vendor } from "@unsyphn/shared";
 import {
   ApiError,
+  downloadContract,
   listVendorContracts,
   uploadVendorContract,
   type ContractSummary,
@@ -72,6 +73,7 @@ function pickClauses(vendorId: string): typeof CLAUSE_TEMPLATES {
 export function ContractsTab({ vendor, onUploadComplete, onError }: Props): JSX.Element {
   const [contracts, setContracts] = useState<ContractSummary[] | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [clauseDrawerFor, setClauseDrawerFor] = useState<ContractSummary | null>(null);
   const fileInput = useRef<HTMLInputElement | null>(null);
 
@@ -112,6 +114,27 @@ export function ContractsTab({ vendor, onUploadComplete, onError }: Props): JSX.
   function onChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const f = e.target.files?.[0];
     if (f) void handleFile(f);
+  }
+
+  async function handleDownload(c: ContractSummary): Promise<void> {
+    setDownloadingId(c.id);
+    let objectUrl: string | null = null;
+    try {
+      const blob = await downloadContract(vendor.id, c.id);
+      objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = c.filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      if (err instanceof ApiError) onError(err.message);
+      else onError("Download failed. Try again.");
+    } finally {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      setDownloadingId(null);
+    }
   }
 
   const clauses = clauseDrawerFor ? pickClauses(vendor.id + clauseDrawerFor.id) : [];
@@ -161,15 +184,21 @@ export function ContractsTab({ vendor, onUploadComplete, onError }: Props): JSX.
                 <button type="button" className="btn btn-ghost" onClick={() => setClauseDrawerFor(c)} style={{ fontSize: "var(--text-xs)" }}>
                   View clauses
                 </button>
-                <a
+                <button
+                  type="button"
                   className="btn btn-ghost"
-                  href={`/v1/vendors/${encodeURIComponent(vendor.id)}/contracts`}
-                  style={{ fontSize: "var(--text-xs)", pointerEvents: "none", opacity: 0.5 }}
-                  aria-disabled
-                  title="Download stubbed for the demo"
+                  onClick={() => void handleDownload(c)}
+                  disabled={downloadingId === c.id}
+                  aria-label={`Download ${c.filename}`}
+                  style={{ fontSize: "var(--text-xs)", display: "inline-flex", alignItems: "center", gap: 6 }}
                 >
-                  Download
-                </a>
+                  {downloadingId === c.id ? (
+                    <Loader2 size={13} aria-hidden="true" className="spin" />
+                  ) : (
+                    <Download size={13} aria-hidden="true" />
+                  )}
+                  {downloadingId === c.id ? "Downloading…" : "Download"}
+                </button>
               </li>
             ))}
           </ul>

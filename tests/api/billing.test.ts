@@ -220,3 +220,46 @@ describe("GET /v1/billing/invoices", () => {
     }
   });
 });
+
+describe("GET /v1/billing/invoices/:id/pdf", () => {
+  it("returns a real PDF with the right headers", async () => {
+    const app = buildApp();
+    const list = (await (
+      await app.request("/v1/billing/invoices", {
+        headers: { Authorization: BEARER },
+      })
+    ).json()) as { invoices: Array<{ id: string }> };
+    const firstId = list.invoices[0]?.id;
+    expect(firstId).toBeDefined();
+
+    const resp = await app.request(`/v1/billing/invoices/${firstId}/pdf`, {
+      headers: { Authorization: BEARER },
+    });
+    expect(resp.status).toBe(200);
+    expect(resp.headers.get("content-type")).toBe("application/pdf");
+    expect(resp.headers.get("content-disposition")).toContain(
+      'filename="unsyphn-invoice-',
+    );
+    expect(resp.headers.get("content-disposition")).toContain(`${firstId}.pdf"`);
+    const contentLength = Number(resp.headers.get("content-length"));
+    expect(contentLength).toBeGreaterThan(0);
+
+    const ab = await resp.arrayBuffer();
+    const bytes = new Uint8Array(ab);
+    expect(bytes.byteLength).toBe(contentLength);
+    expect(bytes.byteLength).toBeGreaterThan(500);
+    // PDF magic header: "%PDF-1." (0x25 0x50 0x44 0x46 0x2D 0x31 0x2E)
+    const head = new TextDecoder().decode(bytes.slice(0, 7));
+    expect(head).toBe("%PDF-1.");
+  });
+
+  it("returns 404 for an unknown invoice id", async () => {
+    const resp = await buildApp().request(
+      "/v1/billing/invoices/INV-9999-13/pdf",
+      { headers: { Authorization: BEARER } },
+    );
+    expect(resp.status).toBe(404);
+    const body = (await resp.json()) as { error: { code: string } };
+    expect(body.error.code).toBe("not-found");
+  });
+});

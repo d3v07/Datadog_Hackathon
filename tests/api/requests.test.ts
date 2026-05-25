@@ -83,6 +83,29 @@ describe("GET /v1/requests", () => {
   });
 });
 
+describe("GET /v1/requests/:id", () => {
+  it("returns one request denormalized with comments and requesterName", async () => {
+    const resp = await buildApp().request("/v1/requests/req_loom", authedJson());
+    expect(resp.status).toBe(200);
+    const body = (await resp.json()) as SingleResponse;
+    expect(body.request.id).toBe("req_loom");
+    expect(body.request.vendorName).toBe("Loom");
+    expect(body.request.requesterName).toBe("Jordan Wells");
+    expect(body.request.status).toBe("approved");
+    expect(body.request.comments.length).toBeGreaterThan(0);
+  });
+
+  it("404s on unknown id", async () => {
+    const resp = await buildApp().request("/v1/requests/req_nope", authedJson());
+    expect(resp.status).toBe(404);
+  });
+
+  it("rejects unauthenticated callers with 401", async () => {
+    const resp = await buildApp().request("/v1/requests/req_loom");
+    expect(resp.status).toBe(401);
+  });
+});
+
 describe("POST /v1/requests", () => {
   it("creates a pending request and returns the DTO with names", async () => {
     const resp = await buildApp().request(

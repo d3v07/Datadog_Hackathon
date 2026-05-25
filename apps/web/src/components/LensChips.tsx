@@ -3,35 +3,47 @@ import { ROLES, ROLE_LABELS, useRole } from "../lib/role.js";
 import type { Role } from "../lib/role.js";
 
 const CHIP_STYLES = `
+.lens-chips-bar {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin: 16px 0 24px;
+  flex-wrap: wrap;
+}
 .lens-chip {
-  height: 28px;
   display: inline-flex;
   align-items: center;
-  padding: 0 var(--space-3);
+  padding: 7px 14px;
   border-radius: 9999px;
   border: none;
   cursor: pointer;
   font-family: var(--font-text);
-  font-size: var(--text-sm);
+  font-size: 13.5px;
   font-weight: 500;
   background: transparent;
-  color: var(--text-2);
+  color: #475569;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
   white-space: nowrap;
+  line-height: 1;
 }
 .lens-chip:hover {
-  background: var(--surface-2);
+  background: #f1f5f9;
 }
 .lens-chip:focus-visible {
   outline: none;
   box-shadow: var(--ring-focus);
 }
 .lens-chip-active {
-  background: var(--accent);
-  color: #fff;
+  background: #5E6AD2;
+  color: #ffffff;
 }
 .lens-chip-active:hover {
-  background: var(--accent-hover);
+  background: #5E6AD2;
+}
+@media (max-width: 640px) {
+  .lens-chips-bar {
+    margin: 12px 0 20px;
+  }
 }
 `;
 
@@ -58,7 +70,7 @@ export function LensChips(): JSX.Element {
         ref={containerRef}
         role="tablist"
         aria-label="Role lens"
-        style={{ display: "flex", gap: "var(--space-1)", alignItems: "center" }}
+        className="lens-chips-bar"
       >
         {ROLES.map((r, index) => (
           <button

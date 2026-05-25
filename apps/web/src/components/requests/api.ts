@@ -88,6 +88,13 @@ export async function decideRequest(id: string, body: DecisionBody): Promise<Req
   return data.request;
 }
 
+export async function getRequest(id: string): Promise<RequestDto> {
+  const data = await send<RequestSingleResponse>(
+    `/v1/requests/${encodeURIComponent(id)}`,
+  );
+  return data.request;
+}
+
 export async function addRequestComment(id: string, text: string): Promise<RequestDto> {
   const data = await send<RequestSingleResponse>(
     `/v1/requests/${encodeURIComponent(id)}/comments`,

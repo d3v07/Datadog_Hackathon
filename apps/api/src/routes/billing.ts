@@ -13,8 +13,48 @@ import { newId } from "../lib/ids.js";
 import { actionStore } from "../db/actions.js";
 import { setEntitlement } from "../lib/entitlements.js";
 import { applyCoupon } from "../lib/coupons.js";
+import { generateInvoicePdf, type InvoiceForPdf } from "../lib/invoice-pdf.js";
 
 export const billingRoute = new Hono();
+
+export interface SyntheticInvoice {
+  id: string;
+  period: string;
+  amountUsdCents: number;
+  status: string;
+  issuedAt: string;
+  pdfUrl: string;
+  plan: string;
+  paymentIntentId: string;
+  paidAt: string;
+}
+
+// Synthetic invoice history. Deterministic per (orgId, current month) so the
+// list endpoint and the by-id lookup agree within a request. A real
+// implementation would page through Stripe invoices for the org's customer id.
+function buildInvoices(orgId: string, now: Date = new Date()): SyntheticInvoice[] {
+  return Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const period = d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    const id = `INV-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const paidAt = new Date(d.getFullYear(), d.getMonth(), 3).toISOString();
+    return {
+      id,
+      period,
+      amountUsdCents: i === 5 ? 150_000 : 1_899_900,
+      status: "paid",
+      issuedAt: d.toISOString(),
+      pdfUrl: `/v1/billing/invoices/${id}/pdf`,
+      plan: i === 5 ? "Growth" : "Scale",
+      paymentIntentId: `pi_demo_${orgId}_${id}`,
+      paidAt,
+    };
+  });
+}
+
+export function getInvoiceById(orgId: string, id: string): SyntheticInvoice | undefined {
+  return buildInvoices(orgId).find((inv) => inv.id === id);
+}
 
 // Phase 8: in addition to the original Compliance Pack, the public Pricing
 // page now subscribes to the tier SKUs. Prices below are the monthly billed
@@ -148,23 +188,51 @@ billingRoute.get("/coupons/:code", (c) => {
 });
 
 billingRoute.get("/invoices", (c) => {
-  // Demo: synthetic invoice history. A real implementation would page through
-  // Stripe invoices for the org's customer id.
-  const now = new Date();
-  const invoices = Array.from({ length: 6 }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const period = d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-    const id = `INV-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    return {
-      id,
-      period,
-      amountUsdCents: i === 5 ? 150_000 : 1_899_900,
-      status: "paid",
-      issuedAt: d.toISOString(),
-      pdfUrl: `/v1/billing/invoices/${id}/pdf`,
-    };
-  });
+  const orgId = c.get("orgId");
+  const invoices = buildInvoices(orgId).map(
+    ({ plan: _plan, paymentIntentId: _pi, paidAt: _pa, ...rest }) => rest,
+  );
   return c.json({ invoices });
+});
+
+billingRoute.get("/invoices/:id/pdf", async (c) => {
+  const orgId = c.get("orgId");
+  const org = getOrg(orgId);
+  if (!org) throw new ApiError(ErrorCodes.NotFound, `Org ${orgId} not found`);
+
+  const invoice = getInvoiceById(orgId, c.req.param("id"));
+  if (!invoice) throw new ApiError(ErrorCodes.NotFound, "Invoice not found");
+
+  const pdfPayload: InvoiceForPdf = {
+    id: invoice.id,
+    period: invoice.period,
+    amountUsdCents: invoice.amountUsdCents,
+    status: invoice.status,
+    issuedAt: invoice.issuedAt,
+    plan: invoice.plan,
+    paymentIntentId: invoice.paymentIntentId,
+    paidAt: invoice.paidAt,
+  };
+  const buffer = await generateInvoicePdf({
+    invoice: pdfPayload,
+    org: {
+      name: org.name,
+      ...(org.seatCount !== undefined ? { seatCount: org.seatCount } : {}),
+      billingEmail: `billing@${org.name.toLowerCase().replace(/[^a-z0-9]+/g, "")}.example`,
+    },
+  });
+
+  // Hono's c.body wants Uint8Array<ArrayBuffer>; Node Buffer is
+  // Uint8Array<ArrayBufferLike>, so copy into a fresh ArrayBuffer-backed view.
+  const body = new Uint8Array(buffer.byteLength);
+  body.set(buffer);
+  c.header("Content-Type", "application/pdf");
+  c.header(
+    "Content-Disposition",
+    `attachment; filename="unsyphn-invoice-${invoice.id}.pdf"`,
+  );
+  c.header("Content-Length", String(body.byteLength));
+  return c.body(body);
 });
 
 // Runbook F5 fallback: when Stripe Elements fails on stage, the modal's hidden

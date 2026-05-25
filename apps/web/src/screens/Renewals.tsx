@@ -14,6 +14,7 @@ import { ClosedSection } from "../components/renewals/ClosedSection.js";
 import { Workbench } from "../components/renewals/Workbench.js";
 import { downloadIcs } from "../components/renewals/ics.js";
 import { RenegotiationPacket } from "../components/RenegotiationPacket.js";
+import { LensChips } from "../components/LensChips.js";
 
 type Window = 30 | 60 | 90 | 365;
 
@@ -273,6 +274,8 @@ export function Renewals(): JSX.Element {
           Export to calendar
         </button>
       </header>
+
+      <LensChips />
 
       <div
         role="group"
