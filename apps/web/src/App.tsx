@@ -96,6 +96,8 @@ export function App(): JSX.Element | null {
 
   if (pathname === "/pricing") return <Pricing />;
   if (pathname === "/trust") return <TrustCenter />;
+  const auditorMatch = pathname.match(/^\/auditor\/([^/?#]+)\/?$/);
+  if (auditorMatch?.[1]) return <AuditorMode sessionToken={auditorMatch[1]} />;
   if (!inApp) return null;
 
   const evidenceId = parseEvidenceId(pathname);

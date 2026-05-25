@@ -283,6 +283,7 @@ export function Inbox(): JSX.Element {
             key={value}
             type="button"
             onClick={() => setFilter(value)}
+            aria-pressed={filter === value}
             className={filter === value ? "badge badge-accent" : "badge badge-neutral"}
             style={{ cursor: "pointer", border: "none" }}
           >
@@ -336,7 +337,6 @@ export function Inbox(): JSX.Element {
         style={{ padding: 0, overflow: "hidden" }}
         role="list"
         aria-label="Inbox items"
-        aria-live="polite"
         aria-busy={loading}
       >
         {loading && Array.from({ length: 6 }, (_, i) => <SkeletonRow key={i} />)}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Copy, Mail, FileText } from "lucide-react";
 import { DEMO_BEARER_TOKEN } from "../lib/api.js";
@@ -71,7 +71,7 @@ export function RenegotiationPacket({ vendorId, open, onClose }: Props): JSX.Ele
   const [editedSubject, setEditedSubject] = useState("");
   const [editedBody, setEditedBody] = useState("");
   const [toast, setToast] = useState<string | null>(null);
-  const panelRef = { current: null as HTMLDivElement | null };
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
