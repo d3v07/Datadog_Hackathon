@@ -333,18 +333,33 @@ h1.title em{
     inset 0 0 0 1px rgba(255,255,255,0.9),
     inset 0 -24px 60px rgba(15,23,42,0.04);
   opacity: 1;
-  display:grid;
-  place-items:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap: calc(var(--S, 420px) * 0.025);
   overflow:hidden;
 }
-/* the brand mark sits centered on each face, behind the tiles.
-   tiles fly away on scroll → mark gradually reveals. */
+/* brand mark + wordmark sit centered on each face, behind the tiles.
+   tiles fly away on scroll → both elements gradually reveal. */
 .face .face-logo{
-  width: 64%;
-  height: 64%;
+  width: 54%;
+  height: auto;
+  max-height: 52%;
   object-fit: contain;
   opacity: 0.95;
   filter: drop-shadow(0 2px 6px rgba(99, 91, 255, 0.12));
+  pointer-events:none;
+  user-select:none;
+}
+.face .face-wordmark{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(var(--S, 420px) * 0.085);
+  letter-spacing: 0.18em;
+  color: #0f172a;
+  text-align: center;
+  line-height: 1;
   pointer-events:none;
   user-select:none;
 }
@@ -734,8 +749,8 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
     return isFinite(v) && v > 0 ? v : 420;
   }
 
-  // create face backdrops with the brand mark centered behind the tiles —
-  // as tiles disperse on scroll, the logo emerges.
+  // create face backdrops with the brand mark + wordmark centered behind the tiles —
+  // as tiles disperse on scroll, the logo and the UNSYPHN wordmark emerge.
   FACES.forEach(([cls, N, R, U], fi)=>{
     const f = document.createElement('div');
     f.className = 'face ' + cls;
@@ -747,6 +762,11 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
     logo.setAttribute('aria-hidden', 'true');
     logo.loading = 'lazy';
     f.appendChild(logo);
+    const wordmark = document.createElement('div');
+    wordmark.className = 'face-wordmark';
+    wordmark.textContent = 'UNSYPHN';
+    wordmark.setAttribute('aria-hidden', 'true');
+    f.appendChild(wordmark);
     cube.appendChild(f);
   });
 
@@ -840,10 +860,10 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
         `rotateX(${t.baseRx}deg) rotateY(${t.baseRy}deg) ` +
         `rotateX(${sxR.toFixed(2)}deg) rotateY(${syR.toFixed(2)}deg) rotateZ(${szR.toFixed(2)}deg)`;
     }
-    // face stays solid white — as tiles fly off, the centered brand mark is revealed.
-    // the .face-logo opacity ramps from 0.55 → 1 to make the reveal feel intentional.
-    const logoOpacity = (0.55 + sp * 0.45).toFixed(3);
-    document.querySelectorAll('.face-logo').forEach(l => l.style.opacity = logoOpacity);
+    // face stays solid white — as tiles fly off, the centered brand mark + wordmark reveal.
+    // opacity ramps 0.55 → 1 to make the reveal feel intentional.
+    const brandOpacity = (0.55 + sp * 0.45).toFixed(3);
+    document.querySelectorAll('.face-logo, .face-wordmark').forEach(l => l.style.opacity = brandOpacity);
   }
 
   computeSizing();
