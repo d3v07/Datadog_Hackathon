@@ -666,25 +666,27 @@ body[data-density="marks"]   .tile > svg.tile-svg { display:none; }
 
   // 54 SaaS vendor logos — Simple Icons CDN, served in each brand's official hex color.
   // [slug, brand-hex] tuples → https://cdn.simpleicons.org/{slug}/{hex}
+  // Trademark-blocked brands (Slack/MS/Adobe/Salesforce/AWS/Segment/Amplitude/Docusign/Monday)
+  // are swapped for working B2B SaaS slugs of similar category.
   const VENDOR_LOGOS = [
-    ['notion','000000'],          ['slack','4A154B'],            ['figma','F24E1E'],
-    ['microsoftoffice','D83B01'], ['salesforce','00A1E0'],       ['stripe','635BFF'],
-    ['datadog','632CA6'],         ['github','181717'],           ['amazonaws','FF9900'],
-    ['googlecloud','4285F4'],     ['vercel','000000'],           ['linear','5E6AD2'],
-    ['jira','0052CC'],            ['atlassian','0052CC'],        ['asana','F06A6A'],
-    ['mondaydotcom','FF3D57'],    ['hubspot','FF7A59'],          ['mailchimp','FFE01B'],
-    ['intercom','0057FF'],        ['zendesk','03363D'],          ['segment','52BD95'],
-    ['mixpanel','7856FF'],        ['amplitude','1E61F0'],        ['posthog','1D4AFF'],
-    ['zoom','0B5CFF'],            ['googlecalendar','4285F4'],   ['gmail','EA4335'],
-    ['microsoftoutlook','0078D4'],['microsoftteams','6264A7'],   ['dropbox','0061FF'],
-    ['box','0061D5'],             ['googledrive','4285F4'],      ['adobeacrobatreader','EC1C24'],
-    ['adobephotoshop','31A8FF'],  ['adobeillustrator','FF9A00'], ['sketch','F7B500'],
-    ['framer','0055FF'],          ['miro','FFD02F'],             ['loom','625DF5'],
-    ['calendly','006BFF'],        ['docusign','000000'],         ['brex','D9A227'],
-    ['okta','007DC1'],            ['auth0','EB5424'],            ['1password','0572EC'],
-    ['lastpass','D32D27'],        ['bitwarden','175DDC'],        ['snowflake','29B5E8'],
-    ['mongodb','47A248'],         ['postgresql','4169E1'],       ['redis','DC382D'],
-    ['sentry','362D59'],          ['pagerduty','06AC38'],        ['airtable','FCB400']
+    ['notion','000000'],         ['discord','5865F2'],         ['figma','F24E1E'],
+    ['clickup','7B68EE'],        ['trello','0079BF'],          ['stripe','635BFF'],
+    ['datadog','632CA6'],        ['github','181717'],          ['cloudflare','F38020'],
+    ['googlecloud','4285F4'],    ['vercel','000000'],          ['linear','5E6AD2'],
+    ['jira','0052CC'],           ['atlassian','0052CC'],       ['asana','F06A6A'],
+    ['basecamp','1D2D35'],       ['hubspot','FF7A59'],         ['mailchimp','FFE01B'],
+    ['intercom','0057FF'],       ['zendesk','03363D'],         ['retool','3D3D3D'],
+    ['mixpanel','7856FF'],       ['grafana','F46800'],         ['posthog','1D4AFF'],
+    ['zoom','0B5CFF'],           ['googlecalendar','4285F4'],  ['gmail','EA4335'],
+    ['zapier','FF4A00'],         ['make','6D00CC'],            ['dropbox','0061FF'],
+    ['box','0061D5'],            ['googledrive','4285F4'],     ['ifttt','000000'],
+    ['supabase','3FCF8E'],       ['planetscale','000000'],     ['sketch','F7B500'],
+    ['framer','0055FF'],         ['miro','FFD02F'],            ['loom','625DF5'],
+    ['calendly','006BFF'],       ['shopify','7AB55C'],         ['brex','D9A227'],
+    ['okta','007DC1'],           ['auth0','EB5424'],           ['1password','0572EC'],
+    ['lastpass','D32D27'],       ['bitwarden','175DDC'],       ['snowflake','29B5E8'],
+    ['mongodb','47A248'],        ['postgresql','4169E1'],      ['redis','DC382D'],
+    ['sentry','362D59'],         ['pagerduty','06AC38'],       ['airtable','FCB400']
   ];
 
   // helper: cube edge size in px (set on init + resize)
