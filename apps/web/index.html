@@ -123,6 +123,17 @@ body{
 .nav .cta:hover{background:#1e293b;transform:translateY(-1px)}
 
 /* ─────────────────────────────────────────────
+   AMBIENT DOTS — slow-drifting halftone field
+   ───────────────────────────────────────────── */
+#ambient-dots{
+  position:fixed;inset:0;
+  width:100vw;height:100vh;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.30;
+}
+
+/* ─────────────────────────────────────────────
    CURSOR TRAIL — dots that echo the brand mark
    ───────────────────────────────────────────── */
 #cursor-trail{
@@ -133,7 +144,7 @@ body{
   opacity:0.45;
 }
 @media (prefers-reduced-motion: reduce){
-  #cursor-trail{display:none}
+  #cursor-trail,#ambient-dots{display:none}
 }
 
 /* ─────────────────────────────────────────────
@@ -619,6 +630,7 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
   <a href="/app/" class="cta">Get access →</a>
 </nav>
 
+<canvas id="ambient-dots" aria-hidden="true"></canvas>
 <canvas id="cursor-trail" aria-hidden="true"></canvas>
 
 <main>
@@ -970,6 +982,91 @@ html.spa-route,html.spa-route body{min-height:auto!important;overflow:auto!impor
   if(!reduced){
     requestAnimationFrame(frame);
   }
+})();
+
+/* ─────────────────────────────────────────────
+   AMBIENT DOTS — slow-drifting halftone field
+   inspired by the brand mark, layered behind everything
+   ───────────────────────────────────────────── */
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var canvas = document.getElementById('ambient-dots');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+
+  // brand-mark palette (purple → blue) — same as cursor trail for cohesion
+  var palette = ['#2E0F88','#3B1AAE','#5B36D6','#6E4DEA','#7855F0','#5E6AD2','#5B8AF0','#2BCAE8','#4FB8C9'];
+
+  var dots = [];
+  // density per million pixels of viewport — ~110 dots on a 1440x900 screen
+  var DENSITY = 85e-6;
+
+  function rebuild(){
+    canvas.width  = window.innerWidth  * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width  = window.innerWidth  + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    var w = window.innerWidth, h = window.innerHeight;
+    var count = Math.max(40, Math.round(w * h * DENSITY));
+    dots = new Array(count);
+    for (var i = 0; i < count; i++){
+      // slow drift — 6–18 px/sec
+      var angle = Math.random() * Math.PI * 2;
+      var speed = 0.006 + Math.random() * 0.012;  // px per ms
+      dots[i] = {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 1.2 + Math.random() * 2.8,           // 1.2 – 4 px
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color: palette[(Math.random() * palette.length) | 0],
+        // each dot has its own twinkle phase for a soft alpha ripple
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: 0.0008 + Math.random() * 0.0014,  // rad per ms
+      };
+    }
+  }
+  rebuild();
+  // re-seed on resize so density stays consistent
+  var rt;
+  window.addEventListener('resize', function(){
+    clearTimeout(rt);
+    rt = setTimeout(rebuild, 180);
+  });
+
+  var prev = performance.now();
+  function tick(now){
+    var dt = now - prev; prev = now;
+    var w = window.innerWidth, h = window.innerHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < dots.length; i++){
+      var d = dots[i];
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+      // wrap to opposite edge (with small margin so they don't pop)
+      if (d.x < -8) d.x = w + 8;
+      else if (d.x > w + 8) d.x = -8;
+      if (d.y < -8) d.y = h + 8;
+      else if (d.y > h + 8) d.y = -8;
+
+      d.twinkle += d.twinkleSpeed * dt;
+      // alpha oscillates 0.45 – 1.0 — combined with canvas opacity 0.30, this gives
+      // a real-world feel of dots fading in and out across the field
+      var alpha = 0.7 + Math.sin(d.twinkle) * 0.28;
+
+      ctx.beginPath();
+      ctx.fillStyle = d.color;
+      ctx.globalAlpha = alpha;
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 })();
 
 /* ─────────────────────────────────────────────
